@@ -51,14 +51,21 @@ export function EmailOtpForm({ source, nextPath }: EmailOtpFormProps) {
     setBusy(true); setError(''); setMessage('');
     try {
       const supabase = createClient();
+      const callbackUrl = new URL('/auth/callback', window.location.origin);
+      callbackUrl.searchParams.set('next', nextPath);
+      callbackUrl.searchParams.set('source', source);
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email: normalizedEmail,
-        options: { shouldCreateUser: true, data: { login_source: source } },
+        options: {
+          shouldCreateUser: true,
+          data: { login_source: source },
+          emailRedirectTo: callbackUrl.toString(),
+        },
       });
       if (otpError) throw otpError;
       setEmail(normalizedEmail);
       setStep('code');
-      setMessage(`שלחנו קוד בן 6 ספרות אל ${maskedEmail || normalizedEmail}.`);
+      setMessage(`שלחנו הודעת כניסה אל ${maskedEmail || normalizedEmail}. קיבלתם קישור? לחצו עליו. קיבלתם קוד? הזינו אותו כאן.`);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'לא הצלחנו לשלוח קוד. נסו שוב בעוד רגע.');
     } finally {
