@@ -37,7 +37,7 @@ export async function getActiveSlateHandoff(id: string): Promise<SlateHandoff | 
 }
 
 export function appUrl(requestUrl?: string) {
-  const configured = process.env.NEXT_PUBLIC_APP_URL;
+  const configured = process.env.SLATE_SITES_APP_URL;
   return (configured || requestUrl || 'http://localhost:3000').replace(/\/$/, '');
 }
 
