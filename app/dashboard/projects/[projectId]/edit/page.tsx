@@ -29,7 +29,7 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
     <main className="app-shell">
       <header className="simple-header"><Link className="brand" href="/dashboard"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-divider" /><span className="brand-product">Sites</span></Link><Link className="back-link" href={`/dashboard/projects/${projectId}`}>← חזרה לפרויקט</Link></header>
       <section className="brief-page">
-        <div className="brief-copy"><p className="kicker">עדכון פרטי הפרויקט</p><h1>מחדדים את הכיוון.</h1><p>הסבירו במילים שלכם מה אהבתם בעיצוב ההשראה. לאחר השמירה, חזרו לפרויקט וצרו גרסה חדשה.</p><p className="privacy-note">הקבצים הקיימים נשמרים בפרויקט. בעמוד זה עורכים את הטקסט ואת קישור ההשראה בלבד.</p></div>
+        <div className="brief-copy"><p className="kicker">01 / עדכון הבריף</p><h1>עוד קצת דיוק.<br />עוד יותר שלך.</h1><p>עדכנו את הסיפור, התוכן וההשראה. השמירה תחזיר אתכם לפרויקט, שם תוכלו ליצור תוכנית חדשה.</p><p className="privacy-note">הקבצים הקיימים נשמרים בפרויקט. כאן מעדכנים את הטקסט ואת קישור ההשראה.</p></div>
         <EditProjectBriefForm project={{ id: project.id, businessName: project.business_name, businessType: project.business_type, location: project.location, businessStory: brief?.business_story ?? null, primaryGoal: brief?.primary_goal ?? null, websiteCopy: brief?.website_copy ?? null, importantLinks: brief?.important_links ?? null, tone: brief?.tone ?? null, colorPreference: brief?.color_preference ?? null, designReference }} />
       </section>
     </main>

@@ -34,18 +34,18 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
       <section className="auth-layout" aria-label="כניסה לחשבון Slate Sites">
         <aside className="auth-side">
           <p className="kicker">חשבון Slate Sites</p>
-          <h1>כל העסקים והאתרים שלך, במקום אחד.</h1>
-          <p>אין סיסמאות לשמור. שולחים קישור כניסה מאובטח למייל וממשיכים ישירות לפרויקטים שלך.</p>
+          <h1>האתר הבא שלך<br />מתחיל כאן.</h1>
+          <p>מהסיפור של העסק ועד לרגע הפרסום. כל התוכן, ההשראות והאתרים שלך, במקום אחד.</p>
           <ul className="auth-points">
-            <li><span>1</span>החשבון שייך ל־Slate Sites ומופרד ממסד הנתונים של Slate.</li>
-            <li><span>2</span>אם הגעת מ־Slate, נזהה את ההעברה המאובטחת ונאמת את אותו מייל.</li>
-            <li><span>3</span>אותו מייל תמיד מחזיר אותך לאותם פרויקטים.</li>
+            <li><span>01</span>מספרים על העסק ובוחרים כיוון</li>
+            <li><span>02</span>יוצרים תוכן ובודקים תצוגה מקדימה</li>
+            <li><span>03</span>מפרסמים ברגע שמוכנים</li>
           </ul>
         </aside>
         <div className="panel auth-panel">
-          <h2>{source === 'slate' ? 'ממשיכים מ־Slate' : 'כניסה או יצירת חשבון'}</h2>
-          <p>{source === 'slate' ? 'נשלח קישור כניסה למייל המאומת שהועבר אלינו מ־Slate.' : 'הזינו את כתובת המייל שלכם ונשלח קישור כניסה מאובטח.'}</p>
-          {params.error ? <p className="error-message">{params.error}</p> : null}
+          <h2>{source === 'slate' ? 'ממשיכים מ־Slate' : 'ברוכים הבאים ל־Sites'}</h2>
+          <p>{source === 'slate' ? 'נשלח קישור כניסה למייל שהועבר אלינו מ־Slate.' : 'נכנסים עם Google או קישור למייל. בפעם הראשונה ניצור עבורכם חשבון.'}</p>
+          {params.error ? <p className="error-message" role="alert">{params.error}</p> : null}
           <EmailOtpForm source={source} nextPath={nextPath} />
         </div>
       </section>

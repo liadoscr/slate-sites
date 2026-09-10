@@ -3,13 +3,9 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { getCurrentUser } from '@/lib/data/current-user';
+import { projectStatusLabels } from '@/lib/projects/status';
 
-const statusLabels: Record<string, string> = {
-  draft: 'טיוטה', submitted: 'נשלח לבדיקה', in_review: 'בבדיקה', needs_changes: 'נדרשים פרטים',
-  approved: 'אושר', building: 'בבנייה', preview_ready: 'מוכן לתצוגה', published: 'פורסם', archived: 'בארכיון',
-};
-
-type Project = { id: string; business_name: string; business_type: string | null; status: string; updated_at: string };
+type Project = { id: string; business_name: string; business_type: string | null; status: string; updated_at: string; site_versions: { visibility: string }[] };
 
 export default async function DashboardPage() {
   if (!isSupabaseConfigured()) {
@@ -22,9 +18,13 @@ export default async function DashboardPage() {
 
   const { data, error } = await supabase
     .from('projects')
-    .select('id, business_name, business_type, status, updated_at')
+    .select('id, business_name, business_type, status, updated_at, site_versions(visibility)')
+    .eq('site_versions.visibility', 'public')
     .order('updated_at', { ascending: false });
-  const projects = (data ?? []) as Project[];
+  const projects = ((data ?? []) as Project[]).map((project) => ({
+    ...project,
+    status: project.site_versions.some((version) => version.visibility === 'public') ? 'published' : project.status,
+  }));
 
   return (
     <main className="app-shell">
@@ -33,19 +33,20 @@ export default async function DashboardPage() {
         <Link className="back-link" href="/">לאתר Slate Sites ↗</Link>
       </header>
       <section className="dashboard-top">
-        <div><p className="kicker">החשבון שלי</p><h1>הפרויקטים שלך</h1><p>{user.email} · כל בריף נשמר כאן באופן פרטי.</p></div>
-        <Link className="primary-cta" href="/dashboard/new">בריף חדש <span aria-hidden="true">←</span></Link>
+        <div><p className="kicker">סביבת העבודה שלך</p><h1>האתרים שלי</h1><p><bdi>{user.email}</bdi> · ממשיכים מהמקום שבו עצרתם.</p></div>
+        <Link className="primary-cta" href="/dashboard/new">יצירת אתר חדש <span aria-hidden="true">＋</span></Link>
       </section>
-      {error ? <p className="error-message">לא הצלחנו לטעון פרויקטים. ודאו שהמיגרציה הותקנה: {error.message}</p> : null}
+      {error ? <p className="error-message" role="alert">לא הצלחנו לטעון את האתרים. נסו לרענן את העמוד.</p> : <dl className="dashboard-summary" aria-label="סיכום האתרים"><div><dt>האתרים שלי</dt><dd>{projects.length}</dd></div><div><dt>באוויר</dt><dd>{projects.filter((project) => project.status === 'published').length}</dd></div><div><dt>בעבודה</dt><dd>{projects.filter((project) => !['published', 'archived'].includes(project.status)).length}</dd></div></dl>}
       <section className="dashboard-grid" aria-label="פרויקטים">
-        <Link className="empty-card" href="/dashboard/new">+<br />יצירת אתר לעסק חדש</Link>
         {projects.map((project) => (
           <Link className="project-card" href={`/dashboard/projects/${project.id}`} key={project.id}>
-            <span className="status-pill">{statusLabels[project.status] ?? project.status}</span>
+            <div className="project-card-head"><span className="project-monogram" aria-hidden="true">{project.business_name.slice(0, 1)}</span><span className="status-pill" data-status={project.status}>{projectStatusLabels[project.status] ?? 'בעבודה'}</span></div>
             <h2>{project.business_name}</h2>
-            <p>{project.business_type || 'העסק שלך'}<br />עודכן {new Intl.DateTimeFormat('he-IL', { dateStyle: 'medium' }).format(new Date(project.updated_at))}</p>
+            <p>{project.business_type || 'האתר של העסק שלך'}</p>
+            <div className="project-card-footer"><time dateTime={project.updated_at}>עודכן {new Intl.DateTimeFormat('he-IL', { dateStyle: 'medium' }).format(new Date(project.updated_at))}</time><b>פתיחת הפרויקט ←</b></div>
           </Link>
         ))}
+        <Link className="empty-card" href="/dashboard/new"><span aria-hidden="true">＋</span><b>מקום לרעיון הבא שלך</b><small>מוסיפים עסק, מספרים עליו, ומתחילים ליצור.</small></Link>
       </section>
     </main>
   );

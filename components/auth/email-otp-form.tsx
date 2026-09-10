@@ -119,7 +119,7 @@ export function EmailOtpForm({ source, nextPath }: EmailOtpFormProps) {
       </label>
       {error ? <p className="error-message" role="alert">{error}</p> : null}
       <button className="form-button" disabled={busy || (source === 'slate' && !email)} type="submit">{busy ? 'שולחים…' : 'שליחת קישור כניסה למייל'}</button>
-      <p className="form-note">המשך הפעולה יוצר או מחבר חשבון Slate Sites נפרד לפי המייל המאומת שלך.</p>
+      <p className="form-note">כבר יש לכם חשבון? השתמשו באותו מייל כדי לחזור לאתרים שלכם.</p>
     </form>
   );
 }

@@ -6,6 +6,7 @@ import { getCurrentUser } from '@/lib/data/current-user';
 import type { GeneratedSitePlan } from '@/lib/ai/gemini';
 import { GenerateSitePlanButton } from '@/components/projects/generate-site-plan-button';
 import { PublishSiteButton } from '@/components/projects/publish-site-button';
+import { projectStatusLabels } from '@/lib/projects/status';
 
 type ProjectPageProps = { params: Promise<{ projectId: string }> };
 
@@ -46,7 +47,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const plan = latestVersion?.content as GeneratedSitePlan | undefined;
   const { data: liveVersion } = await supabase
     .from('site_versions')
-    .select('published_url')
+    .select('published_url, version_number')
     .eq('project_id', projectId)
     .eq('visibility', 'public')
     .order('version_number', { ascending: false })
@@ -63,34 +64,23 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   return (
     <main className="app-shell">
       <header className="simple-header"><Link className="brand" href="/dashboard"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-divider" /><span className="brand-product">Sites</span></Link><Link className="back-link" href="/dashboard">← כל הפרויקטים</Link></header>
-      <section className="dashboard-top"><div><p className="kicker">פרויקט</p><h1>{project.business_name}</h1><p>{project.business_type || 'עסק'}{project.location ? ` · ${project.location}` : ''}</p></div><div className="project-actions"><span className="status-pill">{project.status}</span><Link className="secondary-action" href={`/dashboard/projects/${projectId}/edit`}>עריכת הבריף</Link></div></section>
-      <section className="panel brief-form">
-        <h2>סיכום הבריף</h2>
-        <div className="field-grid">
-          <p className="small-print"><b>מטרת האתר:</b><br />{brief?.primary_goal || 'לא נוספה עדיין'}</p>
-          <p className="small-print"><b>אופי האתר:</b><br />{brief?.tone || 'לא נבחר עדיין'}</p>
-          <p className="small-print field full"><b>הסיפור של העסק:</b><br />{brief?.business_story || 'לא נוסף עדיין'}</p>
-          <p className="small-print field full"><b>תוכן לאתר:</b><br />{brief?.website_copy || 'לא נוסף עדיין'}</p>
-        </div>
-        <h3>השראות וקבצים</h3>
-        {references.length ? <ul className="file-list">{references.map((reference) => <li key={reference.url}><a className="inline-link" href={reference.url} target="_blank" rel="noreferrer">קישור להשראה ↗</a><span>{reference.notes || 'ללא הערות'}</span></li>)}</ul> : <p className="small-print">לא נוספו קישורי השראה.</p>}
-        {assets.length ? <ul className="file-list">{assets.map((asset) => <li key={asset.original_name}><b>{asset.original_name}</b><span>{asset.mime_type}</span></li>)}</ul> : <p className="small-print">לא הועלו קבצים.</p>}
-      </section>
-      <section className="panel leads-panel">
-        <div><p className="kicker">פניות מהאתר</p><h2>פניות חדשות</h2><p>כל פנייה מהטופס באתר החי נשמרת כאן באופן פרטי.</p></div>
-        {leads?.length ? <ul className="lead-list">{leads.map((lead) => <li key={lead.id}><div><b>{leadValue(lead.details, 'name')}</b><a href={`mailto:${leadValue(lead.details, 'email')}`}>{leadValue(lead.details, 'email')}</a>{leadValue(lead.details, 'phone') ? <a href={`tel:${leadValue(lead.details, 'phone')}`}>{leadValue(lead.details, 'phone')}</a> : null}<p>{leadValue(lead.details, 'message')}</p></div><time dateTime={lead.created_at}>{new Intl.DateTimeFormat('he-IL', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(lead.created_at))}</time></li>)}</ul> : <p className="small-print">עדיין לא התקבלו פניות. כשתפרסמו את האתר, הטופס באתר ישמור אותן כאן.</p>}
-      </section>
+      <section className="dashboard-top"><div><p className="kicker">סביבת העבודה שלך</p><h1>{project.business_name}</h1><p>{project.business_type || 'עסק'}{project.location ? ` · ${project.location}` : ''}</p></div><div className="project-actions"><span className="status-pill" data-status={liveVersion ? 'published' : project.status}>{liveVersion ? 'האתר באוויר' : projectStatusLabels[project.status] || 'טיוטה'}</span><Link className="secondary-action" href={`/dashboard/projects/${projectId}/edit`}>עריכת הבריף</Link></div></section>
+      <ol className="project-progress" aria-label="התקדמות הפרויקט">
+        <li data-complete="true"><span>01</span><div><b>הבריף שלך</b><small>נשמר בפרויקט</small></div></li>
+        <li data-complete={isGeneratedSitePlan(plan)}><span>02</span><div><b>תוכן ותצוגה</b><small>{latestVersion ? `גרסה ${latestVersion.version_number}` : 'מוכנים ליצירה'}</small></div></li>
+        <li data-complete={Boolean(liveVersion)}><span>03</span><div><b>פרסום האתר</b><small>{liveVersion ? `גרסה ${liveVersion.version_number} באוויר` : 'כשתהיו מוכנים'}</small></div></li>
+      </ol>
       <section className="panel ai-plan-panel">
         <div className="ai-plan-heading">
           <div>
-            <p className="kicker">Slate AI · בטא</p>
-            <h2>תוכנית האתר</h2>
-            <p>Gemini יוצר כיוון מובנה לאתר עמוד אחד מתוך הבריף שלכם. אחרי היצירה אפשר לפתוח תצוגה מקדימה פרטית.</p>
+            <p className="kicker">Slate AI</p>
+            <h2>{isGeneratedSitePlan(plan) ? 'הכיוון של האתר שלך' : 'מהבריף לתוכנית הראשונה'}</h2>
+            <p>{isGeneratedSitePlan(plan) ? 'עברו על התוכן, פתחו תצוגה מקדימה ופרסמו כשאתם מוכנים.' : 'יוצרים תוכן ומבנה לעמוד אחד, מתוך הפרטים שסיפרתם על העסק.'}</p>
           </div>
           <div className="ai-plan-actions">
             {isGeneratedSitePlan(plan) ? <Link className="preview-top-action" href={`/dashboard/projects/${projectId}/preview`}>פתיחת תצוגה מקדימה ↗</Link> : null}
             <GenerateSitePlanButton projectId={projectId} />
-            {isGeneratedSitePlan(plan) && latestVersion ? <PublishSiteButton projectId={projectId} isCurrentVersionPublished={latestVersion.visibility === 'public'} liveUrl={liveVersion?.published_url ?? null} /> : null}
+            {isGeneratedSitePlan(plan) && latestVersion ? <PublishSiteButton projectId={projectId} isCurrentVersionPublished={latestVersion.visibility === 'public'} hasLiveSite={Boolean(liveVersion)} liveUrl={liveVersion?.published_url ?? null} /> : null}
           </div>
         </div>
         <p className="ai-privacy-note">בשלב הבטא נשלח ל-AI רק הטקסט מהבריף — לא הקבצים שהעליתם. אל תוסיפו מידע רגיש לבריף.</p>
@@ -126,6 +116,24 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             {plan.reviewNotes.length ? <div className="review-notes"><b>הערות לבדיקה לפני המשך:</b><ul>{plan.reviewNotes.map((note) => <li key={note}>{note}</li>)}</ul></div> : null}
           </div>
         ) : <div className="empty-ai-plan"><b>עוד אין תוכנית אתר</b><p>מלאו את הבריף ולחצו על הכפתור כדי ליצור את הכיוון הראשון לאתר שלכם.</p></div>}
+      </section>
+      <details className="panel brief-summary">
+        <summary>הבריף והחומרים שלך</summary>
+        <div className="brief-summary-content">
+          <div className="field-grid">
+            <p className="small-print"><b>מטרת האתר</b><br />{brief?.primary_goal || 'לא נוספה עדיין'}</p>
+            <p className="small-print"><b>אופי האתר</b><br />{brief?.tone || 'לא נבחר עדיין'}</p>
+            <p className="small-print field full"><b>הסיפור של העסק</b><br />{brief?.business_story || 'לא נוסף עדיין'}</p>
+            <p className="small-print field full"><b>תוכן לאתר</b><br />{brief?.website_copy || 'לא נוסף עדיין'}</p>
+          </div>
+          <h3>השראות וקבצים</h3>
+          {references.length ? <ul className="file-list">{references.map((reference) => <li key={reference.url}><a className="inline-link" href={reference.url} target="_blank" rel="noreferrer">קישור להשראה ↗</a><span>{reference.notes || 'ללא הערות'}</span></li>)}</ul> : <p className="small-print">לא נוספו קישורי השראה.</p>}
+          {assets.length ? <ul className="file-list">{assets.map((asset) => <li key={asset.original_name}><b>{asset.original_name}</b><span>{asset.mime_type}</span></li>)}</ul> : <p className="small-print">לא הועלו קבצים.</p>}
+        </div>
+      </details>
+      <section className="panel leads-panel">
+        <div><p className="kicker">פניות מהאתר</p><h2>הודעות מלקוחות</h2><p>{leads?.length ? 'עד 20 הפניות האחרונות שהתקבלו באתר שלך.' : 'הפנייה הבאה מהאתר תופיע כאן.'}</p></div>
+        {leads?.length ? <ul className="lead-list">{leads.map((lead) => <li key={lead.id}><div><b>{leadValue(lead.details, 'name')}</b><a dir="ltr" href={`mailto:${leadValue(lead.details, 'email')}`}>{leadValue(lead.details, 'email')}</a>{leadValue(lead.details, 'phone') ? <a dir="ltr" href={`tel:${leadValue(lead.details, 'phone')}`}>{leadValue(lead.details, 'phone')}</a> : null}<p>{leadValue(lead.details, 'message')}</p></div><time dateTime={lead.created_at}>{new Intl.DateTimeFormat('he-IL', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(lead.created_at))}</time></li>)}</ul> : <p className="small-print">אחרי הפרסום, מבקרים יוכלו להשאיר פרטים בטופס יצירת הקשר. הפניות נשמרות עבורך כאן.</p>}
       </section>
     </main>
   );

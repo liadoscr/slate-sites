@@ -88,21 +88,28 @@ export function EditProjectBriefForm({ project }: EditProjectBriefFormProps) {
     <form className="panel brief-form" onSubmit={submit} noValidate>
       <h2>עריכת הבריף</h2>
       <p>ככל שההנחיות על ההשראה מדויקות יותר, כך הכיוון של התצוגה המקדימה יהיה מותאם יותר לעסק שלכם.</p>
+      <fieldset className="brief-group"><legend><span>01</span>העסק והסיפור</legend>
       <div className="field-grid">
         <label className="field">שם העסק<input name="businessName" defaultValue={project.businessName} required /></label>
         <label className="field">תחום העסק<input name="businessType" defaultValue={project.businessType ?? ''} /></label>
         <label className="field full">אזור פעילות<input name="location" defaultValue={project.location ?? ''} /></label>
         <label className="field full">ספרו על העסק<textarea name="businessStory" defaultValue={project.businessStory ?? ''} /></label>
         <label className="field full">מה הפעולה החשובה באתר?<input name="primaryGoal" defaultValue={project.primaryGoal ?? ''} /></label>
+      </div></fieldset>
+      <fieldset className="brief-group"><legend><span>02</span>הכיוון העיצובי</legend>
+      <div className="field-grid">
         <label className="field full">קישור להשראה ב־Dribbble<input name="designUrl" type="url" inputMode="url" defaultValue={project.designReference?.url ?? ''} placeholder="https://dribbble.com/shots/..." /><small>מחפשים כיוון אחר? <a className="inline-link" href="https://dribbble.com/search/web-design" target="_blank" rel="noreferrer">לעיון בעיצובים של אתרים ב־Dribbble ↗</a></small></label>
         <label className="field full">מה רוצים לקחת מההשראה? <span className="required-hint">(חשוב ל־AI)</span><textarea name="designNotes" defaultValue={project.designReference?.notes ?? ''} placeholder="למשל: פתיחה כהה, הרבה שטח לבן, כותרת גדולה וכרטיסי שירות בהירים." /><small>ה־AI מסתמך על התיאור שלכם ולא פותח את הקישור או מעתיק עיצוב.</small></label>
         <label className="field">אופי האתר<select name="tone" defaultValue={project.tone ?? ''}><option value="">בחרו אופי</option><option>נקי ומקצועי</option><option>חם ואישי</option><option>נועז וחדשני</option><option>אלגנטי ומדויק</option></select></label>
         <label className="field">צבעים שאוהבים<input name="colors" defaultValue={project.colorPreference ?? ''} placeholder="למשל: כחול, לבן וסגול" /></label>
+      </div></fieldset>
+      <fieldset className="brief-group"><legend><span>03</span>התוכן לאתר</legend>
+      <div className="field-grid">
         <label className="field full">טקסטים ותוכן לאתר<textarea name="websiteCopy" defaultValue={project.websiteCopy ?? ''} /></label>
         <label className="field full">קישורים שחשוב לכלול<input name="importantLinks" defaultValue={project.importantLinks ?? ''} /></label>
-      </div>
+      </div></fieldset>
       {error ? <p className="error-message" role="alert">{error}</p> : null}
-      <button className="form-button" disabled={busy} type="submit">{busy ? 'שומרים…' : 'שמירת השינויים'}</button>
+      <div className="form-actions"><button className="form-button" disabled={busy} type="submit">{busy ? 'שומרים…' : 'שמירת השינויים וחזרה לפרויקט'}</button></div>
     </form>
   );
 }
