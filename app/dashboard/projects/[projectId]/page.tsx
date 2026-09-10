@@ -61,7 +61,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             <h2>תוכנית האתר</h2>
             <p>Gemini יוצר כיוון מובנה לאתר עמוד אחד מתוך הבריף שלכם. אחרי היצירה אפשר לפתוח תצוגה מקדימה פרטית.</p>
           </div>
-          <GenerateSitePlanButton projectId={projectId} />
+          <div className="ai-plan-actions">
+            {isGeneratedSitePlan(plan) ? <Link className="preview-top-action" href={`/dashboard/projects/${projectId}/preview`}>פתיחת תצוגה מקדימה ↗</Link> : null}
+            <GenerateSitePlanButton projectId={projectId} />
+          </div>
         </div>
         <p className="ai-privacy-note">בשלב הבטא נשלח ל-AI רק הטקסט מהבריף — לא הקבצים שהעליתם. אל תוסיפו מידע רגיש לבריף.</p>
         {isGeneratedSitePlan(plan) && latestVersion ? (
@@ -72,7 +75,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <h3>{plan.siteTitle}</h3>
                 <p>{plan.positioning}</p>
               </div>
-              <div className="contact-cta-card"><span>קריאה לפעולה</span><b>{plan.contactCta}</b><Link className="preview-link" href={`/dashboard/projects/${projectId}/preview`}>פתיחת תצוגה מקדימה ↗</Link></div>
+              <div className="contact-cta-card"><span>קריאה לפעולה</span><b>{plan.contactCta}</b></div>
             </div>
             <div className="visual-direction">
               <div><b>כיוון חזותי</b><p>{plan.visualDirection.summary}</p></div>

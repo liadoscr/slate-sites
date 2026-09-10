@@ -32,7 +32,6 @@ export function EditProjectBriefForm({ project }: EditProjectBriefFormProps) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -44,7 +43,7 @@ export function EditProjectBriefForm({ project }: EditProjectBriefFormProps) {
     if (businessName.length < 2) { setError('הוסיפו שם עסק באורך של שתי אותיות לפחות.'); return; }
     if (designUrlInput && designNotes.length < 12) { setError('כתבו בכמה מילים מה בדיוק רוצים לקחת מההשראה, כדי שהכיוון החדש יהיה מדויק.'); return; }
 
-    setBusy(true); setError(''); setSuccess('');
+    setBusy(true); setError('');
     try {
       const designUrl = validateReference(designUrlInput);
       const supabase = createClient();
@@ -76,7 +75,7 @@ export function EditProjectBriefForm({ project }: EditProjectBriefFormProps) {
         if (referenceError) throw referenceError;
       }
 
-      setSuccess('הבריף נשמר. עכשיו אפשר ליצור גרסה חדשה של תוכנית האתר.');
+      router.replace(`/dashboard/projects/${project.id}`);
       router.refresh();
     } catch (submissionError) {
       setError(submissionError instanceof Error ? submissionError.message : 'לא הצלחנו לשמור את השינויים. נסו שוב.');
@@ -103,7 +102,6 @@ export function EditProjectBriefForm({ project }: EditProjectBriefFormProps) {
         <label className="field full">קישורים שחשוב לכלול<input name="importantLinks" defaultValue={project.importantLinks ?? ''} /></label>
       </div>
       {error ? <p className="error-message" role="alert">{error}</p> : null}
-      {success ? <p className="success-message" role="status">{success}</p> : null}
       <button className="form-button" disabled={busy} type="submit">{busy ? 'שומרים…' : 'שמירת השינויים'}</button>
     </form>
   );
