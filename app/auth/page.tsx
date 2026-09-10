@@ -1,5 +1,8 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { EmailOtpForm } from '@/components/auth/email-otp-form';
+import { getCurrentUser } from '@/lib/data/current-user';
+import { isSupabaseConfigured } from '@/lib/supabase/env';
 
 type AuthPageProps = {
   searchParams: Promise<{ next?: string; source?: string; error?: string }>;
@@ -12,6 +15,11 @@ function safeNextPath(path: string | undefined) {
 export default async function AuthPage({ searchParams }: AuthPageProps) {
   const params = await searchParams;
   const source = params.source === 'slate' ? 'slate' : 'direct';
+  const nextPath = safeNextPath(params.next);
+  // A direct visitor who already has a valid session should never be asked to
+  // authenticate again. Slate handoffs are intentionally excluded because they
+  // must verify the email associated with the one-time Slate transfer.
+  if (source === 'direct' && isSupabaseConfigured() && await getCurrentUser()) redirect(nextPath);
 
   return (
     <main className="app-shell">
@@ -38,7 +46,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
           <h2>{source === 'slate' ? 'ממשיכים מ־Slate' : 'כניסה או יצירת חשבון'}</h2>
           <p>{source === 'slate' ? 'נשלח קישור כניסה למייל המאומת שהועבר אלינו מ־Slate.' : 'הזינו את כתובת המייל שלכם ונשלח קישור כניסה מאובטח.'}</p>
           {params.error ? <p className="error-message">{params.error}</p> : null}
-          <EmailOtpForm source={source} nextPath={safeNextPath(params.next)} />
+          <EmailOtpForm source={source} nextPath={nextPath} />
         </div>
       </section>
     </main>

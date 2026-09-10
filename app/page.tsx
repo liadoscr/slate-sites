@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { getCurrentUser } from '@/lib/data/current-user';
+import { isSupabaseConfigured } from '@/lib/supabase/env';
 
 const process = [
   ['01', 'כיוון עיצובי', 'שולחים קישור ל־Dribbble ומספרים מה אהבתם בו.'],
@@ -6,7 +8,11 @@ const process = [
   ['03', 'בריף ושיחת התחלה', 'אנחנו מסדרים את החומרים, בודקים ומתחילים לבנות.'],
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const user = isSupabaseConfigured() ? await getCurrentUser() : null;
+  const accountHref = user ? '/dashboard' : '/auth';
+  const briefHref = user ? '/dashboard/new' : '/auth?next=/dashboard/new';
+
   return (
     <main className="grid-page" id="top">
       <header className="site-header">
@@ -20,8 +26,8 @@ export default function HomePage() {
           <Link href="#security">פרטיות ואבטחה</Link>
           <a href="https://www.slate.co.il/" target="_blank" rel="noreferrer">ל־Slate ↗</a>
         </nav>
-        <Link className="account-button" href="/auth">
-          <span aria-hidden="true">א</span> החשבון שלי
+        <Link className="account-button" href={accountHref}>
+          <span aria-hidden="true">{user ? 'ד' : 'א'}</span> {user ? 'לדאשבורד שלי' : 'החשבון שלי'}
         </Link>
       </header>
 
@@ -31,7 +37,7 @@ export default function HomePage() {
           <h1 id="hero-title">אתר מעולה מתחיל <em>בבריף מדויק.</em></h1>
           <p className="hero-text">אתם מביאים את הסיפור, התמונות והכיוון העיצובי. אנחנו הופכים אותם לאתר עסקי עברי, נגיש ומוכן להשקה.</p>
           <div className="hero-actions">
-            <Link className="primary-cta" href="/auth?next=/dashboard/new">מתחילים בריף <span aria-hidden="true">←</span></Link>
+            <Link className="primary-cta" href={briefHref}>מתחילים בריף <span aria-hidden="true">←</span></Link>
             <Link className="text-cta" href="#how-it-works">איך זה עובד ↓</Link>
           </div>
         </div>
@@ -65,10 +71,10 @@ export default function HomePage() {
           <p className="kicker">בריף חדש</p>
           <h2 id="brief-title">אין עורך מסובך.<br />יש מקום לספר מה אתם רוצים.</h2>
           <p>בחשבון שלכם נשמור טיוטות, קישורי השראה, טקסטים וחומרים לכל עסק. אפשר לחזור לבריף בכל זמן, עד לשליחה לצוות Slate.</p>
-          <Link className="primary-cta" href="/auth?next=/dashboard/new">ליצירת החשבון והבריף <span aria-hidden="true">←</span></Link>
+          <Link className="primary-cta" href={briefHref}>{user ? 'לבריף חדש' : 'ליצירת החשבון והבריף'} <span aria-hidden="true">←</span></Link>
         </div>
         <dl className="brief-checklist">
-          <div><dt>01</dt><dd><b>כניסה בטוחה במייל</b><span>קוד חד־פעמי, ללא סיסמה.</span></dd></div>
+          <div><dt>01</dt><dd><b>כניסה בטוחה</b><span>Google או קישור כניסה מאובטח, ללא סיסמה.</span></dd></div>
           <div><dt>02</dt><dd><b>תיק חומרים פרטי</b><span>תמונות, מסמכים והשראות לכל פרויקט.</span></dd></div>
           <div><dt>03</dt><dd><b>מעקב שקוף</b><span>טיוטה, בדיקה, בנייה, תצוגה מקדימה והשקה.</span></dd></div>
         </dl>
