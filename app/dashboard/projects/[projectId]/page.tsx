@@ -41,7 +41,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   return (
     <main className="app-shell">
       <header className="simple-header"><Link className="brand" href="/dashboard"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-divider" /><span className="brand-product">Sites</span></Link><Link className="back-link" href="/dashboard">← כל הפרויקטים</Link></header>
-      <section className="dashboard-top"><div><p className="kicker">פרויקט</p><h1>{project.business_name}</h1><p>{project.business_type || 'עסק'}{project.location ? ` · ${project.location}` : ''}</p></div><span className="status-pill">{project.status}</span></section>
+      <section className="dashboard-top"><div><p className="kicker">פרויקט</p><h1>{project.business_name}</h1><p>{project.business_type || 'עסק'}{project.location ? ` · ${project.location}` : ''}</p></div><div className="project-actions"><span className="status-pill">{project.status}</span><Link className="secondary-action" href={`/dashboard/projects/${projectId}/edit`}>עריכת הבריף</Link></div></section>
       <section className="panel brief-form">
         <h2>סיכום הבריף</h2>
         <div className="field-grid">
@@ -59,7 +59,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <div>
             <p className="kicker">Slate AI · בטא</p>
             <h2>תוכנית האתר</h2>
-            <p>Gemini יוצר כיוון מובנה לאתר עמוד אחד מתוך הבריף שלכם. זו עדיין לא גרסת אתר חיה.</p>
+            <p>Gemini יוצר כיוון מובנה לאתר עמוד אחד מתוך הבריף שלכם. אחרי היצירה אפשר לפתוח תצוגה מקדימה פרטית.</p>
           </div>
           <GenerateSitePlanButton projectId={projectId} />
         </div>
@@ -72,7 +72,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <h3>{plan.siteTitle}</h3>
                 <p>{plan.positioning}</p>
               </div>
-              <div className="contact-cta-card"><span>קריאה לפעולה</span><b>{plan.contactCta}</b></div>
+              <div className="contact-cta-card"><span>קריאה לפעולה</span><b>{plan.contactCta}</b><Link className="preview-link" href={`/dashboard/projects/${projectId}/preview`}>פתיחת תצוגה מקדימה ↗</Link></div>
             </div>
             <div className="visual-direction">
               <div><b>כיוון חזותי</b><p>{plan.visualDirection.summary}</p></div>

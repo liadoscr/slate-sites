@@ -39,6 +39,7 @@ export function NewProjectBriefForm({ userId }: NewProjectBriefFormProps) {
 
     if (businessName.length < 2) { setError('הוסיפו שם עסק כדי לשמור את הפרויקט.'); return; }
     if (submissionIntent === 'submitted' && !designUrl && !designNotes) { setError('לפני שליחה לבדיקה, הוסיפו קישור להשראה או תיאור של הכיוון העיצובי.'); return; }
+    if (submissionIntent === 'submitted' && designUrl && designNotes.length < 12) { setError('כדי שהכיוון יהיה קרוב להשראה, כתבו בכמה מילים מה בדיוק אהבתם בעיצוב.'); return; }
     if (submissionIntent === 'submitted' && !files.length && !websiteCopy) { setError('לפני שליחה לבדיקה, העלו קובץ אחד לפחות או הוסיפו תוכן לאתר.'); return; }
     if (submissionIntent === 'submitted' && !hasRights) { setError('לפני שליחה לבדיקה, אשרו שיש לכם זכות להשתמש בחומרים.'); return; }
 
@@ -100,8 +101,8 @@ export function NewProjectBriefForm({ userId }: NewProjectBriefFormProps) {
         <label className="field full">אזור פעילות<input name="location" placeholder="למשל: תל אביב והסביבה" /></label>
         <label className="field full">ספרו על העסק<textarea name="businessStory" placeholder="מה אתם עושים, למי, ומה מיוחד אצלכם?" /></label>
         <label className="field full">מה הפעולה החשובה באתר?<input name="primaryGoal" placeholder="למשל: קביעת שיחת ייעוץ או השארת פרטים" /></label>
-        <label className="field full">קישור לעיצוב ב־Dribbble<input name="designUrl" type="url" inputMode="url" placeholder="https://dribbble.com/shots/..." /><small>הקישור משמש להשראה בלבד. אנחנו לא מעתיקים עיצובים, תוכן או נכסים של יוצרים אחרים.</small></label>
-        <label className="field full">מה אהבתם בכיוון הזה?<textarea name="designNotes" placeholder="למשל: הרבה מרווח, טיפוגרפיה חזקה, צבעים עדינים..." /></label>
+        <label className="field full">קישור להשראה ב־Dribbble<input name="designUrl" type="url" inputMode="url" placeholder="https://dribbble.com/shots/..." /><small>מחפשים השראה? <a className="inline-link" href="https://dribbble.com/search/web-design" target="_blank" rel="noreferrer">לעיון בעיצובים של אתרים ב־Dribbble ↗</a></small><small>הקישור משמש להשראה בלבד. אנחנו לא מעתיקים עיצובים, תוכן או נכסים של יוצרים אחרים.</small></label>
+        <label className="field full">מה רוצים לקחת מההשראה? <span className="required-hint">(חשוב ל־AI)</span><textarea name="designNotes" placeholder="למשל: פתיחה כהה עם כותרת גדולה, הרבה מרווח לבן, כרטיסי שירות בהירים, תמונות גדולות, כחול עמוק וסגול. לא רוצים אנימציות." /><small>ה־AI לא פותח את קישור Dribbble. התיאור שלכם הוא מה שמתרגם את ההשראה לכיוון מקורי לאתר.</small></label>
         <label className="field">אופי האתר<select name="tone" defaultValue=""><option value="">בחרו אופי</option><option>נקי ומקצועי</option><option>חם ואישי</option><option>נועז וחדשני</option><option>אלגנטי ומדויק</option></select></label>
         <label className="field">צבעים שאוהבים<input name="colors" placeholder="למשל: כחול, לבן וסגול" /></label>
         <label className="field full">טקסטים ותוכן לאתר<textarea name="websiteCopy" placeholder="שירותים, יתרונות, המלצות, שאלות נפוצות או כל טקסט שחייב להופיע באתר" /></label>
