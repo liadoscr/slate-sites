@@ -5,11 +5,18 @@ import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { getCurrentUser } from '@/lib/data/current-user';
 import type { GeneratedSitePlan } from '@/lib/ai/gemini';
 import { GenerateSitePlanButton } from '@/components/projects/generate-site-plan-button';
+import { PublishSiteButton } from '@/components/projects/publish-site-button';
 
 type ProjectPageProps = { params: Promise<{ projectId: string }> };
 
 function isGeneratedSitePlan(plan: GeneratedSitePlan | undefined): plan is GeneratedSitePlan {
   return Boolean(plan?.siteTitle && plan.sections?.length);
+}
+
+function leadValue(details: unknown, key: string) {
+  if (!details || typeof details !== 'object' || Array.isArray(details)) return '';
+  const value = (details as Record<string, unknown>)[key];
+  return typeof value === 'string' ? value : '';
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
@@ -31,12 +38,27 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const assets = Array.isArray(project.project_assets) ? project.project_assets : [];
   const { data: versions } = await supabase
     .from('site_versions')
-    .select('version_number, content, created_at')
+    .select('version_number, content, created_at, visibility, published_url')
     .eq('project_id', projectId)
     .order('version_number', { ascending: false })
     .limit(1);
   const latestVersion = versions?.[0];
   const plan = latestVersion?.content as GeneratedSitePlan | undefined;
+  const { data: liveVersion } = await supabase
+    .from('site_versions')
+    .select('published_url')
+    .eq('project_id', projectId)
+    .eq('visibility', 'public')
+    .order('version_number', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const { data: leads } = await supabase
+    .from('project_activity')
+    .select('id, details, created_at')
+    .eq('project_id', projectId)
+    .eq('event_type', 'public_contact_received')
+    .order('created_at', { ascending: false })
+    .limit(20);
 
   return (
     <main className="app-shell">
@@ -54,6 +76,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         {references.length ? <ul className="file-list">{references.map((reference) => <li key={reference.url}><a className="inline-link" href={reference.url} target="_blank" rel="noreferrer">קישור להשראה ↗</a><span>{reference.notes || 'ללא הערות'}</span></li>)}</ul> : <p className="small-print">לא נוספו קישורי השראה.</p>}
         {assets.length ? <ul className="file-list">{assets.map((asset) => <li key={asset.original_name}><b>{asset.original_name}</b><span>{asset.mime_type}</span></li>)}</ul> : <p className="small-print">לא הועלו קבצים.</p>}
       </section>
+      <section className="panel leads-panel">
+        <div><p className="kicker">פניות מהאתר</p><h2>פניות חדשות</h2><p>כל פנייה מהטופס באתר החי נשמרת כאן באופן פרטי.</p></div>
+        {leads?.length ? <ul className="lead-list">{leads.map((lead) => <li key={lead.id}><div><b>{leadValue(lead.details, 'name')}</b><a href={`mailto:${leadValue(lead.details, 'email')}`}>{leadValue(lead.details, 'email')}</a>{leadValue(lead.details, 'phone') ? <a href={`tel:${leadValue(lead.details, 'phone')}`}>{leadValue(lead.details, 'phone')}</a> : null}<p>{leadValue(lead.details, 'message')}</p></div><time dateTime={lead.created_at}>{new Intl.DateTimeFormat('he-IL', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(lead.created_at))}</time></li>)}</ul> : <p className="small-print">עדיין לא התקבלו פניות. כשתפרסמו את האתר, הטופס באתר ישמור אותן כאן.</p>}
+      </section>
       <section className="panel ai-plan-panel">
         <div className="ai-plan-heading">
           <div>
@@ -64,6 +90,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <div className="ai-plan-actions">
             {isGeneratedSitePlan(plan) ? <Link className="preview-top-action" href={`/dashboard/projects/${projectId}/preview`}>פתיחת תצוגה מקדימה ↗</Link> : null}
             <GenerateSitePlanButton projectId={projectId} />
+            {isGeneratedSitePlan(plan) && latestVersion ? <PublishSiteButton projectId={projectId} isCurrentVersionPublished={latestVersion.visibility === 'public'} liveUrl={liveVersion?.published_url ?? null} /> : null}
           </div>
         </div>
         <p className="ai-privacy-note">בשלב הבטא נשלח ל-AI רק הטקסט מהבריף — לא הקבצים שהעליתם. אל תוסיפו מידע רגיש לבריף.</p>
