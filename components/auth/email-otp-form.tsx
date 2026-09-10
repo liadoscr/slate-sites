@@ -1,7 +1,6 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import type { Provider } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 
@@ -74,14 +73,14 @@ export function EmailOtpForm({ source, nextPath }: EmailOtpFormProps) {
     }
   }
 
-  async function signInWithProvider(provider: Extract<Provider, 'google' | 'apple'>) {
+  async function signInWithGoogle() {
     setBusy(true); setError(''); setMessage('');
     try {
       const callbackUrl = new URL('/auth/callback', window.location.origin);
       callbackUrl.searchParams.set('next', nextPath);
       callbackUrl.searchParams.set('source', source);
       const { data, error: oauthError } = await createClient().auth.signInWithOAuth({
-        provider,
+        provider: 'google',
         options: { redirectTo: callbackUrl.toString(), skipBrowserRedirect: true },
       });
       if (oauthError || !data.url) throw oauthError ?? new Error('לא התקבלה כתובת להתחברות.');
@@ -110,8 +109,7 @@ export function EmailOtpForm({ source, nextPath }: EmailOtpFormProps) {
     <form onSubmit={requestCode} noValidate>
       {source === 'direct' ? <>
         <div className="social-login-options">
-          <button className="social-login-button" type="button" disabled={busy} onClick={() => signInWithProvider('google')}><span className="provider-mark google-mark" aria-hidden="true">G</span>המשך עם Google</button>
-          <button className="social-login-button" type="button" disabled={busy} onClick={() => signInWithProvider('apple')}><span className="provider-mark apple-mark" aria-hidden="true"></span>המשך עם Apple</button>
+          <button className="social-login-button" type="button" disabled={busy} onClick={signInWithGoogle}><span className="provider-mark google-mark" aria-hidden="true">G</span>המשך עם Google</button>
         </div>
         <div className="auth-divider" aria-hidden="true"><span>או עם מייל</span></div>
       </> : null}
