@@ -27,7 +27,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         <aside className="auth-side">
           <p className="kicker">חשבון Slate Sites</p>
           <h1>כל העסקים והאתרים שלך, במקום אחד.</h1>
-          <p>אין סיסמאות לשמור. שולחים קוד חד־פעמי למייל וממשיכים ישירות לפרויקטים שלך.</p>
+          <p>אין סיסמאות לשמור. שולחים קישור כניסה מאובטח למייל וממשיכים ישירות לפרויקטים שלך.</p>
           <ul className="auth-points">
             <li><span>1</span>החשבון שייך ל־Slate Sites ומופרד ממסד הנתונים של Slate.</li>
             <li><span>2</span>אם הגעת מ־Slate, נזהה את ההעברה המאובטחת ונאמת את אותו מייל.</li>
@@ -36,7 +36,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         </aside>
         <div className="panel auth-panel">
           <h2>{source === 'slate' ? 'ממשיכים מ־Slate' : 'כניסה או יצירת חשבון'}</h2>
-          <p>{source === 'slate' ? 'נשלח קוד למייל המאומת שהועבר אלינו מ־Slate.' : 'הזינו את כתובת המייל שלכם ונשלח קוד חד־פעמי.'}</p>
+          <p>{source === 'slate' ? 'נשלח קישור כניסה למייל המאומת שהועבר אלינו מ־Slate.' : 'הזינו את כתובת המייל שלכם ונשלח קישור כניסה מאובטח.'}</p>
           {params.error ? <p className="error-message">{params.error}</p> : null}
           <EmailOtpForm source={source} nextPath={safeNextPath(params.next)} />
         </div>

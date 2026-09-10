@@ -1,7 +1,6 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 
@@ -10,14 +9,12 @@ type EmailOtpFormProps = {
   nextPath: string;
 };
 
-type FormState = 'email' | 'code';
+type FormState = 'email' | 'sent';
 
 export function EmailOtpForm({ source, nextPath }: EmailOtpFormProps) {
-  const router = useRouter();
   const configured = useMemo(() => isSupabaseConfigured(), []);
   const [step, setStep] = useState<FormState>('email');
   const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
   const [maskedEmail, setMaskedEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -64,35 +61,13 @@ export function EmailOtpForm({ source, nextPath }: EmailOtpFormProps) {
       });
       if (otpError) throw otpError;
       setEmail(normalizedEmail);
-      setStep('code');
-      setMessage(`שלחנו הודעת כניסה אל ${maskedEmail || normalizedEmail}. קיבלתם קישור? לחצו עליו. קיבלתם קוד? הזינו אותו כאן.`);
+      setStep('sent');
+      const localNotice = window.location.hostname === 'localhost'
+        ? ' בבדיקה מקומית, פתחו את הקישור במחשב שבו פועל האתר — הטלפון לא יכול להגיע ל־localhost.'
+        : '';
+      setMessage(`שלחנו קישור כניסה אל ${maskedEmail || normalizedEmail}. פתחו אותו כדי להיכנס לחשבון.${localNotice}`);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'לא הצלחנו לשלוח קוד. נסו שוב בעוד רגע.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function verifyCode(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const token = code.replace(/\D/g, '');
-    if (token.length !== 6) {
-      setError('הקוד צריך לכלול 6 ספרות.');
-      return;
-    }
-
-    setBusy(true); setError(''); setMessage('');
-    try {
-      const supabase = createClient();
-      const { error: verifyError } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
-      if (verifyError) throw verifyError;
-
-      const endpoint = source === 'slate' ? '/api/auth/complete-slate' : '/api/auth/log-direct-login';
-      await fetch(endpoint, { method: 'POST', credentials: 'same-origin' });
-      router.replace(nextPath);
-      router.refresh();
-    } catch (verifyError) {
-      setError(verifyError instanceof Error ? verifyError.message : 'לא הצלחנו לאמת את הקוד.');
     } finally {
       setBusy(false);
     }
@@ -102,18 +77,13 @@ export function EmailOtpForm({ source, nextPath }: EmailOtpFormProps) {
     return <p className="setup-notice">התחברות OTP תהיה זמינה לאחר חיבור משתני הסביבה של Supabase. הקוד והמסד כבר מוכנים לכך.</p>;
   }
 
-  if (step === 'code') {
+  if (step === 'sent') {
     return (
-      <form onSubmit={verifyCode} noValidate>
-        <label className="field" htmlFor="otp-code">קוד חד־פעמי
-          <input id="otp-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(event) => setCode(event.target.value)} placeholder="000000" autoFocus />
-          <small>הקוד תקף לזמן מוגבל וניתן לשימוש פעם אחת.</small>
-        </label>
+      <div>
         {message ? <p className="success-message" role="status">{message}</p> : null}
         {error ? <p className="error-message" role="alert">{error}</p> : null}
-        <button className="form-button" disabled={busy} type="submit">{busy ? 'מאמתים…' : 'אימות וכניסה לחשבון'}</button>
-        <button className="secondary-button" disabled={busy} type="button" onClick={() => { setStep('email'); setCode(''); setError(''); }}>שליחת קוד חדש</button>
-      </form>
+        <button className="secondary-button" disabled={busy} type="button" onClick={() => { setStep('email'); setError(''); setMessage(''); }}>שליחת קישור חדש</button>
+      </div>
     );
   }
 
@@ -121,10 +91,10 @@ export function EmailOtpForm({ source, nextPath }: EmailOtpFormProps) {
     <form onSubmit={requestCode} noValidate>
       <label className="field" htmlFor="email">כתובת מייל
         <input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@business.co.il" readOnly={source === 'slate' && Boolean(email)} />
-        {source === 'slate' && maskedEmail ? <small>המייל שהתקבל מ־Slate: {maskedEmail}</small> : <small>נשלח קוד אימות למייל הזה בלבד.</small>}
+        {source === 'slate' && maskedEmail ? <small>המייל שהתקבל מ־Slate: {maskedEmail}</small> : <small>נשלח קישור כניסה מאובטח למייל הזה בלבד.</small>}
       </label>
       {error ? <p className="error-message" role="alert">{error}</p> : null}
-      <button className="form-button" disabled={busy || (source === 'slate' && !email)} type="submit">{busy ? 'שולחים…' : 'שליחת קוד למייל'}</button>
+      <button className="form-button" disabled={busy || (source === 'slate' && !email)} type="submit">{busy ? 'שולחים…' : 'שליחת קישור כניסה למייל'}</button>
       <p className="form-note">המשך הפעולה יוצר או מחבר חשבון Slate Sites נפרד לפי המייל המאומת שלך.</p>
     </form>
   );
