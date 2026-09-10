@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import type { Provider } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 
@@ -73,6 +74,24 @@ export function EmailOtpForm({ source, nextPath }: EmailOtpFormProps) {
     }
   }
 
+  async function signInWithProvider(provider: Extract<Provider, 'google' | 'apple'>) {
+    setBusy(true); setError(''); setMessage('');
+    try {
+      const callbackUrl = new URL('/auth/callback', window.location.origin);
+      callbackUrl.searchParams.set('next', nextPath);
+      callbackUrl.searchParams.set('source', source);
+      const { data, error: oauthError } = await createClient().auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: callbackUrl.toString(), skipBrowserRedirect: true },
+      });
+      if (oauthError || !data.url) throw oauthError ?? new Error('לא התקבלה כתובת להתחברות.');
+      window.location.assign(data.url);
+    } catch (oauthError) {
+      setError(oauthError instanceof Error ? oauthError.message : 'לא הצלחנו להתחיל התחברות עם הספק שבחרתם.');
+      setBusy(false);
+    }
+  }
+
   if (!configured) {
     return <p className="setup-notice">התחברות OTP תהיה זמינה לאחר חיבור משתני הסביבה של Supabase. הקוד והמסד כבר מוכנים לכך.</p>;
   }
@@ -89,6 +108,13 @@ export function EmailOtpForm({ source, nextPath }: EmailOtpFormProps) {
 
   return (
     <form onSubmit={requestCode} noValidate>
+      {source === 'direct' ? <>
+        <div className="social-login-options">
+          <button className="social-login-button" type="button" disabled={busy} onClick={() => signInWithProvider('google')}><span className="provider-mark google-mark" aria-hidden="true">G</span>המשך עם Google</button>
+          <button className="social-login-button" type="button" disabled={busy} onClick={() => signInWithProvider('apple')}><span className="provider-mark apple-mark" aria-hidden="true"></span>המשך עם Apple</button>
+        </div>
+        <div className="auth-divider" aria-hidden="true"><span>או עם מייל</span></div>
+      </> : null}
       <label className="field" htmlFor="email">כתובת מייל
         <input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@business.co.il" readOnly={source === 'slate' && Boolean(email)} />
         {source === 'slate' && maskedEmail ? <small>המייל שהתקבל מ־Slate: {maskedEmail}</small> : <small>נשלח קישור כניסה מאובטח למייל הזה בלבד.</small>}
