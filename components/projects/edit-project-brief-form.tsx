@@ -2,7 +2,6 @@
 
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 
 type ProjectDetails = {
   id: string;
@@ -15,6 +14,9 @@ type ProjectDetails = {
   importantLinks: string | null;
   tone: string | null;
   colorPreference: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  designNotes: string | null;
   designReference: { id: string; url: string; notes: string | null } | null;
 };
 
@@ -46,34 +48,9 @@ export function EditProjectBriefForm({ project }: EditProjectBriefFormProps) {
     setBusy(true); setError('');
     try {
       const designUrl = validateReference(designUrlInput);
-      const supabase = createClient();
-      const { error: projectError } = await supabase.from('projects').update({
-        business_name: businessName,
-        business_type: String(form.get('businessType') || '').trim() || null,
-        location: String(form.get('location') || '').trim() || null,
-      }).eq('id', project.id);
-      if (projectError) throw projectError;
-
-      const { error: briefError } = await supabase.from('project_briefs').update({
-        business_story: String(form.get('businessStory') || '').trim() || null,
-        primary_goal: String(form.get('primaryGoal') || '').trim() || null,
-        website_copy: String(form.get('websiteCopy') || '').trim() || null,
-        important_links: String(form.get('importantLinks') || '').trim() || null,
-        tone: String(form.get('tone') || '').trim() || null,
-        color_preference: String(form.get('colors') || '').trim() || null,
-      }).eq('project_id', project.id);
-      if (briefError) throw briefError;
-
-      if (designUrl) {
-        const reference = { project_id: project.id, provider: 'dribbble', url: designUrl, notes: designNotes || null };
-        const { error: referenceError } = project.designReference
-          ? await supabase.from('design_references').update(reference).eq('id', project.designReference.id)
-          : await supabase.from('design_references').insert(reference);
-        if (referenceError) throw referenceError;
-      } else if (project.designReference) {
-        const { error: referenceError } = await supabase.from('design_references').delete().eq('id', project.designReference.id);
-        if (referenceError) throw referenceError;
-      }
+      const response = await fetch('/api/projects/brief', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...Object.fromEntries(form),projectId:project.id,designUrl})});
+      const result = await response.json();
+      if(!response.ok)throw new Error(result.error || 'לא הצלחנו לשמור.');
 
       router.replace(`/dashboard/projects/${project.id}`);
       router.refresh();
@@ -93,13 +70,15 @@ export function EditProjectBriefForm({ project }: EditProjectBriefFormProps) {
         <label className="field">שם העסק<input name="businessName" defaultValue={project.businessName} required /></label>
         <label className="field">תחום העסק<input name="businessType" defaultValue={project.businessType ?? ''} /></label>
         <label className="field full">אזור פעילות<input name="location" defaultValue={project.location ?? ''} /></label>
+        <label className="field">טלפון שיופיע באתר<input name="contactPhone" type="tel" dir="ltr" defaultValue={project.contactPhone ?? ''} /></label>
+        <label className="field">אימייל שיופיע באתר<input name="contactEmail" type="email" dir="ltr" defaultValue={project.contactEmail ?? ''} /><small>התראות על פניות יישלחו לאימייל המאומת של החשבון.</small></label>
         <label className="field full">ספרו על העסק<textarea name="businessStory" defaultValue={project.businessStory ?? ''} /></label>
         <label className="field full">מה הפעולה החשובה באתר?<input name="primaryGoal" defaultValue={project.primaryGoal ?? ''} /></label>
       </div></fieldset>
       <fieldset className="brief-group"><legend><span>02</span>הכיוון העיצובי</legend>
       <div className="field-grid">
         <label className="field full">קישור להשראה ב־Dribbble<input name="designUrl" type="url" inputMode="url" defaultValue={project.designReference?.url ?? ''} placeholder="https://dribbble.com/shots/..." /><small>מחפשים כיוון אחר? <a className="inline-link" href="https://dribbble.com/search/web-design" target="_blank" rel="noreferrer">לעיון בעיצובים של אתרים ב־Dribbble ↗</a></small></label>
-        <label className="field full">מה רוצים לקחת מההשראה? <span className="required-hint">(חשוב ל־AI)</span><textarea name="designNotes" defaultValue={project.designReference?.notes ?? ''} placeholder="למשל: פתיחה כהה, הרבה שטח לבן, כותרת גדולה וכרטיסי שירות בהירים." /><small>ה־AI מסתמך על התיאור שלכם ולא פותח את הקישור או מעתיק עיצוב.</small></label>
+        <label className="field full">איזה כיוון עיצובי מתאים לכם?<textarea name="designNotes" defaultValue={project.designNotes ?? project.designReference?.notes ?? ''} placeholder="למשל: כותרת גדולה, צילום רחב ועיצוב אלגנטי." /><small>אפשר לתאר כיוון גם ללא קישור. תמונת השראה ניתן להעלות בפרויקט ולבחור ביצירה.</small></label>
         <label className="field">אופי האתר<select name="tone" defaultValue={project.tone ?? ''}><option value="">בחרו אופי</option><option>נקי ומקצועי</option><option>חם ואישי</option><option>נועז וחדשני</option><option>אלגנטי ומדויק</option></select></label>
         <label className="field">צבעים שאוהבים<input name="colors" defaultValue={project.colorPreference ?? ''} placeholder="למשל: כחול, לבן וסגול" /></label>
       </div></fieldset>

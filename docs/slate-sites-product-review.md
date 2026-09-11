@@ -1,5 +1,7 @@
 # Slate Sites: product review and next release
 
+Update September 11: the implementation described in [the workspace release guide](workspace-release.md) now addresses several gaps below. Its database migration and email/scheduler setup are still required before rollout. The following review is the historical baseline, not a claim that every listed gap remains unchanged.
+
 Reviewed against the local application on September 10, 2026. This is a source-based product review, not an accessibility certification, penetration test, or authenticated end-to-end acceptance test.
 
 ## The product promise

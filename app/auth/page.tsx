@@ -8,9 +8,7 @@ type AuthPageProps = {
   searchParams: Promise<{ next?: string; source?: string; error?: string }>;
 };
 
-function safeNextPath(path: string | undefined) {
-  return path?.startsWith('/') && !path.startsWith('//') ? path : '/dashboard';
-}
+import { safeNextPath } from '@/lib/auth/safe-next-path';
 
 export default async function AuthPage({ searchParams }: AuthPageProps) {
   const params = await searchParams;

@@ -12,9 +12,11 @@ Slate Sites is a Hebrew, RTL-first platform where a business owner securely logs
 - Private, project-scoped storage bucket with row-level access rules
 - Project dashboard and real client-side saving/upload flow once Supabase is configured
 - Baseline browser security headers and server-only protection around service-role access
-- Gemini-generated text plans, private previews, self-service publishing/unpublishing, and a latest-contact-submissions list
+- Image-aware Gemini generation, real-site desktop/mobile previews, targeted revisions, version restoration, exact-version publishing, and a paginated lead inbox (requires the workspace release migration)
 
 See [the product review and prioritized roadmap](docs/slate-sites-product-review.md) for current limitations and the next implementation slice. Slate Sites is the root homepage, with working surfaces under `/auth` and `/dashboard`.
+
+For the new release, follow [the workspace release and rollout guide](docs/workspace-release.md). It records implemented behavior, the required database migration, email/scheduler setup, validation, and remaining work. Do not deploy the new routes before coordinating that migration.
 
 ## ORANGE.GEL product demo
 
@@ -34,7 +36,7 @@ The public route checks the saved version's visibility. Unpublishing removes pub
 ## Local setup
 
 1. Create a Supabase project.
-2. Run [`supabase/migrations/202609070001_initial_schema.sql`](supabase/migrations/202609070001_initial_schema.sql) in its SQL editor.
+2. Run [`supabase/migrations/202609070001_initial_schema.sql`](supabase/migrations/202609070001_initial_schema.sql) and then [`supabase/migrations/202609110001_site_workspace.sql`](supabase/migrations/202609110001_site_workspace.sql) in its SQL editor. Existing installations need only the second migration and the rollout instructions above.
 3. Copy `.env.example` to `.env.local` and fill in the project URL, publishable key, and service-role key. Never commit `.env.local`.
 4. In Supabase Auth, enable email sign-in and keep `{{ .ConfirmationURL }}` in the magic-link template. This UI opens an email link; it does not have a numeric-code entry step. Configure the site URL and allowed `/auth/callback` redirect URLs for local, preview, and production domains. Configure the Google provider separately for social sign-in.
 5. Start the app:
@@ -73,4 +75,4 @@ The response contains a `continue_url` with a random, single-use handoff ID vali
 - Put all environment variables in Vercel—not source control
 - Store `SLATE_HANDOFF_HMAC_SECRET` in both systems and implement the Slate backend call
 - Add rate limits, bot protection, monitoring, backup/retention jobs, and legal/privacy pages before public launch
-- Complete image-aware generation, safe versioned publishing, custom-domain setup, and contact-notification delivery; publishing remains owner-controlled, with no internal review queue
+- Apply and verify the workspace migration, complete notification sender/scheduler setup, and test the authenticated release end to end; custom domains remain future work. Publishing is owner-controlled, with no internal review queue.

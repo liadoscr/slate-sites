@@ -3,10 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getActiveSlateHandoff, normalizeEmail, validHandoffId } from '@/lib/auth/slate-handoff';
 import { getSupabasePublicConfig } from '@/lib/supabase/env';
-
-function safeNextPath(value: string | null) {
-  return value?.startsWith('/') && !value.startsWith('//') ? value : '/dashboard';
-}
+import { safeNextPath } from '@/lib/auth/safe-next-path';
 
 function authErrorResponse(request: NextRequest, message: string) {
   const url = new URL('/auth', request.url);

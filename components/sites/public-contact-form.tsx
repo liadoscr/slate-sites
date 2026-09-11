@@ -1,11 +1,13 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 
 export function PublicContactForm({ projectId, heading }: { projectId: string; heading: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
+  const requestId = useRef<string | null>(null);
+  const requestSignature = useRef('');
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -13,10 +15,14 @@ export function PublicContactForm({ projectId, heading }: { projectId: string; h
     const form = new FormData(formElement);
     setBusy(true); setError(''); setSent(false);
     try {
+      const signature = JSON.stringify(['name','email','phone','message'].map(key=>String(form.get(key)||'')));
+      if(signature!==requestSignature.current){requestId.current=null;requestSignature.current=signature;}
+      requestId.current ??= crypto.randomUUID();
       const response = await fetch(`/api/sites/${projectId}/contact`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
+          requestId: requestId.current,
           name: String(form.get('name') || ''),
           email: String(form.get('email') || ''),
           phone: String(form.get('phone') || ''),
@@ -27,6 +33,7 @@ export function PublicContactForm({ projectId, heading }: { projectId: string; h
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(typeof result.error === 'string' ? result.error : 'לא הצלחנו לשלוח את הפנייה.');
       formElement.reset();
+      requestId.current = null;
       setSent(true);
     } catch (contactError) {
       setError(contactError instanceof Error ? contactError.message : 'לא הצלחנו לשלוח את הפנייה.');
@@ -47,7 +54,7 @@ export function PublicContactForm({ projectId, heading }: { projectId: string; h
         <label className="honeypot" aria-hidden="true">אתר<input name="website" tabIndex={-1} autoComplete="off" /></label>
       </div>
       {error ? <p className="public-form-error" role="alert">{error}</p> : null}
-      {sent ? <p className="public-form-success" role="status">תודה, הפנייה נשלחה בהצלחה.</p> : null}
+      {sent ? <p className="public-form-success" role="status">תודה, הפנייה נשמרה ונשלחה לתיבת הפניות של העסק.</p> : null}
       <button type="submit" disabled={busy}>{busy ? 'שולחים…' : 'שליחת פנייה'}</button>
     </form>
   );

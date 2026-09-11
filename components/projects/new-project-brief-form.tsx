@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
@@ -13,11 +13,13 @@ function safeFilename(filename: string) {
   return filename.normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 100) || 'asset';
 }
 
-export function NewProjectBriefForm({ userId }: NewProjectBriefFormProps) {
+export function NewProjectBriefForm(_props: NewProjectBriefFormProps) {
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const projectId = useRef<string | null>(null);
+  const uploadProgress = useRef(new Map<string, { id:string; path:string; uploaded:boolean; saved:boolean }>());
 
   function chooseFiles(selected: FileList | null) {
     const nextFiles = Array.from(selected ?? []);
@@ -32,7 +34,6 @@ export function NewProjectBriefForm({ userId }: NewProjectBriefFormProps) {
     const businessName = String(form.get('businessName') || '').trim();
     const designUrl = String(form.get('designUrl') || '').trim();
     const designNotes = String(form.get('designNotes') || '').trim();
-    const websiteCopy = String(form.get('websiteCopy') || '').trim();
     const hasRights = form.get('rights') === 'on';
 
     if (businessName.length < 2) { setError('הוסיפו שם עסק כדי לשמור את הפרויקט.'); return; }
@@ -48,37 +49,18 @@ export function NewProjectBriefForm({ userId }: NewProjectBriefFormProps) {
         referenceUrl = parsed.toString();
       }
       const supabase = createClient();
-      const { data: project, error: projectError } = await supabase.from('projects').insert({
-        owner_id: userId,
-        business_name: businessName,
-        business_type: String(form.get('businessType') || '').trim() || null,
-        location: String(form.get('location') || '').trim() || null,
-        status: 'draft',
-      }).select('id').single();
-      if (projectError || !project) throw projectError || new Error('לא הצלחנו ליצור פרויקט.');
-
-      const { error: briefError } = await supabase.from('project_briefs').insert({
-        project_id: project.id,
-        business_story: String(form.get('businessStory') || '').trim() || null,
-        primary_goal: String(form.get('primaryGoal') || '').trim() || null,
-        website_copy: websiteCopy || null,
-        important_links: String(form.get('importantLinks') || '').trim() || null,
-        tone: String(form.get('tone') || '').trim() || null,
-        color_preference: String(form.get('colors') || '').trim() || null,
-      });
-      if (briefError) throw briefError;
-
-      if (referenceUrl) {
-        const { error: referenceError } = await supabase.from('design_references').insert({ project_id: project.id, url: referenceUrl, notes: designNotes || null });
-        if (referenceError) throw referenceError;
-      }
+      projectId.current ??= crypto.randomUUID();
+      const project = {id:projectId.current};
+      const response = await fetch('/api/projects/brief',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...Object.fromEntries(form),projectId:project.id,designUrl:referenceUrl,designNotes})});
+      const result = await response.json();
+      if(!response.ok)throw new Error(result.error || 'לא הצלחנו לשמור את הבריף.');
 
       for (const file of files) {
-        const path = `${project.id}/${crypto.randomUUID()}-${safeFilename(file.name)}`;
-        const { error: uploadError } = await supabase.storage.from('project-assets').upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
-        if (uploadError) throw uploadError;
-        const { error: assetError } = await supabase.from('project_assets').insert({ project_id: project.id, storage_path: path, original_name: file.name, mime_type: file.type, size_bytes: file.size });
-        if (assetError) throw assetError;
+        const key=`${file.name}-${file.size}-${file.lastModified}`;
+        let progress=uploadProgress.current.get(key);
+        if(!progress){const id=crypto.randomUUID();progress={id,path:`${project.id}/${id}-${safeFilename(file.name)}`,uploaded:false,saved:false};uploadProgress.current.set(key,progress);}
+        if(!progress.uploaded){const { error: uploadError } = await supabase.storage.from('project-assets').upload(progress.path, file, { cacheControl: '3600', upsert: false, contentType: file.type });if (uploadError) throw uploadError;progress.uploaded=true;}
+        if(!progress.saved){const { error: assetError } = await supabase.from('project_assets').upsert({ id:progress.id,project_id: project.id, storage_path: progress.path, original_name: file.name, mime_type: file.type, size_bytes: file.size },{onConflict:'id'});if (assetError) throw assetError;progress.saved=true;}
       }
 
       router.replace(`/dashboard/projects/${project.id}`);
@@ -98,13 +80,15 @@ export function NewProjectBriefForm({ userId }: NewProjectBriefFormProps) {
         <label className="field">שם העסק<input name="businessName" required placeholder="למשל: סטודיו אבן" /></label>
         <label className="field">תחום העסק<input name="businessType" placeholder="למשל: אדריכלות פנים" /></label>
         <label className="field full">אזור פעילות<input name="location" placeholder="למשל: תל אביב והסביבה" /></label>
+        <label className="field">טלפון שיופיע באתר<input name="contactPhone" type="tel" dir="ltr" placeholder="0501234567" /></label>
+        <label className="field">אימייל שיופיע באתר<input name="contactEmail" type="email" dir="ltr" placeholder="hello@business.co.il" /><small>התראות על פניות יישלחו לאימייל המאומת של החשבון.</small></label>
         <label className="field full">ספרו על העסק<textarea name="businessStory" placeholder="מה אתם עושים, למי, ומה מיוחד אצלכם?" /></label>
         <label className="field full">מה הפעולה החשובה באתר?<input name="primaryGoal" placeholder="למשל: קביעת שיחת ייעוץ או השארת פרטים" /></label>
       </div></fieldset>
       <fieldset className="brief-group"><legend><span>02</span>הכיוון העיצובי</legend>
       <div className="field-grid">
         <label className="field full">קישור להשראה ב־Dribbble<input name="designUrl" type="url" inputMode="url" placeholder="https://dribbble.com/shots/..." /><small>מחפשים השראה? <a className="inline-link" href="https://dribbble.com/search/web-design" target="_blank" rel="noreferrer">לעיון בעיצובים של אתרים ב־Dribbble ↗</a></small><small>הקישור משמש להשראה בלבד. אנחנו לא מעתיקים עיצובים, תוכן או נכסים של יוצרים אחרים.</small></label>
-        <label className="field full">מה רוצים לקחת מההשראה? <span className="required-hint">(חשוב ל־AI)</span><textarea name="designNotes" placeholder="למשל: פתיחה כהה עם כותרת גדולה, הרבה מרווח לבן, כרטיסי שירות בהירים, תמונות גדולות, כחול עמוק וסגול. לא רוצים אנימציות." /><small>ה־AI לא פותח את קישור Dribbble. התיאור שלכם הוא מה שמתרגם את ההשראה לכיוון מקורי לאתר.</small></label>
+        <label className="field full">איזה כיוון עיצובי מתאים לכם?<textarea name="designNotes" placeholder="למשל: כותרת גדולה, צילום רחב ועיצוב אלגנטי. אפשר לכתוב גם ללא קישור." /><small>ה־AI לא פותח את קישור Dribbble. אפשר להעלות תמונת השראה ולבחור אותה בשלב היצירה.</small></label>
         <label className="field">אופי האתר<select name="tone" defaultValue=""><option value="">בחרו אופי</option><option>נקי ומקצועי</option><option>חם ואישי</option><option>נועז וחדשני</option><option>אלגנטי ומדויק</option></select></label>
         <label className="field">צבעים שאוהבים<input name="colors" placeholder="למשל: כחול, לבן וסגול" /></label>
       </div></fieldset>
