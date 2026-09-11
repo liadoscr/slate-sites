@@ -14,7 +14,15 @@ Slate Sites is a Hebrew, RTL-first platform where a business owner securely logs
 - Baseline browser security headers and server-only protection around service-role access
 - Gemini-generated text plans, private previews, self-service publishing/unpublishing, and a latest-contact-submissions list
 
-See [the product review and prioritized roadmap](docs/slate-sites-product-review.md) for current limitations and the next implementation slice. The root homepage currently contains a separate ORANGE.GEL demo; Slate working surfaces are under `/auth` and `/dashboard`.
+See [the product review and prioritized roadmap](docs/slate-sites-product-review.md) for current limitations and the next implementation slice. Slate Sites is the root homepage, with working surfaces under `/auth` and `/dashboard`.
+
+## ORANGE.GEL product demo
+
+The preserved, hand-crafted demo belongs to the owner's real Supabase project `855f60cc-2e52-443c-83c4-dfa2c6579210`. Its brief, original hero asset, and first site version are stored alongside normal projects. The saved `orange-gel-v1` template marker selects the original component in both the owner-only preview and public site. This is a curated product example, not an automatically generated AI result; sample business details are explicitly labeled.
+
+The public route checks the saved version's visibility. Unpublishing removes public access and the homepage's demo link; it does not delete the project. Normal AI generation can create a new private draft without replacing the original demo version. The existing static `dist/` export and `.openai/hosting.json` are retained separately; deploy the main Next.js app using its existing Vercel workflow.
+
+`node scripts/import-orange-demo.mjs` is a read-only check. `--apply` creates missing records and uploads without overwriting existing work; `--apply --publish` explicitly publishes the imported version. Only use this one-time importer for the account named in the script. It verifies the account's email, rejects conflicting IDs/duplicate projects, and refuses to publish over newer versions. It does not print credentials and does not require a schema migration.
 
 ## Stack
 

@@ -74,6 +74,6 @@ Acceptance criteria:
 - Keyboard, screen-reader, Hebrew RTL, narrow-screen, and 200% zoom checks pass for the key flows; the actual scope and any remaining issues are recorded.
 - Another account cannot access a customer's draft, uploads, leads, or publication controls.
 
-## Decision still needed
+## Homepage/demo decision — resolved September 11
 
-The current root homepage is an ORANGE.GEL nail-studio demo from an earlier committed change. Decide whether to restore Slate Sites at `/` and keep that demo on a separate route, or retain the demo homepage. This UI pass preserves it rather than overwriting unrelated work.
+The owner requested Slate Sites back at `/` and ORANGE.GEL as a separate project in their existing account. The restored homepage now uses Slate branding, self-service copy, responsive navigation, and a clearly labeled curated-demo showcase. The original orange component is selected by the imported project's saved version; its public route honors visibility and its private preview retains owner authorization. The demo is not presented as an automatic output of the current AI engine. See README for the repeat-safe import and preservation details.

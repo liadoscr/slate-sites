@@ -7,6 +7,7 @@ import type { GeneratedSitePlan } from '@/lib/ai/gemini';
 import { GenerateSitePlanButton } from '@/components/projects/generate-site-plan-button';
 import { PublishSiteButton } from '@/components/projects/publish-site-button';
 import { projectStatusLabels } from '@/lib/projects/status';
+import { isOrangeGelDemo } from '@/lib/sites/orange-demo';
 
 type ProjectPageProps = { params: Promise<{ projectId: string }> };
 
@@ -73,8 +74,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       <section className="panel ai-plan-panel">
         <div className="ai-plan-heading">
           <div>
-            <p className="kicker">Slate AI</p>
-            <h2>{isGeneratedSitePlan(plan) ? 'הכיוון של האתר שלך' : 'מהבריף לתוכנית הראשונה'}</h2>
+            <p className="kicker">{isOrangeGelDemo(plan) ? 'דוגמת מוצר · ORANGE.GEL' : 'Slate AI'}</p>
+            <h2>{isOrangeGelDemo(plan) ? 'אתר ההדגמה שלך' : isGeneratedSitePlan(plan) ? 'הכיוון של האתר שלך' : 'מהבריף לתוכנית הראשונה'}</h2>
             <p>{isGeneratedSitePlan(plan) ? 'עברו על התוכן, פתחו תצוגה מקדימה ופרסמו כשאתם מוכנים.' : 'יוצרים תוכן ומבנה לעמוד אחד, מתוך הפרטים שסיפרתם על העסק.'}</p>
           </div>
           <div className="ai-plan-actions">
@@ -83,7 +84,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             {isGeneratedSitePlan(plan) && latestVersion ? <PublishSiteButton projectId={projectId} isCurrentVersionPublished={latestVersion.visibility === 'public'} hasLiveSite={Boolean(liveVersion)} liveUrl={liveVersion?.published_url ?? null} /> : null}
           </div>
         </div>
-        <p className="ai-privacy-note">בשלב הבטא נשלח ל-AI רק הטקסט מהבריף — לא הקבצים שהעליתם. אל תוסיפו מידע רגיש לבריף.</p>
+        <p className="ai-privacy-note">{isOrangeGelDemo(plan) ? 'העיצוב המקורי של ORANGE.GEL נשמר כאן כדמו. פתחו תצוגה מקדימה כדי לראות אותו. יצירת תוכן AI תיצור טיוטה חדשה; היא לא תעדכן אוטומטית את עיצוב הדמו.' : 'בשלב הבטא נשלח ל-AI רק הטקסט מהבריף — לא הקבצים שהעליתם. אל תוסיפו מידע רגיש לבריף.'}</p>
         {isGeneratedSitePlan(plan) && latestVersion ? (
           <div className="site-plan" dir="rtl">
             <div className="plan-overview">

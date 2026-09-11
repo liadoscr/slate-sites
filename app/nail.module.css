@@ -13,6 +13,9 @@
 
 .site *, .site *::before, .site *::after { box-sizing: border-box; }
 .site a:focus-visible { outline: 3px solid var(--gel-ink); outline-offset: 4px; }
+.demoNotice { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 14px 24px; background: #171717; color: #fff; font-size: .875rem; line-height: 1.6; }
+.demoNotice a { color: #ffd9c7; flex-shrink: 0; }
+.stars span { font-size: .875rem; letter-spacing: 0; }
 
 .header {
   position: relative;
@@ -68,8 +71,8 @@
   margin: 0;
   font-size: clamp(58px, 7.5vw, 122px);
   font-weight: 950;
-  letter-spacing: -.085em;
-  line-height: .86;
+  letter-spacing: -.035em;
+  line-height: 1.05;
 }
 
 .hero h1 em { color: var(--gel-orange); font-style: normal; }

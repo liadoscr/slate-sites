@@ -1,9 +1,12 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { getCurrentUser } from '@/lib/data/current-user';
 import { projectStatusLabels } from '@/lib/projects/status';
+import { ORANGE_DEMO_PROJECT_ID } from '@/lib/sites/orange-demo';
+import orangeHero from '@/public/gel-orange-hero.png';
 
 type Project = { id: string; business_name: string; business_type: string | null; status: string; updated_at: string; site_versions: { visibility: string }[] };
 
@@ -40,6 +43,7 @@ export default async function DashboardPage() {
       <section className="dashboard-grid" aria-label="פרויקטים">
         {projects.map((project) => (
           <Link className="project-card" href={`/dashboard/projects/${project.id}`} key={project.id}>
+            {project.id === ORANGE_DEMO_PROJECT_ID ? <div className="project-demo-image"><Image src={orangeHero} alt="אתר הדגמה ORANGE.GEL" fill sizes="(max-width: 620px) 90vw, 380px" /><span>אתר הדגמה</span></div> : null}
             <div className="project-card-head"><span className="project-monogram" aria-hidden="true">{project.business_name.slice(0, 1)}</span><span className="status-pill" data-status={project.status}>{projectStatusLabels[project.status] ?? 'בעבודה'}</span></div>
             <h2>{project.business_name}</h2>
             <p>{project.business_type || 'האתר של העסק שלך'}</p>

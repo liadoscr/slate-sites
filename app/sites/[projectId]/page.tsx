@@ -1,12 +1,22 @@
 import type { CSSProperties } from 'react';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import type { GeneratedSitePlan } from '@/lib/ai/gemini';
-import { createAdminClient } from '@/lib/supabase/admin';
 import { PublicContactForm } from '@/components/sites/public-contact-form';
+import { getPublishedSite } from '@/lib/sites/public-site';
+import { isOrangeGelDemo } from '@/lib/sites/orange-demo';
+import { OrangeGelDemo } from '@/components/sites/orange-gel-demo';
 
 export const dynamic = 'force-dynamic';
 
 type PublicSitePageProps = { params: Promise<{ projectId: string }> };
+
+export async function generateMetadata({ params }: PublicSitePageProps): Promise<Metadata> {
+  const site = await getPublishedSite((await params).projectId);
+  const content = site?.version.content as GeneratedSitePlan | undefined;
+  if (!isGeneratedSitePlan(content)) return { title: 'האתר אינו זמין | Slate Sites', description: '', robots: { index: false } };
+  return { title: content.seo.title, description: content.seo.description, ...(isOrangeGelDemo(content) ? { robots: { index: false, follow: true } } : {}) };
+}
 
 function isGeneratedSitePlan(plan: GeneratedSitePlan | undefined): plan is GeneratedSitePlan {
   return Boolean(plan?.siteTitle && plan.positioning && plan.sections?.length);
@@ -30,19 +40,12 @@ function softAccent(hex: string) {
 
 export default async function PublicSitePage({ params }: PublicSitePageProps) {
   const { projectId } = await params;
-  const admin = createAdminClient();
-  const { data: project } = await admin.from('projects').select('id, business_name, business_type, location').eq('id', projectId).maybeSingle();
-  if (!project) notFound();
-  const { data: version } = await admin
-    .from('site_versions')
-    .select('content')
-    .eq('project_id', projectId)
-    .eq('visibility', 'public')
-    .order('version_number', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  const plan = version?.content as GeneratedSitePlan | undefined;
+  const site = await getPublishedSite(projectId);
+  if (!site) notFound();
+  const { project, version } = site;
+  const plan = version.content as GeneratedSitePlan | undefined;
   if (!isGeneratedSitePlan(plan)) notFound();
+  if (isOrangeGelDemo(plan)) return <OrangeGelDemo />;
 
   const accent = accentFromPalette(plan.visualDirection.palette);
   const style = { '--preview-accent': accent, '--preview-accent-soft': softAccent(accent) } as CSSProperties;

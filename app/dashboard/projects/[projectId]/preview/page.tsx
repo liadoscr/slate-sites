@@ -5,6 +5,8 @@ import type { GeneratedSitePlan } from '@/lib/ai/gemini';
 import { getCurrentUser } from '@/lib/data/current-user';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { createClient } from '@/lib/supabase/server';
+import { OrangeGelDemo } from '@/components/sites/orange-gel-demo';
+import { isOrangeGelDemo } from '@/lib/sites/orange-demo';
 
 type PreviewPageProps = { params: Promise<{ projectId: string }> };
 type PreviewStyle = CSSProperties & { '--preview-accent': string; '--preview-accent-soft': string };
@@ -52,6 +54,7 @@ export default async function ProjectPreviewPage({ params }: PreviewPageProps) {
     .maybeSingle();
   const plan = version?.content as GeneratedSitePlan | undefined;
   if (!version || !isGeneratedSitePlan(plan)) redirect(`/dashboard/projects/${projectId}`);
+  if (isOrangeGelDemo(plan)) return <div><header className="preview-toolbar"><span>תצוגה פרטית · דמו ORANGE.GEL · גרסה {version.version_number}</span><Link href={`/dashboard/projects/${projectId}`}>חזרה לפרויקט</Link></header><OrangeGelDemo /></div>;
 
   const accent = accentFromPalette(plan.visualDirection.palette);
   const style: PreviewStyle = { '--preview-accent': accent, '--preview-accent-soft': softAccent(accent) };

@@ -45,6 +45,9 @@
 .app-shell .project-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .app-shell .project-monogram { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: #f2f0ff; color: var(--violet-dark); font-size: 1.125rem; font-weight: 700; }
 .app-shell .project-card h2 { margin: 22px 0 7px; font-size: 1.375rem; }
+.app-shell .project-demo-image { position: relative; height: 156px; margin: -12px -12px 20px; overflow: hidden; border-radius: 10px; background: #ff5c1a; }
+.app-shell .project-demo-image img { object-fit: cover; object-position: 50% 54%; }
+.app-shell .project-demo-image span { position: absolute; bottom: 12px; right: 12px; padding: 4px 10px; border-radius: 6px; background: #fff; color: #191923; font-size: .8125rem; }
 .app-shell .project-card p { font-size: .9375rem; }
 .app-shell .project-card-footer { display:flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 22px; color: var(--muted); font-size: .8125rem; }
 .app-shell .project-card-footer b { color: var(--violet-dark); font-size: .875rem; }

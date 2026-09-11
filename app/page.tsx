@@ -1,152 +1,69 @@
 import Image from 'next/image';
-import heroImage from '../public/gel-orange-hero.png';
-import styles from './nail.module.css';
+import Link from 'next/link';
+import { getCurrentUser } from '@/lib/data/current-user';
+import { isSupabaseConfigured } from '@/lib/supabase/env';
+import { getPublishedSite } from '@/lib/sites/public-site';
+import { isOrangeGelDemo, ORANGE_DEMO_PROJECT_ID } from '@/lib/sites/orange-demo';
+import heroImage from '@/public/gel-orange-hero.png';
+import styles from './home.module.css';
 
-const treatments = [
-  { number: '01', name: 'לק ג׳ל', description: 'מניקור קפדני, מבנה נקי וצבע מושלם עד שלושה שבועות.', duration: '60 דק׳', price: '₪140' },
-  { number: '02', name: 'מבנה אנטומי', description: 'יישור וחיזוק לציפורן טבעית במראה דק, מאוזן ועמיד.', duration: '75 דק׳', price: '₪175' },
-  { number: '03', name: 'נייל ארט', description: 'פרנץ׳, קווים, כרום או רעיון משלך — בתוספת לטיפול.', duration: '+15 דק׳', price: 'מ־₪20' },
-  { number: '04', name: 'הסרה + מניקור', description: 'הסרה בטוחה, עיצוב הציפורן וטיפול מזין לידיים.', duration: '40 דק׳', price: '₪90' },
+const steps = [
+  ['01', 'מספרים על העסק', 'מה אתם עושים, למי אתם פונים ומה חשוב לכם שאנשים יכירו.'],
+  ['02', 'בוחרים כיוון', 'מוסיפים השראה מ־Dribbble, טקסטים ותמונות. מתארים בדיוק מה אוהבים.'],
+  ['03', 'יוצרים ומפרסמים', 'יוצרים תוכן עם AI, בודקים תצוגה מקדימה ומפרסמים כשמוכנים.'],
 ];
 
-const shades = [
-  { name: 'Orange Crush', color: '#ff5c1a', dark: false },
-  { name: 'Cherry Mood', color: '#c91e35', dark: false },
-  { name: 'Milky Way', color: '#f1dfd6', dark: false },
-  { name: 'Soft Pink', color: '#f0a9ba', dark: false },
-  { name: 'Lime Shot', color: '#c9ef43', dark: false },
-  { name: 'Midnight', color: '#1c1c1c', dark: true },
-];
+export default async function HomePage() {
+  const user = isSupabaseConfigured() ? await getCurrentUser() : null;
+  const accountHref = user ? '/dashboard' : '/auth';
+  const briefHref = user ? '/dashboard/new' : '/auth?next=/dashboard/new';
+  const publishedDemo = isSupabaseConfigured() && process.env.SUPABASE_SERVICE_ROLE_KEY
+    ? await getPublishedSite(ORANGE_DEMO_PROJECT_ID).catch(() => null) : null;
+  const demoHref = publishedDemo && isOrangeGelDemo(publishedDemo.version.content) ? `/sites/${ORANGE_DEMO_PROJECT_ID}` : null;
 
-// The homepage is a self-contained client-facing concept for the gel studio.
-export default function HomePage() {
   return (
-    <main className={styles.site} id="top">
+    <div className={styles.page} id="top">
+      <a className={styles.skip} href="#main">דלגו לתוכן</a>
       <header className={styles.header}>
-        <a className={styles.logo} href="#top" aria-label="ORANGE GEL, דף הבית">
-          ORANGE<span>.</span>GEL
-        </a>
-        <nav className={styles.nav} aria-label="ניווט ראשי">
-          <a href="#treatments">טיפולים</a>
-          <a href="#studio">הסטודיו</a>
-          <a href="#booking">קביעת תור</a>
-        </nav>
-        <a className={styles.headerCta} href="#booking">קובעות תור <span aria-hidden="true">↙</span></a>
+        <Link className={`brand ${styles.brand}`} href="/" aria-label="Slate Sites, דף הבית"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-divider" /><span className="brand-product">Sites</span></Link>
+        <nav className={styles.nav} aria-label="ניווט ראשי"><a href="#how-it-works">איך זה עובד</a><a href="#your-workspace">מה מקבלים</a><a href="#security">פרטיות</a><a href="https://www.slate.co.il/" target="_blank" rel="noreferrer">ל־Slate ↗</a></nav>
+        <Link className={styles.account} href={accountHref}>{user ? 'האתרים שלי' : 'כניסה לחשבון'} <span aria-hidden="true">↗</span></Link>
       </header>
 
-      <section className={styles.hero} aria-labelledby="hero-title">
-        <div className={styles.heroCopy}>
-          <p className={styles.eyebrow}>סטודיו לק ג׳ל · רמת גן</p>
-          <h1 id="hero-title">צבע שעושה<br />לך <em>מצב רוח.</em></h1>
-          <p className={styles.heroText}>מניקור מדויק, חומרים מעולים ושעה שהיא רק שלך. יוצאות עם ידיים שקשה להפסיק להסתכל עליהן.</p>
-          <div className={styles.heroActions}>
-            <a className={styles.primaryCta} href="#booking">בא לי תור <span aria-hidden="true">←</span></a>
-            <a className={styles.secondaryCta} href="#treatments">למחירון</a>
+      <main id="main">
+        <section className={styles.hero} aria-labelledby="hero-title">
+          <div className={styles.heroCopy}>
+            <p className={styles.eyebrow}>מבית Slate <span /> נבנה סביב העסק שלך</p>
+            <h1 id="hero-title">העסק שלך.<br />הסיפור שלך.<br /><em>האתר שלך.</em></h1>
+            <p className={styles.intro}>יש לכם עסק לספר עליו. תנו לו מקום משלו ברשת — עם בריף פשוט, תוכן בעזרת AI ואתר של עמוד אחד, בשליטה שלכם.</p>
+            <div className={styles.actions}><Link className={styles.primary} href={briefHref}>מתחילים את האתר שלי <span aria-hidden="true">←</span></Link><a className={styles.textLink} href="#how-it-works">ככה זה עובד ↓</a></div>
+            <p className={styles.heroNote}>בעברית. בלי עורך מסובך. מפרסמים רק כשאתם מוכנים.</p>
           </div>
-          <div className={styles.heroMeta} aria-label="פרטי הסטודיו">
-            <span>א׳—ה׳ · 09:00–20:00</span>
-            <span>הרא״ה 18, רמת גן</span>
-          </div>
-        </div>
-
-        <div className={styles.heroVisual}>
-          <Image
-            className={styles.heroImage}
-            src={heroImage}
-            alt="יד עם מניקור ג׳ל כתום מבריק על כדור כרום"
-            fill
-            sizes="(max-width: 860px) 100vw, 48vw"
-            preload
-            unoptimized
-          />
-          <span className={styles.imageBadge}>NEW<br />SHADE<br /><b>024</b></span>
-          <span className={styles.imageNote}>ORANGE CRUSH</span>
-        </div>
-      </section>
-
-      <div className={styles.ticker} aria-label="התמחויות הסטודיו">
-        <div>לק ג׳ל <span>✦</span> בנייה אנטומית <span>✦</span> חיזוק טבעי <span>✦</span> נייל ארט עדין <span>✦</span> לק ג׳ל <span>✦</span></div>
-      </div>
-
-      <section className={styles.treatments} id="treatments" aria-labelledby="treatments-title">
-        <div className={styles.sectionIntro}>
-          <p className={styles.sectionNumber}>01 / טיפולים</p>
-          <h2 id="treatments-title">כל מה שהציפורניים שלך צריכות.<br /><em>בלי קיצורי דרך.</em></h2>
-          <p>כל טיפול מתחיל באבחון קצר ומסתיים בשמן קוטיקולה, קרם ידיים והנחיות מדויקות לשמירה בבית.</p>
-        </div>
-        <div className={styles.treatmentGrid}>
-          {treatments.map((treatment, index) => (
-            <article className={`${styles.treatmentCard} ${index === 0 ? styles.featuredTreatment : ''}`} key={treatment.number}>
-              <span className={styles.cardNumber}>{treatment.number}</span>
-              <h3>{treatment.name}</h3>
-              <p>{treatment.description}</p>
-              <div><span>{treatment.duration}</span><strong>{treatment.price}</strong></div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.studio} id="studio" aria-labelledby="studio-title">
-        <p className={styles.sectionNumber}>02 / הסטודיו</p>
-        <div className={styles.studioHeadline}>
-          <span aria-hidden="true">GOOD</span>
-          <h2 id="studio-title">ציפורניים טובות.<br /><em>מצב רוח טוב.</em></h2>
-          <span aria-hidden="true">MOOD</span>
-        </div>
-        <div className={styles.studioDetails}>
-          <p className={styles.studioLead}>ORANGE.GEL הוא סטודיו קטן ואישי שבו אסתטיקה, סטריליות ודיוק מקבלים את אותו מקום.</p>
-          <ol>
-            <li><span>01</span><div><strong>עובדות נקי</strong><p>כלים עוברים חיטוי ועיקור בין לקוחה ללקוחה. תמיד.</p></div></li>
-            <li><span>02</span><div><strong>שומרות על הטבעי</strong><p>בנייה נכונה והסרה עדינה, בלי לפגוע בציפורן שלך.</p></div></li>
-            <li><span>03</span><div><strong>לא ממהרות</strong><p>השעה שלך שמורה רק לך, בלי תורים כפולים ובלי לחץ.</p></div></li>
-          </ol>
-        </div>
-      </section>
-
-      <section className={styles.shades} aria-labelledby="shades-title">
-        <div className={styles.shadesHeading}>
-          <p className={styles.sectionNumber}>03 / הצבעים</p>
-          <h2 id="shades-title">מה הצבע שלך<br /><em>היום?</em></h2>
-          <p>מעל 120 גוונים מחכים בסטודיו. אלה השישה שאנחנו לא מפסיקות לבחור החודש.</p>
-        </div>
-        <div className={styles.shadeList}>
-          {shades.map((shade, index) => (
-            <div className={styles.shade} key={shade.name}>
-              <span className={styles.shadeCircle} style={{ backgroundColor: shade.color, color: shade.dark ? '#fff' : '#171717' }}>
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <b>{shade.name}</b>
+          <div className={styles.showcase}>
+            <div className={styles.showcaseLabel}><span>מקום לסגנון של כל עסק</span><b>דוגמת עיצוב / 01</b></div>
+            <div className={styles.demoWindow}>
+              <div className={styles.windowBar}><span className={styles.windowDots} aria-hidden="true">● ● ●</span><b dir="ltr">ORANGE.GEL</b><span>אתר הדגמה</span></div>
+              <div className={styles.demoHero}><div><small>סטודיו לק ג׳ל</small><h2>צבע שעושה<br />לך <em>מצב רוח.</em></h2><p>דוגמת מוצר בעיצוב מקורי.<br />אופי אחר. אותו בית ב־Slate.</p></div><div className={styles.demoImage}><Image src={heroImage} alt="מניקור כתום מתוך אתר ההדגמה ORANGE.GEL" fill sizes="(max-width: 800px) 45vw, 300px" preload /></div></div>
+              <div className={styles.demoServices}><span>לק ג׳ל</span><span>מבנה אנטומי</span><span>נייל ארט</span></div>
             </div>
-          ))}
-        </div>
-      </section>
+            <div className={styles.showcaseFooter}><p>דמו מעוצב מראש, להמחשת כיוון — לא תוצר אוטומטי של ה־AI.</p>{demoHref ? <Link href={demoHref}>לצפייה באתר הדמו ↗</Link> : <span>דוגמת עיצוב</span>}</div>
+          </div>
+        </section>
 
-      <section className={styles.booking} id="booking" aria-labelledby="booking-title">
-        <div className={styles.reviewCard}>
-          <div className={styles.stars} aria-label="5 מתוך 5 כוכבים">★★★★★</div>
-          <blockquote>״סוף סוף מצאתי מישהי שגם רואה כל פרט קטן וגם ממש כיף להעביר איתה שעה. הג׳ל נשאר מושלם כמעט חודש.״</blockquote>
-          <p>— נטע לוי, לקוחה קבועה</p>
-          <span className={styles.reviewMark} aria-hidden="true">“</span>
-        </div>
-        <div className={styles.bookingCard}>
-          <p className={styles.sectionNumber}>04 / קובעות</p>
-          <h2 id="booking-title">התור הבא שלך<br /><em>מתחיל כאן.</em></h2>
-          <p>כתבי לנו איזה טיפול תרצי ומתי נוח לך. נחזור עם השעות הפנויות הקרובות.</p>
-          <a className={styles.bookingCta} href="mailto:hello@orangegel.studio?subject=בא לי לקבוע תור">שלחי הודעה <span aria-hidden="true">←</span></a>
-          <dl className={styles.contactList}>
-            <div><dt>טלפון</dt><dd><a href="tel:+97235550148">03-555-0148</a></dd></div>
-            <div><dt>כתובת</dt><dd>הרא״ה 18, רמת גן</dd></div>
-            <div><dt>שעות</dt><dd>א׳—ה׳, 09:00–20:00</dd></div>
-          </dl>
-        </div>
-      </section>
+        <section className={styles.process} id="how-it-works" aria-labelledby="process-title">
+          <div className={styles.sectionHeading}><p className={styles.eyebrow}>פשוט להתחיל</p><h2 id="process-title">שלושה דברים ממכם.<br /><span>אתר אחד שהוא שלכם.</span></h2></div>
+          <ol className={styles.steps}>{steps.map(([number, title, description]) => <li key={number}><span>{number}</span><h3>{title}</h3><p>{description}</p>{number === '02' ? <a href="https://dribbble.com/search/web-design" target="_blank" rel="noreferrer">מצאו השראה ב־Dribbble ↗</a> : null}</li>)}</ol>
+        </section>
 
-      <footer className={styles.footer}>
-        <a className={styles.logo} href="#top">ORANGE<span>.</span>GEL</a>
-        <p>לק ג׳ל · מבנה אנטומי · נייל ארט</p>
-        <a href="mailto:hello@orangegel.studio">hello@orangegel.studio</a>
-        <span>© 2026</span>
-      </footer>
-    </main>
+        <section className={styles.workspace} id="your-workspace" aria-labelledby="workspace-title">
+          <div><p className={styles.eyebrow}>החשבון שלך, סביבת העבודה שלך</p><h2 id="workspace-title">פחות להתעסק באתר.<br /><em>יותר להתמקד בעסק.</em></h2><p>הבריף, ההשראות, גרסאות התוכן והפניות מהאתר נמצאים במקום אחד. חוזרים, מעדכנים ומתקדמים בקצב שלכם.</p><Link className={styles.primary} href={briefHref}>{user ? 'ליצירת אתר חדש' : 'פותחים חשבון ומתחילים'} <span aria-hidden="true">←</span></Link></div>
+          <dl className={styles.features}><div><dt><span>01</span>החומרים שלכם, מסודרים</dt><dd>טקסטים, קישורי השראה וקבצים שמורים בתוך כל פרויקט.</dd></div><div><dt><span>02</span>רואים לפני שמפרסמים</dt><dd>תצוגה מקדימה פרטית וסטטוס הפרסום של האתר בתוך הפרויקט.</dd></div><div><dt><span>03</span>אתם מחליטים מתי לעלות לאוויר</dt><dd>פרסום עצמאי, קישור לאתר וטופס יצירת קשר. אין צורך בהמתנה לצוות.</dd></div></dl>
+        </section>
+
+        <section className={styles.security} id="security" aria-labelledby="security-title"><p className={styles.eyebrow}>פרטיות כחלק מהדרך</p><h2 id="security-title">החומרים שלכם נשארים בחשבון שלכם.</h2><p>נכנסים עם Google או קישור למייל. הבריפים והקבצים נגישים דרך החשבון, והתצוגה המקדימה מיועדת לבעל הפרויקט. האתר עצמו הופך לציבורי רק בפרסום.</p><p className={styles.betaNote}>אנחנו בבטא: ה־AI משתמש כרגע בטקסט ובהנחיות שלכם, לא קורא את הקישור ב־Dribbble ולא משלב אוטומטית קבצים שהעליתם. אל תכללו מידע רגיש בבריף.</p></section>
+      </main>
+
+      <footer className={styles.footer}><Link className="brand" href="/" aria-label="Slate Sites"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-product">Sites</span></Link><span>© {new Date().getFullYear()} Slate Sites</span><a href="https://www.slate.co.il/" target="_blank" rel="noreferrer">עוד מוצרים מבית Slate ↗</a></footer>
+    </div>
   );
 }
