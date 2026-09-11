@@ -5,8 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { getCurrentUser } from '@/lib/data/current-user';
 import { projectStatusLabels } from '@/lib/projects/status';
-import { ORANGE_DEMO_PROJECT_ID } from '@/lib/sites/orange-demo';
-import orangeHero from '@/public/gel-orange-hero.png';
+import { demoCatalog } from '@/lib/sites/demo-catalog';
 
 type Project = { id: string; business_name: string; business_type: string | null; status: string; updated_at: string; site_versions: { visibility: string }[] };
 
@@ -41,15 +40,15 @@ export default async function DashboardPage() {
       </section>
       {error ? <p className="error-message" role="alert">לא הצלחנו לטעון את האתרים. נסו לרענן את העמוד.</p> : <dl className="dashboard-summary" aria-label="סיכום האתרים"><div><dt>האתרים שלי</dt><dd>{projects.length}</dd></div><div><dt>באוויר</dt><dd>{projects.filter((project) => project.status === 'published').length}</dd></div><div><dt>בעבודה</dt><dd>{projects.filter((project) => !['published', 'archived'].includes(project.status)).length}</dd></div></dl>}
       <section className="dashboard-grid" aria-label="פרויקטים">
-        {projects.map((project) => (
+        {projects.map((project) => { const demo = demoCatalog.find(item => item.projectId === project.id); return (
           <Link className="project-card" href={`/dashboard/projects/${project.id}`} key={project.id}>
-            {project.id === ORANGE_DEMO_PROJECT_ID ? <div className="project-demo-image"><Image src={orangeHero} alt="אתר הדגמה ORANGE.GEL" fill sizes="(max-width: 620px) 90vw, 380px" /><span>אתר הדגמה</span></div> : null}
+            {demo ? <div className="project-demo-image" style={{background: demo.background}}><Image src={demo.image} alt={demo.imageAlt} fill sizes="(max-width: 620px) 90vw, 380px" style={{objectPosition: demo.name === 'ORANGE.GEL' ? '50% 54%' : '50% 27%'}} /><span>אתר הדגמה · {demo.category}</span></div> : null}
             <div className="project-card-head"><span className="project-monogram" aria-hidden="true">{project.business_name.slice(0, 1)}</span><span className="status-pill" data-status={project.status}>{projectStatusLabels[project.status] ?? 'בעבודה'}</span></div>
             <h2>{project.business_name}</h2>
             <p>{project.business_type || 'האתר של העסק שלך'}</p>
             <div className="project-card-footer"><time dateTime={project.updated_at}>עודכן {new Intl.DateTimeFormat('he-IL', { dateStyle: 'medium' }).format(new Date(project.updated_at))}</time><b>פתיחת הפרויקט ←</b></div>
           </Link>
-        ))}
+        );})}
         <Link className="empty-card" href="/dashboard/new"><span aria-hidden="true">＋</span><b>מקום לרעיון הבא שלך</b><small>מוסיפים עסק, מספרים עליו, ומתחילים ליצור.</small></Link>
       </section>
     </main>

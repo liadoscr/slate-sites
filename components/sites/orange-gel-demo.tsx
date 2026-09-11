@@ -23,7 +23,7 @@ const shades = [
 export function OrangeGelDemo() {
   return (
     <main className={styles.site} id="top">
-      <aside className={styles.demoNotice} id="demo-notice"><span>אתר הדגמה של Slate Sites. העסק, המחירים וההמלצה להמחשה בלבד; אין קביעת תורים.</span><Link href="/">בחזרה ל־Slate Sites ←</Link></aside>
+      <aside className={styles.demoNotice} id="demo-notice"><span>אתר תדמית לדוגמה של Slate Sites. העסק, המחירים וההמלצה להמחשה בלבד.</span><Link href="/#examples">לכל הדוגמאות ←</Link></aside>
       <header className={styles.header}>
         <a className={styles.logo} href="#top" aria-label="ORANGE GEL, דף הבית">
           ORANGE<span>.</span>GEL
@@ -31,9 +31,9 @@ export function OrangeGelDemo() {
         <nav className={styles.nav} aria-label="ניווט ראשי">
           <a href="#treatments">טיפולים</a>
           <a href="#studio">הסטודיו</a>
-          <a href="#booking">קביעת תור</a>
+          <a href="#shades">הגוונים</a>
         </nav>
-        <a className={styles.headerCta} href="#booking">קובעות תור <span aria-hidden="true">↙</span></a>
+        <a className={styles.headerCta} href="#studio">הכירו את הסטודיו <span aria-hidden="true">↙</span></a>
       </header>
 
       <section className={styles.hero} aria-labelledby="hero-title">
@@ -42,7 +42,7 @@ export function OrangeGelDemo() {
           <h1 id="hero-title">צבע שעושה<br />לך <em>מצב רוח.</em></h1>
           <p className={styles.heroText}>מניקור מדויק, חומרים מעולים ושעה שהיא רק שלך. יוצאות עם ידיים שקשה להפסיק להסתכל עליהן.</p>
           <div className={styles.heroActions}>
-            <a className={styles.primaryCta} href="#booking">בא לי תור <span aria-hidden="true">←</span></a>
+            <a className={styles.primaryCta} href="#treatments">לגלות את הטיפולים <span aria-hidden="true">←</span></a>
             <a className={styles.secondaryCta} href="#treatments">למחירון</a>
           </div>
           <div className={styles.heroMeta} aria-label="פרטי הסטודיו">
@@ -105,7 +105,7 @@ export function OrangeGelDemo() {
         </div>
       </section>
 
-      <section className={styles.shades} aria-labelledby="shades-title">
+      <section className={styles.shades} id="shades" aria-labelledby="shades-title">
         <div className={styles.shadesHeading}>
           <p className={styles.sectionNumber}>03 / הצבעים</p>
           <h2 id="shades-title">מה הצבע שלך<br /><em>היום?</em></h2>
@@ -123,7 +123,7 @@ export function OrangeGelDemo() {
         </div>
       </section>
 
-      <section className={styles.booking} id="booking" aria-labelledby="booking-title">
+      <section className={styles.booking} id="contact" aria-labelledby="contact-title">
         <div className={styles.reviewCard}>
           <div className={styles.stars}>★★★★★ <span>המלצה לדוגמה</span></div>
           <blockquote>״סוף סוף מצאתי מישהי שגם רואה כל פרט קטן וגם ממש כיף להעביר איתה שעה. הג׳ל נשאר מושלם כמעט חודש.״</blockquote>
@@ -131,9 +131,9 @@ export function OrangeGelDemo() {
           <span className={styles.reviewMark} aria-hidden="true">“</span>
         </div>
         <div className={styles.bookingCard}>
-          <p className={styles.sectionNumber}>04 / קובעות</p>
-          <h2 id="booking-title">התור הבא שלך<br /><em>מתחיל כאן.</em></h2>
-          <p>כתבי לנו איזה טיפול תרצי ומתי נוח לך. נחזור עם השעות הפנויות הקרובות.</p>
+          <p className={styles.sectionNumber}>04 / נעים להכיר</p>
+          <h2 id="contact-title">הצבע שלך.<br /><em>הסיפור שלך.</em></h2>
+          <p>מקום קטן עם אהבה גדולה לפרטים. אלה הפרטים של הסטודיו לדוגמה — התוכן להמחשה בלבד.</p>
           <Link className={styles.bookingCta} href="/auth?next=/dashboard/new">בנו אתר לעסק שלכם <span aria-hidden="true">←</span></Link>
           <dl className={styles.contactList}>
             <div><dt>טלפון לדוגמה</dt><dd>03-555-0148</dd></div>

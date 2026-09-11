@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/data/current-user';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { getPublishedSite } from '@/lib/sites/public-site';
 import { isOrangeGelDemo, ORANGE_DEMO_PROJECT_ID } from '@/lib/sites/orange-demo';
+import { demoCatalog, getCuratedDemo } from '@/lib/sites/demo-catalog';
 import heroImage from '@/public/gel-orange-hero.png';
 import styles from './home.module.css';
 
@@ -17,8 +18,14 @@ export default async function HomePage() {
   const user = isSupabaseConfigured() ? await getCurrentUser() : null;
   const accountHref = user ? '/dashboard' : '/auth';
   const briefHref = user ? '/dashboard/new' : '/auth?next=/dashboard/new';
-  const publishedDemo = isSupabaseConfigured() && process.env.SUPABASE_SERVICE_ROLE_KEY
-    ? await getPublishedSite(ORANGE_DEMO_PROJECT_ID).catch(() => null) : null;
+  const publishedDemos = isSupabaseConfigured() && process.env.SUPABASE_SERVICE_ROLE_KEY
+    ? await Promise.all(demoCatalog.map(async demo => {
+      const site = await getPublishedSite(demo.projectId).catch(() => null);
+      return site && getCuratedDemo(site.version.content)?.template === demo.template ? demo : null;
+    })) : [];
+  const visibleDemos = publishedDemos.filter(demo => demo !== null);
+  const publishedDemo = visibleDemos.some(demo => demo.projectId === ORANGE_DEMO_PROJECT_ID)
+    ? await getPublishedSite(ORANGE_DEMO_PROJECT_ID) : null;
   const demoHref = publishedDemo && isOrangeGelDemo(publishedDemo.version.content) ? `/sites/${ORANGE_DEMO_PROJECT_ID}` : null;
 
   return (
@@ -26,7 +33,7 @@ export default async function HomePage() {
       <a className={styles.skip} href="#main">דלגו לתוכן</a>
       <header className={styles.header}>
         <Link className={`brand ${styles.brand}`} href="/" aria-label="Slate Sites, דף הבית"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-divider" /><span className="brand-product">Sites</span></Link>
-        <nav className={styles.nav} aria-label="ניווט ראשי"><a href="#how-it-works">איך זה עובד</a><a href="#your-workspace">מה מקבלים</a><a href="#security">פרטיות</a><a href="https://www.slate.co.il/" target="_blank" rel="noreferrer">ל־Slate ↗</a></nav>
+        <nav className={styles.nav} aria-label="ניווט ראשי"><a href="#how-it-works">איך זה עובד</a>{visibleDemos.length > 0 ? <a href="#examples">דוגמאות</a> : null}<a href="#your-workspace">מה מקבלים</a><a href="#security">פרטיות</a><a href="https://www.slate.co.il/" target="_blank" rel="noreferrer">ל־Slate ↗</a></nav>
         <Link className={styles.account} href={accountHref}>{user ? 'האתרים שלי' : 'כניסה לחשבון'} <span aria-hidden="true">↗</span></Link>
       </header>
 
@@ -49,6 +56,15 @@ export default async function HomePage() {
             <div className={styles.showcaseFooter}><p>דמו מעוצב מראש, להמחשת כיוון — לא תוצר אוטומטי של ה־AI.</p>{demoHref ? <Link href={demoHref}>לצפייה באתר הדמו ↗</Link> : <span>דוגמת עיצוב</span>}</div>
           </div>
         </section>
+
+        {visibleDemos.length > 0 ? <section className={styles.examples} id="examples" aria-labelledby="examples-title">
+          <div className={styles.sectionHeading}><p className={styles.eyebrow}>עסקים שונים. אופי אחר.</p><h2 id="examples-title">לכל עסק יש סיפור.<br /><span>תראו איך הוא יכול להיראות.</span></h2></div>
+          <div className={styles.exampleGrid}>{visibleDemos.map(demo => <Link className={styles.exampleCard} href={`/sites/${demo.projectId}`} key={demo.projectId}>
+            <div className={styles.exampleArt} style={{background: demo.background, color: demo.color}}><div className={styles.examplePhoto}><Image src={demo.image} alt={demo.imageAlt} fill sizes="(max-width: 640px) 90vw, 360px" style={{objectPosition: demo.name === 'ORANGE.GEL' ? 'center' : '50% 22%'}} /></div><b dir="ltr">{demo.name}</b><span>{demo.category}</span></div>
+            <div className={styles.exampleDetails}><h3>{demo.category}</h3><p>{demo.description}</p><span>לצפייה בדמו <span aria-hidden="true">↗</span></span></div>
+          </Link>)}</div>
+          <p className={styles.exampleNote}>אתרי תדמית לדוגמה, שעוצבו מראש — ללא הזמנות או תשלומים. העסקים דמיוניים; אלה אינם תוצרים אוטומטיים של מנוע ה־AI.</p>
+        </section> : null}
 
         <section className={styles.process} id="how-it-works" aria-labelledby="process-title">
           <div className={styles.sectionHeading}><p className={styles.eyebrow}>פשוט להתחיל</p><h2 id="process-title">שלושה דברים ממכם.<br /><span>אתר אחד שהוא שלכם.</span></h2></div>
