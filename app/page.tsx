@@ -3,9 +3,8 @@ import Link from 'next/link';
 import { getCurrentUser } from '@/lib/data/current-user';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { getPublishedSite } from '@/lib/sites/public-site';
-import { isOrangeGelDemo, ORANGE_DEMO_PROJECT_ID } from '@/lib/sites/orange-demo';
 import { demoCatalog, getCuratedDemo } from '@/lib/sites/demo-catalog';
-import heroImage from '@/public/gel-orange-hero.png';
+import { DemoCarousel } from '@/components/home/demo-carousel';
 import styles from './home.module.css';
 
 const steps = [
@@ -24,9 +23,6 @@ export default async function HomePage() {
       return site && getCuratedDemo(site.version.content)?.template === demo.template ? demo : null;
     })) : [];
   const visibleDemos = publishedDemos.filter(demo => demo !== null);
-  const publishedDemo = visibleDemos.some(demo => demo.projectId === ORANGE_DEMO_PROJECT_ID)
-    ? await getPublishedSite(ORANGE_DEMO_PROJECT_ID) : null;
-  const demoHref = publishedDemo && isOrangeGelDemo(publishedDemo.version.content) ? `/sites/${ORANGE_DEMO_PROJECT_ID}` : null;
 
   return (
     <div className={styles.page} id="top">
@@ -46,15 +42,7 @@ export default async function HomePage() {
             <div className={styles.actions}><Link className={styles.primary} href={briefHref}>מתחילים את האתר שלי <span aria-hidden="true">←</span></Link><a className={styles.textLink} href="#how-it-works">ככה זה עובד ↓</a></div>
             <p className={styles.heroNote}>בעברית. בלי עורך מסובך. מפרסמים רק כשאתם מוכנים.</p>
           </div>
-          <div className={styles.showcase}>
-            <div className={styles.showcaseLabel}><span>מקום לסגנון של כל עסק</span><b>דוגמת עיצוב / 01</b></div>
-            <div className={styles.demoWindow}>
-              <div className={styles.windowBar}><span className={styles.windowDots} aria-hidden="true">● ● ●</span><b dir="ltr">ORANGE.GEL</b><span>אתר הדגמה</span></div>
-              <div className={styles.demoHero}><div><small>סטודיו לק ג׳ל</small><h2>צבע שעושה<br />לך <em>מצב רוח.</em></h2><p>דוגמת מוצר בעיצוב מקורי.<br />אופי אחר. אותו בית ב־Slate.</p></div><div className={styles.demoImage}><Image src={heroImage} alt="מניקור כתום מתוך אתר ההדגמה ORANGE.GEL" fill sizes="(max-width: 800px) 45vw, 300px" preload /></div></div>
-              <div className={styles.demoServices}><span>לק ג׳ל</span><span>מבנה אנטומי</span><span>נייל ארט</span></div>
-            </div>
-            <div className={styles.showcaseFooter}><p>דמו מעוצב מראש, להמחשת כיוון — לא תוצר אוטומטי של ה־AI.</p>{demoHref ? <Link href={demoHref}>לצפייה באתר הדמו ↗</Link> : <span>דוגמת עיצוב</span>}</div>
-          </div>
+          <DemoCarousel key={visibleDemos.map(demo => demo.projectId).join(',')} demos={visibleDemos} />
         </section>
 
         {visibleDemos.length > 0 ? <section className={styles.examples} id="examples" aria-labelledby="examples-title">

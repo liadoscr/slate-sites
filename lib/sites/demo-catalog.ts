@@ -7,6 +7,8 @@ export const demoCatalog = [
   ...businessDemos.map(({ projectId, template, name, category, description, image, imageAlt, color, background }) => ({ projectId, template, name, category, description, image, imageAlt, color, background })),
 ];
 
+export type DemoSummary = (typeof demoCatalog)[number];
+
 export function getCuratedDemo(content: unknown) {
   if (!content || typeof content !== 'object' || !('template' in content)) return undefined;
   return demoCatalog.find(demo => demo.template === content.template);
