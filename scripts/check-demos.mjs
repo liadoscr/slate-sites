@@ -47,7 +47,7 @@ for (const demo of [orange,...demos]) {
     assert.ok(!/booking|checkout|payment|calendly|stripe/i.test(href));
     assert.ok(!/קובעות תור|קביעת תור|בא לי תור|הזמנת|לרכישה|לתשלום|להזמנת/.test(label));
     if(href.startsWith('#')) assert.ok(ids.has(href.slice(1)),`Missing anchor ${href}`);
-    else assert.ok(href==='/' || href==='/#examples' || href==='/auth?next=/dashboard/new',`Unexpected external action ${href}`);
+    else assert.ok(href==='/' || href==='/#demo-preview' || href==='/auth?next=/dashboard/new',`Unexpected external action ${href}`);
   }
   for(const [,src] of html.matchAll(/<img\b[^>]*src="([^"]+)"/g)) assert.ok(existsSync(resolve(root,'public'+src)),`Missing image ${src}`);
   assert.ok(html.includes('להמחשה'));
@@ -61,3 +61,8 @@ for (const demo of demos) {
 const ai = readFileSync(resolve(root,'lib/ai/gemini.ts'),'utf8');
 assert.equal((ai.match(/systemInstruction: informationalScope/g)||[]).length,2,'Generation and rewrite both use informational scope');
 console.log('PASS compact assets and informational-only generation/rewrite instructions');
+const home = readFileSync(resolve(root,'app/page.tsx'),'utf8');
+assert.equal((home.match(/<DemoCarousel\b/g)||[]).length,1,'Homepage has one demo carousel');
+assert.ok(!home.includes('id="examples"') && !home.includes('styles.exampleGrid'),'No duplicate demo gallery');
+assert.ok(home.includes('href="#demo-preview"'),'Examples navigation targets the carousel');
+console.log('PASS homepage uses only the demo carousel and navigation targets it');

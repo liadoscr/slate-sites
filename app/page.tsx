@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { getCurrentUser } from '@/lib/data/current-user';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
@@ -29,7 +28,7 @@ export default async function HomePage() {
       <a className={styles.skip} href="#main">דלגו לתוכן</a>
       <header className={styles.header}>
         <Link className={`brand ${styles.brand}`} href="/" aria-label="Slate Sites, דף הבית"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-divider" /><span className="brand-product">Sites</span></Link>
-        <nav className={styles.nav} aria-label="ניווט ראשי"><a href="#how-it-works">איך זה עובד</a>{visibleDemos.length > 0 ? <a href="#examples">דוגמאות</a> : null}<a href="#your-workspace">מה מקבלים</a><a href="#security">פרטיות</a><a href="https://www.slate.co.il/" target="_blank" rel="noreferrer">ל־Slate ↗</a></nav>
+        <nav className={styles.nav} aria-label="ניווט ראשי"><a href="#how-it-works">איך זה עובד</a>{visibleDemos.length > 0 ? <a href="#demo-preview">דוגמאות</a> : null}<a href="#your-workspace">מה מקבלים</a><a href="#security">פרטיות</a><a href="https://www.slate.co.il/" target="_blank" rel="noreferrer">ל־Slate ↗</a></nav>
         <Link className={styles.account} href={accountHref}>{user ? 'האתרים שלי' : 'כניסה לחשבון'} <span aria-hidden="true">↗</span></Link>
       </header>
 
@@ -44,15 +43,6 @@ export default async function HomePage() {
           </div>
           <DemoCarousel key={visibleDemos.map(demo => demo.projectId).join(',')} demos={visibleDemos} />
         </section>
-
-        {visibleDemos.length > 0 ? <section className={styles.examples} id="examples" aria-labelledby="examples-title">
-          <div className={styles.sectionHeading}><p className={styles.eyebrow}>עסקים שונים. אופי אחר.</p><h2 id="examples-title">לכל עסק יש סיפור.<br /><span>תראו איך הוא יכול להיראות.</span></h2></div>
-          <div className={styles.exampleGrid}>{visibleDemos.map(demo => <Link className={styles.exampleCard} href={`/sites/${demo.projectId}`} key={demo.projectId}>
-            <div className={styles.exampleArt} style={{background: demo.background, color: demo.color}}><div className={styles.examplePhoto}><Image src={demo.image} alt={demo.imageAlt} fill sizes="(max-width: 640px) 90vw, 360px" style={{objectPosition: demo.name === 'ORANGE.GEL' ? 'center' : '50% 22%'}} /></div><b dir="ltr">{demo.name}</b><span>{demo.category}</span></div>
-            <div className={styles.exampleDetails}><h3>{demo.category}</h3><p>{demo.description}</p><span>לצפייה בדמו <span aria-hidden="true">↗</span></span></div>
-          </Link>)}</div>
-          <p className={styles.exampleNote}>אתרי תדמית לדוגמה, שעוצבו מראש — ללא הזמנות או תשלומים. העסקים דמיוניים; אלה אינם תוצרים אוטומטיים של מנוע ה־AI.</p>
-        </section> : null}
 
         <section className={styles.process} id="how-it-works" aria-labelledby="process-title">
           <div className={styles.sectionHeading}><p className={styles.eyebrow}>פשוט להתחיל</p><h2 id="process-title">שלושה דברים ממכם.<br /><span>אתר אחד שהוא שלכם.</span></h2></div>

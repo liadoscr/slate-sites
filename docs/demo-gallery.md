@@ -5,11 +5,16 @@ payments or visitor-data collection in the demos. Service prices shown in Orange
 are fictional information, not a purchase flow. Existing contact forms on actual
 customer sites remain general enquiries, not booking or payment systems.
 
+Design direction for FORMA is adapted from [Shakuro's real estate concept](https://dribbble.com/shots/26824916-Real-Estate-Website-Design): neutral palette, large sans-serif headline, wide photographic feature and a quiet side panel. MOVE draws from [QClay's fitness concept](https://dribbble.com/shots/24184147-Fitness-Website-Design): a photo-led opening, bright lime accents and light informational cards. The demo code and images are original adaptations, not copies of Dribbble assets. ORANGE.GEL retains its existing design.
+
 The renderer is selected by the saved version's allowlisted template marker.
-Public routes and the homepage gallery still require a published version; the
+Public routes and the homepage carousel still require a published version; the
 catalog never bypasses publication or preview ownership. Generating a new AI
 draft does not replace a published demo. These are curated examples, not claimed
 automatic outputs of the AI generator.
+
+The homepage shows demos only in the hero carousel (`#demo-preview`), without a
+second gallery below it. The main navigation and demo return links target it.
 
 | Demo | Project | Rendering |
 | --- | --- | --- |

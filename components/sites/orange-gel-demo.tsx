@@ -23,7 +23,7 @@ const shades = [
 export function OrangeGelDemo() {
   return (
     <main className={styles.site} id="top">
-      <aside className={styles.demoNotice} id="demo-notice"><span>אתר תדמית לדוגמה של Slate Sites. העסק, המחירים וההמלצה להמחשה בלבד.</span><Link href="/#examples">לכל הדוגמאות ←</Link></aside>
+      <aside className={styles.demoNotice} id="demo-notice"><span>אתר תדמית לדוגמה של Slate Sites. העסק, המחירים וההמלצה להמחשה בלבד.</span><Link href="/#demo-preview">לכל הדוגמאות ←</Link></aside>
       <header className={styles.header}>
         <a className={styles.logo} href="#top" aria-label="ORANGE GEL, דף הבית">
           ORANGE<span>.</span>GEL

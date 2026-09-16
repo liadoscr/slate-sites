@@ -195,3 +195,123 @@
   .trainerContact h2 { font-size: 3.5rem; }
 }
 @media (prefers-reduced-motion: reduce) { .site * { transition: none !important; } }
+
+/* FORMA: neutral, architecture-inspired editorial composition. */
+.salon { --surface: #ecebeb; --text: #0d0c09; --muted: #645e58; --line: #d6d1cb; --accent: #524229; background: var(--surface); }
+.salon .notice { background: #0d0c09; color: #fff; }
+.salon .header { max-width: 1376px; min-height: 86px; padding-inline: 44px; border-bottom: 1px solid var(--line); }
+.salon .wordmark { font-family: Arial, sans-serif; font-size: 2.35rem; font-weight: 800; letter-spacing: -.07em; }
+.salon .wordmark span { font-size: .66rem; font-weight: 600; letter-spacing: .14em; }
+.salon .headerButton { border: 1px solid #0d0c09; border-radius: 4px; padding: 10px 18px; }
+.salonHero { display: grid; grid-template-columns: 1fr; gap: 34px; width: min(1288px,calc(100% - 88px)); padding: 60px 0 48px; }
+.salonCopy { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(280px,.8fr); column-gap: 70px; align-items: end; }
+.salonCopy .eyebrow { grid-column: 1/-1; margin-bottom: 22px !important; color: var(--accent); }
+.salonCopy h1 { grid-column: 1; font: 500 clamp(3.3rem,6.6vw,7.2rem)/1.04 Arial,sans-serif; letter-spacing: -.065em; margin-bottom: 0; }
+.salonCopy h1 em { font-family: inherit; font-weight: inherit; }
+.salonCopy .lead { grid-column: 2; align-self: end; margin-bottom: 18px; max-width: 370px; font-size: 1.05rem; line-height: 1.7; }
+.salonCopy .actions { grid-column: 2; align-self: start; margin-top: 8px; }
+.salonCopy .button { background: #0d0c09; border-color: #0d0c09; border-radius: 4px; }
+.salonCopy .textLink { color: #0d0c09; }
+.salonSignature { display: none; }
+.salonPortrait { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(250px,.55fr); min-height: 520px; margin: 0; overflow: hidden; border-radius: 8px; background: #d9d4cc; }
+.salonImage { min-height: 520px; aspect-ratio: auto; border-radius: 0; background: #c6bbb1; }
+.salonImage img { object-position: center 30%; }
+.salonPortrait figcaption { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 24px; padding: 32px; background: #d9d4cc; color: #0d0c09; }
+.salonPortrait figcaption > span:first-child { font-size: .8rem; font-weight: 700; }
+.salonPortrait figcaption > span:last-child { font-size: clamp(2rem,3.1vw,3.5rem); line-height: 1.15; font-weight: 600; }
+.salonRibbon { gap: 28px; background: #e4e1dc; font-size: .9375rem; }
+.salonRibbon > span:nth-child(even) { color: #8b8276; }
+.salon .section { width: min(1192px,calc(100% - 88px)); }
+.salon .section h2, .salonApproach h2 { font-weight: 500; letter-spacing: -.045em; }
+.salon .section h2 em, .salonApproach h2 em { color: #90715d; }
+.salon .serviceRow { grid-template-columns: 60px minmax(0,1fr) 150px; }
+.salon .serviceNumber { font-family: Arial,sans-serif; }
+.salonApproach { background: #e0dbd4; }
+.salonContact { background: #524229; color: #fff; }
+.salonContact .eyebrow, .salonContact small { color: #e1d7c9; }
+.salonContact > p:not(.eyebrow) { color: #f4ede4; }
+.salonContact .button { background: #ecebeb; color: #0d0c09; border-color: #ecebeb; border-radius: 4px; }
+.salon .footer { background: #ecebeb; }
+
+/* MOVE: photo-led athletic composition with light card content. */
+.trainer { --surface: #f0f2e9; --text: #102832; --muted: #536467; --line: #d3dacf; --accent: #e4ff5f; background: var(--surface); }
+.trainer .notice { background: #102832; color: #fff; }
+.trainer .header { max-width: none; min-height: 84px; padding-inline: max(32px,calc((100% - 1280px)/2)); border-color: #d3dacf; background: #f8f9f5; }
+.trainer .wordmark { color: #102832; font-size: 2.9rem; font-style: normal; }
+.trainer .wordmark span { color: #536467; }
+.trainer .headerButton { padding: 12px 20px; border: 0; border-radius: 999px; background: #e4ff5f; color: #102832; }
+.trainerHero { display: block; position: relative; max-width: none; min-height: 640px; overflow: hidden; background: #273a38; color: #fff; }
+.trainerPortrait { position: absolute; inset: 0; min-height: 0; margin: 0; }
+.trainerPortrait img { object-position: 50% 23%; }
+.trainerPortrait::after { content: ''; position: absolute; inset: 0; background: linear-gradient(270deg,rgba(9,30,33,.92) 0%,rgba(9,30,33,.68) 40%,rgba(9,30,33,.08) 100%); }
+.trainerPortrait figcaption { z-index: 1; bottom: 20px; inset-inline: auto 32px; width: 220px; padding: 14px 18px; border: 0; border-radius: 12px; background: #f8f9f5; color: #102832; }
+.trainerPortrait figcaption span { color: #536467; }
+.trainerPortrait figcaption strong { font-size: 1.35rem; }
+.trainerCopy { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; width: min(690px,68%); min-height: 640px; margin-inline-end: auto; padding: 64px max(32px,calc((100vw - 1280px)/2)); box-sizing: content-box; }
+.trainerCopy .eyebrow { color: #e4ff5f; }
+.trainerCopy h1 { font-size: clamp(3.7rem,6.4vw,7rem); line-height: 1.03; max-width: 700px; }
+.trainerCopy h1 em { color: #e4ff5f; }
+.trainerCopy .lead { color: #f1f5ea; }
+.trainer .button { border-radius: 999px; background: #e4ff5f; border-color: #e4ff5f; color: #102832; }
+.trainerCopy > .button { align-self: flex-start; }
+.trainerHeroNote { border-color: #d1dbce7a; max-width: 440px; }
+.trainerHeroNote p { color: #e0e9dd; }
+.trainingStrip { justify-content: space-around; gap: 12px; background: #e4ff5f; color: #102832; border-bottom: 1px solid #c3d448; }
+.trainingStrip span { border-color: #10283244; }
+.trainer .section { width: min(1192px,calc(100% - 88px)); }
+.trainer .section h2 { font-weight: 700; }
+.trainer .section h2 em { color: #405e65; }
+.trainer .eyebrow { color: #405e65; }
+.programGrid { gap: 16px; }
+.programCard { border-color: #d3dacf; border-radius: 18px; background: #fff; color: #102832; }
+.programCard:first-child { border-color: #d3dacf; background: #e4ff5f; }
+.programLabel span { color: #405e65; }
+.programLabel b { color: #617579; }
+.programCard > p { color: #536467; }
+.programCard li::marker { color: #405e65; }
+.programCta { border-color: #d3dacf; color: #102832; }
+.trainerMethod { background: #fff; color: #102832; }
+.trainerMethod .eyebrow { color: #405e65; }
+.trainerMethod .sectionHeading > p, .methodSteps p { color: #536467; }
+.methodSteps li { border-color: #102832; }
+.methodSteps li > span { color: #607973; }
+.trainer .faq { background: #f0f2e9; }
+.trainerContact { background: #102832; color: #fff; }
+.trainerContact .eyebrow { color: #e4ff5f; }
+.trainerContact .button { color: #102832; background: #e4ff5f; border-color: #e4ff5f; }
+.trainerContact small { color: #d0ded9; }
+.trainer .footer { background: #102832; color: #fff; border-color: #405e65; }
+.trainer .footer .wordmark { color: #e4ff5f; }
+.trainer .footer > span { color: #d0ded9; }
+
+@container (max-width: 760px) {
+  .salon .header, .trainer .header { padding-inline: 24px; }
+  .salonHero { width: calc(100% - 48px); padding: 42px 0 32px; gap: 28px; }
+  .salonCopy { grid-template-columns: 1fr; gap: 0; }
+  .salonCopy .eyebrow, .salonCopy h1, .salonCopy .lead, .salonCopy .actions { grid-column: 1; }
+  .salonCopy h1 { font-size: clamp(3.5rem,10cqi,5rem); margin-bottom: 22px; }
+  .salonCopy .lead { max-width: 520px; }
+  .salonCopy .actions { margin-top: 18px; }
+  .salonPortrait { grid-template-columns: 1fr; min-height: 0; }
+  .salonImage { min-height: 0; aspect-ratio: 1.15; }
+  .salonPortrait figcaption { min-height: 110px; flex-direction: row; align-items: center; padding: 22px; }
+  .salonPortrait figcaption > span:last-child { font-size: 2rem; }
+  .salon .section, .trainer .section { width: calc(100% - 48px); }
+  .salon .serviceRow { grid-template-columns: 30px minmax(0,1fr); }
+  .trainerHero, .trainerCopy { min-height: 710px; }
+  .trainerCopy { width: auto; box-sizing: border-box; justify-content: flex-end; padding: 72px 24px 140px; }
+  .trainerPortrait { max-height: none; aspect-ratio: auto; }
+  .trainerPortrait::after { background: linear-gradient(0deg,rgba(9,30,33,.97) 0%,rgba(9,30,33,.74) 45%,rgba(9,30,33,.04) 100%); }
+  .trainerPortrait figcaption { bottom: 16px; inset-inline: 24px auto; width: 175px; padding: 10px 14px; }
+  .trainerPortrait figcaption strong { font-size: 1.05rem; }
+  .trainerCopy h1 { font-size: clamp(3.3rem,11cqi,5rem); }
+  .trainerHeroNote { display: none; }
+  .trainer .programCard { border-radius: 16px; }
+}
+@container (max-width: 420px) {
+  .salonPortrait figcaption { flex-direction: column; align-items: flex-start; }
+  .salonCopy h1 { font-size: clamp(3rem,10cqi,3.6rem); }
+  .trainerHero, .trainerCopy { min-height: 665px; }
+  .trainerPortrait figcaption { display: none; }
+  .trainerCopy { padding-bottom: 56px; }
+}

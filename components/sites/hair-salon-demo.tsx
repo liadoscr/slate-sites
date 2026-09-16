@@ -12,7 +12,7 @@ const services = [
 export function HairSalonDemo() {
   return <div className={`${styles.site} ${styles.salon}`} dir="rtl" data-demo="forma-hair-v1">
     <a className={styles.skip} href="#main">דילוג לתוכן</a>
-    <aside className={styles.notice}><span>דמו של Slate Sites · עסק דמיוני ותמונה להמחשה בלבד</span><Link href="/#examples">לכל הדוגמאות ←</Link></aside>
+    <aside className={styles.notice}><span>דמו של Slate Sites · עסק דמיוני ותמונה להמחשה בלבד</span><Link href="/#demo-preview">לכל הדוגמאות ←</Link></aside>
     <header className={styles.header}>
       <a href="#top" className={styles.wordmark} aria-label="FORMA, ראש העמוד" dir="ltr">forma<span>HAIR ATELIER</span></a>
       <nav aria-label="ניווט בסטודיו"><a href="#services">השירותים</a><a href="#approach">הגישה שלנו</a><a href="#questions">שאלות נפוצות</a></nav>
@@ -42,7 +42,7 @@ export function HairSalonDemo() {
         <ol className={styles.approachSteps}><li><span>01</span><div><h3>מכירות את השגרה</h3><p>איך את אוהבת את השיער שלך, וכמה זמן באמת יש לך בבוקר?</p></div></li><li><span>02</span><div><h3>מוצאות את הכיוון</h3><p>מדברות על אורך, גוון ותחושה. מחליטות יחד, לפני שמתחילים.</p></div></li><li><span>03</span><div><h3>לוקחות את זה הביתה</h3><p>כמה טיפים פשוטים כדי שתדעי לעצב את השיער גם בעצמך.</p></div></li></ol>
       </section>
       <section className={`${styles.section} ${styles.faq}`} id="questions" aria-labelledby="salon-questions"><div><p className={styles.eyebrow}>03 / טוב לדעת</p><h2 id="salon-questions">לפני שמתיישבים<br />בכיסא.</h2></div><div className={styles.questions}>
-        <details><summary>אני לא בטוחה מה אני רוצה. אפשר להתחיל בייעוץ?</summary><p>כן. באתר אמיתי אפשר להציע פגישת ייעוץ קצרה, לדבר על האפשרויות ולתאם טיפול רק אחרי שמוצאים כיוון.</p></details>
+        <details><summary>אני לא בטוחה מה אני רוצה. איך בוחרים כיוון?</summary><p>אפשר להביא תמונות השראה ולספר מה נוח לך ביום יום. כך קל יותר להבין איזו גזירה או גוון יתאימו לך.</p></details>
         <details><summary>כדאי להביא תמונות השראה?</summary><p>בהחלט. הן דרך טובה להסביר מה אהבת. המראה הסופי מותאם למרקם השיער, לאורך ולשגרת הטיפוח שלך.</p></details>
         <details><summary>מה חשוב לדעת על תחזוקת המראה בבית?</summary><p>בחירת המראה מתחילה גם בכמות הזמן שאת רוצה להשקיע בו. בסיום הביקור מסבירים איך לשמור על העיצוב בשגרה שלך.</p></details>
       </div></section>

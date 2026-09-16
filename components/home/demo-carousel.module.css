@@ -20,14 +20,22 @@
 .image { position: relative; min-height: 320px; background: var(--paper); overflow: hidden; }
 .image img { object-fit: cover; }
 .services { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 6px 10px; padding: 16px 12px; background: var(--strip); color: var(--strip-text); font-size: .8125rem; }
-.window[data-demo="forma-hair-v1"] { --paper: #fffdfb; --ink: #491729; --accent: #491729; --muted: #735761; --strip: #f9eaf0; --strip-text: #491729; }
-.window[data-demo="forma-hair-v1"] .image { margin: 18px 12px 18px 16px; min-height: 284px; border-radius: 45% 45% 2px 2px; }
-.window[data-demo="forma-hair-v1"] .windowBar b { font-family: Georgia,serif; letter-spacing: .06em; }
-.window[data-demo="forma-hair-v1"] .copy h2 { font-family: Georgia,'Times New Roman',serif; font-weight: 500; }
-.window[data-demo="move-trainer-v1"] { --paper: #181b19; --ink: #f5f6f1; --accent: #d4fa45; --muted: #b7bdb4; --strip: #d4fa45; --strip-text: #181b19; }
-.window[data-demo="move-trainer-v1"] .windowBar { border-color: #42483f; }
-.window[data-demo="move-trainer-v1"] .windowBar b { color: var(--accent); font-style: italic; }
+.window[data-demo="forma-hair-v1"] { --paper: #ecebeb; --ink: #0d0c09; --accent: #524229; --muted: #645e58; --strip: #dedbd6; --strip-text: #0d0c09; }
+.window[data-demo="forma-hair-v1"] .hero { grid-template-columns: 1fr; }
+.window[data-demo="forma-hair-v1"] .copy { padding: 24px 22px 16px; }
+.window[data-demo="forma-hair-v1"] .copy h2 { margin-bottom: 8px; font-family: Arial,sans-serif; font-weight: 600; letter-spacing: -.05em; }
+.window[data-demo="forma-hair-v1"] .image { min-height: 220px; margin: 0 16px 16px; border-radius: 5px; }
+.window[data-demo="forma-hair-v1"] .image img { object-position: center 32%; }
+.window[data-demo="forma-hair-v1"] .windowBar b { font-family: Arial,sans-serif; font-weight: 800; letter-spacing: -.05em; }
+.window[data-demo="move-trainer-v1"] { --paper: #f0f2e9; --ink: #102832; --accent: #405e65; --muted: #536467; --strip: #e4ff5f; --strip-text: #102832; }
+.window[data-demo="move-trainer-v1"] .hero { display: grid; grid-template-columns: 1fr; }
+.window[data-demo="move-trainer-v1"] .image, .window[data-demo="move-trainer-v1"] .copy { grid-area: 1 / 1; }
+.window[data-demo="move-trainer-v1"] .image { min-height: 320px; }
 .window[data-demo="move-trainer-v1"] .image img { object-position: 50% 25%; }
+.window[data-demo="move-trainer-v1"] .copy { z-index: 1; align-self: end; padding: 80px 20px 22px; background: linear-gradient(0deg,rgba(9,30,33,.95),transparent); }
+.window[data-demo="move-trainer-v1"] .copy :is(small,h2,h2 em,p) { color: #fff; }
+.window[data-demo="move-trainer-v1"] .copy h2 em { color: #e4ff5f; }
+.window[data-demo="move-trainer-v1"] .windowBar b { color: #102832; font-weight: 900; }
 .controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; direction: rtl; }
 .controls button { display: grid; place-items: center; min-width: 44px; min-height: 44px; padding: 0; cursor: pointer; }
 .controls button:focus-visible { outline: 3px solid #5145e5; outline-offset: 3px; }
@@ -46,5 +54,5 @@
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @media (max-width: 950px) { .showcase { padding: 16px; } .copy { padding: 30px 16px; } }
 @media (max-width: 800px) { .showcase { max-width: 600px; } .copy h2 { font-size: clamp(1.8rem,5vw,2.4rem); } }
-@media (max-width: 560px) { .showcase { padding: 14px; border-radius: 18px; } .copy { padding: 28px 12px; } .copy h2 { font-size: 1.55rem; } .copy p { font-size: .875rem; } .image { min-height: 280px; } .window[data-demo="forma-hair-v1"] .image { margin: 16px 8px 16px 10px; min-height: 248px; } .services { padding-inline: 8px; gap: 6px 8px; } .windowBar { padding-inline: 12px; } }
+@media (max-width: 560px) { .showcase { padding: 14px; border-radius: 18px; } .copy { padding: 28px 12px; } .copy h2 { font-size: 1.55rem; } .copy p { font-size: .875rem; } .image { min-height: 280px; } .window[data-demo="forma-hair-v1"] .image { margin: 0 8px 8px; min-height: 220px; } .window[data-demo="move-trainer-v1"] .copy { padding: 76px 14px 18px; } .services { padding-inline: 8px; gap: 6px 8px; } .windowBar { padding-inline: 12px; } }
 @media (prefers-reduced-motion: reduce) { .showcase * { transition: none !important; scroll-behavior: auto !important; } }

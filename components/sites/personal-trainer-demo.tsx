@@ -11,7 +11,7 @@ const programs = [
 export function PersonalTrainerDemo() {
   return <div className={`${styles.site} ${styles.trainer}`} dir="rtl" data-demo="move-trainer-v1">
     <a className={styles.skip} href="#main">דילוג לתוכן</a>
-    <aside className={styles.notice}><span>דמו של Slate Sites · עסק דמיוני ותמונה להמחשה בלבד</span><Link href="/#examples">לכל הדוגמאות ←</Link></aside>
+    <aside className={styles.notice}><span>דמו של Slate Sites · עסק דמיוני ותמונה להמחשה בלבד</span><Link href="/#demo-preview">לכל הדוגמאות ←</Link></aside>
     <header className={styles.header}><a className={styles.wordmark} href="#top" aria-label="MOVE, ראש העמוד" dir="ltr">MOVE<span>PERSONAL TRAINING</span></a><nav aria-label="ניווט באימונים"><a href="#programs">המסלולים</a><a href="#method">הדרך</a><a href="#questions">שאלות נפוצות</a></nav><a className={styles.headerButton} href="#programs">למסלולי האימון <span aria-hidden="true">↙</span></a></header>
     <main id="main">
       <section className={styles.trainerHero} id="top" aria-labelledby="trainer-title">
