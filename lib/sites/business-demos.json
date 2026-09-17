@@ -6,8 +6,8 @@
     "name": "FORMA",
     "category": "עיצוב שיער",
     "description": "סטודיו לשיער. אתר תדמית בסגנון עריכתי, בגוונים טבעיים ובצילום מרכזי.",
-    "image": "/demos/forma-hair-hero.webp",
-    "imageAlt": "דיוקן להמחשה של אישה עם שיער כהה וגלי בסטודיו",
+    "image": "/demos/forma-editorial-hero-v2.webp",
+    "imageAlt": "סטודיו שיער מואר בגוונים טבעיים, ואישה עם שיער כהה וגלי יושבת בכיסא",
     "color": "#0d0c09",
     "background": "#ecebeb",
     "plan": {
@@ -37,8 +37,8 @@
     "name": "MOVE",
     "category": "אימון אישי",
     "description": "אימון אישי. צילום ספורט מרכזי, כרטיסים בהירים ונגיעות ליים.",
-    "image": "/demos/move-trainer-hero.webp",
-    "imageAlt": "צילום להמחשה של מאמן כושר בבגדי ספורט שחורים בחדר אימון",
+    "image": "/demos/move-action-hero-v2.webp",
+    "imageAlt": "מאמנת כושר מתאמנת עם חבלי כוח בחדר אימון כהה",
     "color": "#102832",
     "background": "#e4ff5f",
     "plan": {

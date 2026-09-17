@@ -315,3 +315,82 @@
   .trainerPortrait figcaption { display: none; }
   .trainerCopy { padding-bottom: 56px; }
 }
+
+/* The demos deliberately use separate page silhouettes, not color-swapped templates. */
+.salonHero { gap: 42px; padding-block: 70px 64px; }
+.salonCopy h1 { font-size: clamp(4.5rem,8vw,8.5rem); line-height: .96; letter-spacing: -.07em; }
+.salonCopy .lead { max-width: 380px; }
+.salonPortrait { display: block; position: relative; min-height: 600px; border: 0; border-radius: 2px; background: #b9a99b; }
+.salonImage { position: absolute; inset: 0; min-height: 0; }
+.salonImage img { object-position: center center; }
+.salonPortrait figcaption { position: absolute; inset-inline-end: 28px; bottom: 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 24px; width: min(290px,36%); min-height: 230px; padding: 26px; background: #ecebeb; }
+.salonPortrait figcaption > span:last-child { font-size: clamp(2rem,3.5vw,3.8rem); line-height: 1.05; }
+.salonApproach { grid-template-columns: 1.1fr .9fr .7fr; gap: clamp(26px,4vw,70px); align-items: start; }
+.salonDetail { position: relative; min-height: 450px; overflow: hidden; background: #c6bbb1; }
+.salonDetail img { object-fit: cover; object-position: center 25%; }
+.salonDetail figcaption { position: absolute; bottom: 0; inset-inline: 0; padding: 12px 16px; background: #0d0c09; color: #ecebeb; font-size: .8125rem; }
+.salon .faq { background: #ecebeb; }
+.trainer { --surface: #e9ede8; --text: #10212f; --muted: #4d6069; --line: #c7d1cd; }
+.trainer .header { background: #101f30; color: #fff; border-color: #304456; }
+.trainer .header nav a { color: #fff; }
+.trainer .wordmark, .trainer .wordmark span { color: #e4ff5f; }
+.trainer .headerButton { background: #e4ff5f; color: #101f30; }
+.trainerHero, .trainerCopy { min-height: 720px; }
+.trainerHero { background: #101f30; }
+.trainerPortrait img { object-position: center center; }
+.trainerPortrait::after { background: linear-gradient(90deg,rgba(8,19,31,.96) 0%,rgba(8,19,31,.72) 38%,rgba(8,19,31,.08) 80%); }
+.trainerCopy { width: min(720px,55%); box-sizing: border-box; margin-inline-start: auto; margin-inline-end: 0; padding: 64px 50px; }
+.trainerCopy h1 { max-width: 610px; font-size: clamp(4.25rem,7.5vw,8rem); line-height: .98; }
+.trainerPortrait figcaption { bottom: 26px; inset-inline: 28px auto; width: auto; max-width: 260px; }
+.trainer .section { width: min(1280px,calc(100% - 88px)); }
+.trainer .sectionHeading h2 { font-size: clamp(3rem,5.2vw,5.4rem); line-height: 1.04; }
+.programGrid { grid-template-columns: 1.15fr 1fr; grid-template-rows: repeat(2,minmax(210px,auto)); gap: 14px; }
+.programCard { border-radius: 0; padding: 32px; }
+.programCard:first-child { grid-row: span 2; background: #e4ff5f; }
+.programCard:first-child h3 { margin-top: 64px; font-size: clamp(2.8rem,4.5vw,4.5rem); line-height: 1.04; }
+.programCard:first-child > p { max-width: 400px; font-size: 1.125rem; }
+.programCard:nth-child(2) { background: #10212f; border-color: #10212f; color: #fff; }
+.programCard:nth-child(2) .programLabel span, .programCard:nth-child(2) .programCta { color: #e4ff5f; }
+.programCard:nth-child(2) > p, .programCard:nth-child(2) .programLabel b { color: #d3ddd8; }
+.programCard:nth-child(2) .programCta { border-color: #536878; }
+.programCard:nth-child(3) { background: #fff; }
+.trainer .faq { width: 100%; box-sizing: border-box; padding: 88px max(44px,calc((100% - 1192px)/2)); background: #10212f; color: #fff; }
+.trainer .faq .eyebrow, .trainer .faq h2 em { color: #e4ff5f; }
+.trainer .faq .questions { border-color: #536878; }
+.trainer .faq .questions details { border-color: #536878; }
+.trainer .faq .questions details p { color: #d3ddd8; }
+@container (max-width: 1000px) {
+  .salonApproach { grid-template-columns: 1fr 1fr; }
+  .salonDetail { grid-column: 1/-1; min-height: 280px; max-height: 450px; }
+  .salonDetail img { object-position: center 35%; }
+  .trainerCopy { width: 60%; }
+}
+@container (max-width: 760px) {
+  .salonHero { padding-block: 42px 36px; }
+  .salonCopy h1 { font-size: clamp(3.2rem,11cqi,5rem); }
+  .salonPortrait { width: 100%; min-height: 0; aspect-ratio: 1.1; }
+  .salonPortrait figcaption { inset-inline-end: 12px; bottom: 12px; width: min(210px,48%); min-height: 0; padding: 16px; gap: 10px; }
+  .salonPortrait figcaption > span:last-child { font-size: 2rem; }
+  .salonApproach { grid-template-columns: 1fr; }
+  .salonDetail { grid-column: auto; min-height: 420px; width: min(100%,390px); }
+  .trainer .header { background: #101f30; }
+  .trainerHero, .trainerCopy { min-height: 700px; }
+  .trainerPortrait::after { background: linear-gradient(0deg,rgba(8,19,31,.96) 0%,rgba(8,19,31,.68) 50%,rgba(8,19,31,.15) 100%); }
+  .trainerPortrait img { object-position: 80% center; }
+  .trainerCopy { width: auto; margin: 0; justify-content: flex-end; padding: 54px 24px 90px; }
+  .trainerCopy h1 { font-size: clamp(3.6rem,12cqi,5.5rem); }
+  .trainerPortrait figcaption { display: none; }
+  .trainer .section { width: calc(100% - 48px); }
+  .programGrid { grid-template-columns: 1fr; grid-template-rows: none; }
+  .programCard:first-child { grid-row: auto; }
+  .programCard:first-child h3 { margin-top: 28px; }
+  .trainer .faq { padding: 60px 24px; }
+}
+@container (max-width: 420px) {
+  .salonPortrait { aspect-ratio: .8; }
+  .salonImage img { object-position: 70% center; }
+  .salonPortrait figcaption { width: 56%; }
+  .salonPortrait figcaption > span:last-child { font-size: 1.6rem; }
+  .trainerHero, .trainerCopy { min-height: 670px; }
+  .trainerCopy { padding-bottom: 54px; }
+}

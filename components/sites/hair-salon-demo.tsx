@@ -28,8 +28,8 @@ export function HairSalonDemo() {
           <p className={styles.salonSignature} dir="ltr">A little change. A little more you.</p>
         </div>
         <figure className={styles.salonPortrait}>
-          <div className={styles.salonImage}><Image src="/demos/forma-hair-hero.webp" alt="דיוקן להמחשה של אישה עם שיער כהה וגלי בעיצוב טבעי" fill sizes="(max-width: 760px) 92vw, 48vw" preload /></div>
-          <figcaption><span dir="ltr">THE EVERYDAY MUSE</span><span>תנועה. מרקם. את.</span></figcaption>
+          <div className={styles.salonImage}><Image src="/demos/forma-editorial-hero-v2.webp" alt="סטודיו שיער מואר בגוונים טבעיים, ואישה עם שיער כהה וגלי יושבת בכיסא" fill sizes="(max-width: 760px) 100vw, 90vw" preload /></div>
+          <figcaption><span dir="ltr">THE EVERYDAY MUSE / FORMA</span><span>תנועה.<br />מרקם.<br />את.</span></figcaption>
         </figure>
       </section>
       <div className={styles.salonRibbon}><span>גזירה אישית</span><span aria-hidden="true">/</span><span>צבע עם עומק</span><span aria-hidden="true">/</span><span>יופי שמרגיש טבעי</span></div>
@@ -40,6 +40,7 @@ export function HairSalonDemo() {
       <section className={styles.salonApproach} id="approach" aria-labelledby="salon-approach">
         <div><p className={styles.eyebrow}>02 / פחות רעש. יותר הקשבה.</p><h2 id="salon-approach">קודם מקשיבים.<br /><em>אחר כך מספרים.</em></h2><p>יש את התמונה ששמרת, ויש את השיער שלך. אנחנו אוהבים את המקום שבו הם נפגשים: מראה שמתאים לך, לא רק לרגע שבו יוצאים מהסטודיו.</p></div>
         <ol className={styles.approachSteps}><li><span>01</span><div><h3>מכירות את השגרה</h3><p>איך את אוהבת את השיער שלך, וכמה זמן באמת יש לך בבוקר?</p></div></li><li><span>02</span><div><h3>מוצאות את הכיוון</h3><p>מדברות על אורך, גוון ותחושה. מחליטות יחד, לפני שמתחילים.</p></div></li><li><span>03</span><div><h3>לוקחות את זה הביתה</h3><p>כמה טיפים פשוטים כדי שתדעי לעצב את השיער גם בעצמך.</p></div></li></ol>
+        <figure className={styles.salonDetail}><Image src="/demos/forma-hair-hero.webp" alt="דיוקן להמחשה של אישה עם שיער כהה וגלי" fill sizes="(max-width: 760px) 80vw, 250px" /><figcaption>01 / יופי שנשאר שלך</figcaption></figure>
       </section>
       <section className={`${styles.section} ${styles.faq}`} id="questions" aria-labelledby="salon-questions"><div><p className={styles.eyebrow}>03 / טוב לדעת</p><h2 id="salon-questions">לפני שמתיישבים<br />בכיסא.</h2></div><div className={styles.questions}>
         <details><summary>אני לא בטוחה מה אני רוצה. איך בוחרים כיוון?</summary><p>אפשר להביא תמונות השראה ולספר מה נוח לך ביום יום. כך קל יותר להבין איזו גזירה או גוון יתאימו לך.</p></details>

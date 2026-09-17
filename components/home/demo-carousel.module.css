@@ -36,6 +36,40 @@
 .window[data-demo="move-trainer-v1"] .copy :is(small,h2,h2 em,p) { color: #fff; }
 .window[data-demo="move-trainer-v1"] .copy h2 em { color: #e4ff5f; }
 .window[data-demo="move-trainer-v1"] .windowBar b { color: #102832; font-weight: 900; }
+.formaPreview, .movePreview { width: 100%; min-width: 0; overflow: hidden; }
+.formaPreview { padding: 0 22px 18px; background: #ecebeb; color: #0d0c09; font-family: Arial, sans-serif; }
+.formaNav { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 58px; border-bottom: 1px solid #bfb9b1; font-size: .875rem; }
+.formaNav b { font-size: 1.5rem; letter-spacing: -.07em; }
+.formaNav b span { display: block; margin-top: -5px; font-size: .55rem; font-weight: 500; letter-spacing: .17em; }
+.formaNav > span:last-child { border: 1px solid #0d0c09; padding: 8px 12px; white-space: nowrap; }
+.formaHeading { display: grid; grid-template-columns: 1.4fr .6fr; gap: 5px 18px; padding: 26px 0 24px; }
+.formaHeading small { grid-column: 1/-1; font-size: .75rem; letter-spacing: .08em; }
+.formaHeading h2 { margin: 0; font-size: clamp(2.4rem,5.2vw,5.3rem); line-height: .99; letter-spacing: -.065em; font-weight: 500; }
+.formaHeading p { align-self: end; max-width: 210px; margin: 0; font-size: .875rem; line-height: 1.65; }
+.formaFeature { display: grid; grid-template-columns: 1.6fr .4fr; min-height: 300px; }
+.formaPhoto { position: relative; min-height: 300px; background: #c9bdae; }
+.formaPhoto img { object-fit: cover; object-position: 60% center; }
+.formaAside { display: flex; flex-direction: column; justify-content: space-between; padding: 18px; background: #d9d4cc; }
+.formaAside > span { font-size: .75rem; }
+.formaAside strong { font-size: clamp(1.4rem,3.2vw,2.7rem); line-height: 1.1; font-weight: 500; }
+.formaFoot { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0 0; font-size: .8125rem; }
+.movePreview { background: #101f30; color: #fff; }
+.moveNav { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 58px; padding: 8px 20px; background: #101f30; font-size: .8125rem; }
+.moveNav b { color: #e4ff5f; font-size: 1.8rem; font-style: italic; line-height: .9; letter-spacing: -.075em; }
+.moveNav b span { display: block; margin-top: 4px; color: #fff; font-size: .48rem; font-style: normal; letter-spacing: .17em; }
+.moveNav > span:last-child { padding: 9px 12px; border-radius: 999px; background: #e4ff5f; color: #101f30; font-weight: 700; white-space: nowrap; }
+.moveHero { position: relative; min-height: 390px; isolation: isolate; background: #142333; }
+.moveHero > img { z-index: -2; object-fit: cover; object-position: 60% center; }
+.moveHero::after { content: ''; position: absolute; z-index: -1; inset: 0; background: linear-gradient(270deg,#0c1929e8 0%,#0c1929a8 42%,#0c192922 100%); }
+.moveOverlay { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-height: 390px; max-width: 520px; padding: 36px; }
+.moveOverlay small { color: #e4ff5f; font-size: .75rem; letter-spacing: .1em; }
+.moveOverlay h2 { margin: 16px 0; font-size: clamp(2.8rem,6.5vw,6rem); line-height: .98; letter-spacing: -.055em; font-weight: 900; }
+.moveOverlay h2 em { color: #e4ff5f; font-style: normal; }
+.moveOverlay p { max-width: 320px; margin: 0; font-size: .9375rem; line-height: 1.6; }
+.movePill { margin-top: 24px; padding: 12px 18px; border-radius: 999px; background: #e4ff5f; color: #101f30; font-size: .875rem; font-weight: 700; }
+.moveIndex { position: absolute; bottom: 18px; left: 22px; font-size: .8125rem; }
+.moveFoot { display: grid; grid-template-columns: 1.3fr repeat(3,1fr); gap: 12px; padding: 18px 20px; background: #e4ff5f; color: #101f30; font-size: .875rem; }
+.moveFoot b { font-style: italic; letter-spacing: -.03em; }
 .controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; direction: rtl; }
 .controls button { display: grid; place-items: center; min-width: 44px; min-height: 44px; padding: 0; cursor: pointer; }
 .controls button:focus-visible { outline: 3px solid #5145e5; outline-offset: 3px; }
@@ -55,4 +89,29 @@
 @media (max-width: 950px) { .showcase { padding: 16px; } .copy { padding: 30px 16px; } }
 @media (max-width: 800px) { .showcase { max-width: 600px; } .copy h2 { font-size: clamp(1.8rem,5vw,2.4rem); } }
 @media (max-width: 560px) { .showcase { padding: 14px; border-radius: 18px; } .copy { padding: 28px 12px; } .copy h2 { font-size: 1.55rem; } .copy p { font-size: .875rem; } .image { min-height: 280px; } .window[data-demo="forma-hair-v1"] .image { margin: 0 8px 8px; min-height: 220px; } .window[data-demo="move-trainer-v1"] .copy { padding: 76px 14px 18px; } .services { padding-inline: 8px; gap: 6px 8px; } .windowBar { padding-inline: 12px; } }
+@media (max-width: 560px) {
+  .formaPreview { padding-inline: 12px; }
+  .formaNav { min-height: 52px; }
+  .formaNav > span:nth-child(2), .moveNav > span:nth-child(2) { display: none; }
+  .formaHeading { display: block; padding: 20px 0; }
+  .formaHeading h2 { margin: 12px 0; font-size: clamp(2.35rem,10vw,3.8rem); }
+  .formaHeading p { max-width: none; }
+  .formaFeature { grid-template-columns: 1fr; }
+  .formaPhoto { min-height: 220px; }
+  .formaAside { flex-direction: row; align-items: end; gap: 10px; min-height: 105px; }
+  .formaAside strong { font-size: 1.7rem; }
+  .formaAside > span:last-child { display: none; }
+  .formaFoot { flex-wrap: wrap; gap: 5px 10px; }
+  .moveNav { padding-inline: 14px; }
+  .moveHero, .moveOverlay { min-height: 390px; }
+  .moveHero > img { object-position: 64% center; }
+  .moveHero::after { background: linear-gradient(0deg,#0c1929ee 0%,#0c1929a8 55%,#0c192944 100%); }
+  .moveOverlay { justify-content: flex-end; padding: 25px 16px 42px; }
+  .moveOverlay h2 { font-size: clamp(2.5rem,10vw,3.8rem); }
+  .moveOverlay p { font-size: .875rem; }
+  .movePill { margin-top: 16px; }
+  .moveIndex { display: none; }
+  .moveFoot { grid-template-columns: 1fr 1fr; font-size: .8125rem; }
+  .moveFoot b { grid-column: 1/-1; }
+}
 @media (prefers-reduced-motion: reduce) { .showcase * { transition: none !important; scroll-behavior: auto !important; } }

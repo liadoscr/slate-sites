@@ -91,11 +91,20 @@ export function DemoCarousel({ demos }: { demos: DemoSummary[] }) {
       {demos.map((demo, index) => {
         const copy = previewCopy[demo.template];
         return <div className={styles.slide} key={demo.projectId} ref={element => { slides.current[index] = element; }} role="group" aria-roledescription="שקופית" aria-label={`${index + 1} מתוך ${demos.length}: ${demo.name}`} aria-hidden={index !== active}>
-          <div className={styles.window} data-demo={demo.template}>
+          {demo.template === 'forma-hair-v1' ? <div className={styles.formaPreview}>
+            <div className={styles.formaNav}><b dir="ltr">forma<span>HAIR ATELIER</span></b><span>סטודיו בוטיק לשיער · תל אביב</span><span>תפריט <span aria-hidden="true">↗</span></span></div>
+            <div className={styles.formaHeading}><small>THE EVERYDAY MUSE / 01</small><h2>{copy.firstLine}<br />{copy.secondLine}</h2><p>{copy.description}</p></div>
+            <div className={styles.formaFeature}><div className={styles.formaPhoto}><Image src={demo.image} alt={demo.imageAlt} fill sizes="(max-width: 800px) 80vw, 530px" draggable={false} /></div><div className={styles.formaAside}><span dir="ltr">FORMA / 2026</span><strong>תנועה.<br />מרקם.<br />את.</strong><span>דיוק אישי בכל פרט</span></div></div>
+            <div className={styles.formaFoot}><span>01 / גזירה אישית</span><span>02 / צבע עם עומק</span><span>03 / טיפוח השיער</span></div>
+          </div> : demo.template === 'move-trainer-v1' ? <div className={styles.movePreview}>
+            <div className={styles.moveNav}><b dir="ltr">MOVE<span>PERSONAL TRAINING</span></b><span>הדרך · האימונים · עלינו</span><span>LET’S MOVE ↗</span></div>
+            <div className={styles.moveHero}><Image src={demo.image} alt={demo.imageAlt} fill sizes="(max-width: 800px) 90vw, 850px" draggable={false} /><div className={styles.moveOverlay}><small>YOUR PACE. YOUR PROGRESS.</small><h2>{copy.firstLine}<br /><em>{copy.secondLine}</em></h2><p>{copy.description}</p><span className={styles.movePill}>מגלים את הדרך <span aria-hidden="true">↙</span></span></div><span className={styles.moveIndex} dir="ltr">01 — 03</span></div>
+            <div className={styles.moveFoot}><b dir="ltr">MOVE / FORWARD</b><span>אימון אישי</span><span>אימון זוגי</span><span>ליווי מרחוק</span></div>
+          </div> : <div className={styles.window} data-demo={demo.template}>
             <div className={styles.windowBar}><span className={styles.windowDots} aria-hidden="true">● ● ●</span><b dir="ltr">{demo.name}</b><span>אתר הדגמה</span></div>
             <div className={styles.hero}><div className={styles.copy}><small>{demo.category}</small><h2>{copy.firstLine}<br /><em>{copy.secondLine}</em></h2><p>{copy.description}</p></div><div className={styles.image}><Image src={demo.image} alt={demo.imageAlt} fill sizes="(max-width: 560px) 43vw, (max-width: 800px) 260px, 280px" preload={index === 0} draggable={false} /></div></div>
             <div className={styles.services}>{copy.services.map(service => <span key={service}>{service}</span>)}</div>
-          </div>
+          </div>}
         </div>;
       })}
     </div>
