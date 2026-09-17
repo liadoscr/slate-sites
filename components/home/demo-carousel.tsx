@@ -12,7 +12,29 @@ const previewCopy: Record<string, { firstLine: string; secondLine: string; descr
   'move-trainer-v1': { firstLine: 'יותר כוח.', secondLine: 'יותר אתם.', description: 'תוכנית ברורה, יחס אישי ואימוני כוח שנכנסים לחיים שלכם.', services: ['אימון אישי', 'אימון זוגי', 'ליווי מרחוק'] },
 };
 
-export function DemoCarousel({ demos }: { demos: DemoSummary[] }) {
+const carouselCopy = {
+  he: {
+    roledescription: 'קרוסלה', regionLabel: 'דוגמאות לאתרי עסק',
+    label: 'מקום לסגנון של כל עסק', counter: 'דוגמת עיצוב',
+    viewportLabel: 'תצוגות מקדימות של אתרים', slide: 'שקופית', of: 'מתוך',
+    previous: 'לדוגמה הקודמת', next: 'לדוגמה הבאה', picker: 'בחירת דוגמה',
+    show: 'הצגת', hint: 'החליקו בין הדוגמאות, או השתמשו בחצים',
+    disclaimer: 'דמו מעוצב מראש, להמחשת כיוון — לא תוצר אוטומטי של ה־AI.',
+    demoLink: 'לצפייה באתר הדמו', demoLinkLabel: 'לצפייה באתר הדמו',
+  },
+  en: {
+    roledescription: 'carousel', regionLabel: 'Business website examples',
+    label: 'A style for every business', counter: 'Design example',
+    viewportLabel: 'Website previews', slide: 'slide', of: 'of',
+    previous: 'Previous example', next: 'Next example', picker: 'Choose an example',
+    show: 'Show', hint: 'Swipe through the examples, or use the arrows',
+    disclaimer: 'A predesigned example to show a direction — not an AI-generated result.',
+    demoLink: 'View demo website', demoLinkLabel: 'View demo website',
+  },
+} as const;
+
+export function DemoCarousel({ demos, locale = 'he' }: { demos: DemoSummary[]; locale?: 'he' | 'en' }) {
+  const ui = carouselCopy[locale];
   const [active, setActive] = useState(0);
   const activeRef = useRef(0);
   const viewport = useRef<HTMLDivElement>(null);
@@ -85,12 +107,12 @@ export function DemoCarousel({ demos }: { demos: DemoSummary[] }) {
 
   if (!current) return null;
 
-  return <section className={styles.showcase} id="demo-preview" role="region" aria-roledescription="קרוסלה" aria-label="דוגמאות לאתרי עסק">
-    <div className={styles.label}><span>מקום לסגנון של כל עסק</span><b>דוגמת עיצוב <bdi>{String(active + 1).padStart(2, '0')} / {String(demos.length).padStart(2, '0')}</bdi></b></div>
-    <div className={styles.viewport} id={viewportId} ref={viewport} dir="rtl" tabIndex={demos.length > 1 ? 0 : undefined} aria-label="תצוגות מקדימות של אתרים" aria-describedby={demos.length > 1 ? hintId : undefined} onScroll={onScroll} onKeyDown={onKeyDown}>
+  return <section className={styles.showcase} id="demo-preview" dir={locale === 'en' ? 'ltr' : 'rtl'} role="region" aria-roledescription={ui.roledescription} aria-label={ui.regionLabel}>
+    <div className={styles.label}><span>{ui.label}</span><b>{ui.counter} <bdi>{String(active + 1).padStart(2, '0')} / {String(demos.length).padStart(2, '0')}</bdi></b></div>
+    <div className={styles.viewport} id={viewportId} ref={viewport} dir="rtl" tabIndex={demos.length > 1 ? 0 : undefined} aria-label={ui.viewportLabel} aria-describedby={demos.length > 1 ? hintId : undefined} onScroll={onScroll} onKeyDown={onKeyDown}>
       {demos.map((demo, index) => {
         const copy = previewCopy[demo.template];
-        return <div className={styles.slide} key={demo.projectId} ref={element => { slides.current[index] = element; }} role="group" aria-roledescription="שקופית" aria-label={`${index + 1} מתוך ${demos.length}: ${demo.name}`} aria-hidden={index !== active}>
+        return <div className={styles.slide} key={demo.projectId} ref={element => { slides.current[index] = element; }} role="group" aria-roledescription={ui.slide} aria-label={`${index + 1} ${ui.of} ${demos.length}: ${demo.name}`} aria-hidden={index !== active}>
           {demo.template === 'forma-hair-v1' ? <div className={styles.formaPreview}>
             <div className={styles.formaNav}><b dir="ltr">forma<span>HAIR ATELIER</span></b><span>סטודיו בוטיק לשיער · תל אביב</span><span>תפריט <span aria-hidden="true">↗</span></span></div>
             <div className={styles.formaHeading}><small>THE EVERYDAY MUSE / 01</small><h2>{copy.firstLine}<br />{copy.secondLine}</h2><p>{copy.description}</p></div>
@@ -110,13 +132,13 @@ export function DemoCarousel({ demos }: { demos: DemoSummary[] }) {
     </div>
     {demos.length > 1 ? <>
       <div className={styles.controls}>
-        <button type="button" className={styles.arrow} onClick={() => goTo(activeRef.current - 1)} disabled={active === 0} aria-label="לדוגמה הקודמת" aria-controls={viewportId}><span aria-hidden="true">→</span></button>
-        <div className={styles.dots} role="group" aria-label="בחירת דוגמה">{demos.map((demo, index) => <button type="button" key={demo.projectId} onClick={() => goTo(index)} aria-label={`הצגת ${demo.name} — ${demo.category}`} aria-current={index === active ? 'true' : undefined} aria-controls={viewportId}><span /></button>)}</div>
-        <button type="button" className={styles.arrow} onClick={() => goTo(activeRef.current + 1)} disabled={active === demos.length - 1} aria-label="לדוגמה הבאה" aria-controls={viewportId}><span aria-hidden="true">←</span></button>
+        <button type="button" className={styles.arrow} onClick={() => goTo(activeRef.current - 1)} disabled={active === 0} aria-label={ui.previous} aria-controls={viewportId}><span aria-hidden="true">→</span></button>
+        <div className={styles.dots} role="group" aria-label={ui.picker}>{demos.map((demo, index) => <button type="button" key={demo.projectId} onClick={() => goTo(index)} aria-label={`${ui.show} ${demo.name} — ${demo.category}`} aria-current={index === active ? 'true' : undefined} aria-controls={viewportId}><span /></button>)}</div>
+        <button type="button" className={styles.arrow} onClick={() => goTo(activeRef.current + 1)} disabled={active === demos.length - 1} aria-label={ui.next} aria-controls={viewportId}><span aria-hidden="true">←</span></button>
       </div>
-      <p className={styles.hint} id={hintId}>החליקו בין הדוגמאות, או השתמשו בחצים</p>
-      <p className={styles.srOnly} aria-live="polite" aria-atomic="true">{current.name} · {current.category} · {active + 1} מתוך {demos.length}</p>
+      <p className={styles.hint} id={hintId}>{ui.hint}</p>
+      <p className={styles.srOnly} aria-live="polite" aria-atomic="true">{current.name} · {current.category} · {active + 1} {ui.of} {demos.length}</p>
     </> : null}
-    <div className={styles.footer}><p>דמו מעוצב מראש, להמחשת כיוון — לא תוצר אוטומטי של ה־AI.</p><Link href={`/sites/${current.projectId}`} aria-label={`לצפייה באתר הדמו ${current.name}`}>לצפייה באתר הדמו <bdi>{current.name}</bdi> <span aria-hidden="true">↗</span></Link></div>
+    <div className={styles.footer}><p>{ui.disclaimer}</p><Link href={`/sites/${current.projectId}`} aria-label={`${ui.demoLinkLabel} ${current.name}`}>{ui.demoLink} <bdi>{current.name}</bdi> <span aria-hidden="true">↗</span></Link></div>
   </section>;
 }
