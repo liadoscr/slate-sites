@@ -394,3 +394,44 @@
   .trainerHero, .trainerCopy { min-height: 670px; }
   .trainerCopy { padding-bottom: 54px; }
 }
+
+/* FORMA closes like an editorial spread; MOVE follows a campaign/timeline rhythm. */
+.salon .notice { justify-content: space-between; padding-inline: max(44px,calc((100% - 1288px)/2)); border-bottom: 1px solid #d6d1cb; background: #ecebeb; color: #524229; }
+.salon .notice a:focus-visible { outline-color: #524229; }
+.salon .faq { display: block; padding-block: 110px; }
+.salon .faq > div:first-child { margin-bottom: 46px; }
+.salon .faq h2 { max-width: 700px; font-size: clamp(3rem,5.5vw,5.3rem); }
+.salon .questions { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 26px; border: 0; }
+.salon .questions details { border-top: 1px solid #81786f; border-bottom: 0; }
+.salon .questions summary { padding-block: 18px; }
+.salonContact { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px 80px; padding: 94px max(44px,calc((100% - 1192px)/2)); background: #e0dbd4; color: #0d0c09; text-align: start; }
+.salonContact .eyebrow { grid-column: 1/-1; color: #524229; }
+.salonContact h2 { grid-row: span 3; font-size: clamp(3.5rem,6.5vw,7rem); line-height: 1.02; }
+.salonContact > p:not(.eyebrow) { align-self: end; margin: 0; color: #524229; }
+.salonContact .button { justify-self: start; background: transparent; color: #0d0c09; border: 1px solid #0d0c09; border-radius: 0; }
+.salonContact .button:focus-visible { outline-color: #0d0c09; }
+.salonContact small { max-width: 340px; margin: 4px 0 0; color: #524229; }
+.trainerMethod { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(40px,7vw,120px); align-items: start; padding-block: 112px; background: #e9ede8; }
+.trainerMethod .sectionHeading { display: block; margin: 0; }
+.trainerMethod .sectionHeading > p { margin-top: 30px; }
+.methodSteps { display: flex; flex-direction: column; gap: 0; margin: 0; }
+.methodSteps li { display: grid; grid-template-columns: 70px 1fr; gap: 0 24px; padding: 22px 0; border-top: 1px solid #a9b9b4; }
+.methodSteps li > span { grid-row: span 2; padding-top: 2px; color: #405e65; font-size: 2.5rem; line-height: 1; }
+.methodSteps h3 { margin: 0; }
+.methodSteps p { margin-top: 7px; }
+.trainerContact { background: #e4ff5f; color: #10212f; }
+.trainerContact .eyebrow, .trainerContact small { color: #40512a; }
+.trainerContact .button { background: #10212f; color: #e4ff5f; border-color: #10212f; }
+.trainerContact .button:focus-visible { outline-color: #10212f; }
+@container (max-width: 760px) {
+  .salon .notice { justify-content: center; padding-inline: 24px; }
+  .salon .faq { padding-block: 60px; }
+  .salon .questions { grid-template-columns: 1fr; gap: 0; }
+  .salon .questions details { border-top: 0; border-bottom: 1px solid #81786f; }
+  .salon .questions details:first-child { border-top: 1px solid #81786f; }
+  .salonContact { grid-template-columns: 1fr; gap: 18px; padding: 62px 24px; }
+  .salonContact .eyebrow { grid-column: auto; }
+  .salonContact h2 { grid-row: auto; font-size: clamp(3.2rem,11cqi,5rem); }
+  .trainerMethod { grid-template-columns: 1fr; gap: 32px; padding: 64px 24px; }
+  .trainerMethod .sectionHeading > p { margin-top: 20px; }
+}

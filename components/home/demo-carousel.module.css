@@ -115,3 +115,39 @@
   .moveFoot b { grid-column: 1/-1; }
 }
 @media (prefers-reduced-motion: reduce) { .showcase * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* Keep every preview inside the original compact carousel frame. */
+.viewport { height: 416px; overflow-y: hidden; }
+.slide, .window, .formaPreview, .movePreview { height: 100%; }
+.formaPreview, .movePreview { display: flex; flex-direction: column; }
+.formaNav, .moveNav { flex: none; min-height: 46px; }
+.formaHeading { display: block; flex: none; padding: 13px 0 12px; }
+.formaHeading small { font-size: .75rem; }
+.formaHeading h2 { margin: 7px 0 0; font-size: clamp(2.15rem,4.6vw,3.7rem); line-height: .99; }
+.formaHeading p { display: none; }
+.formaFeature { flex: 1; min-height: 0; }
+.formaPhoto { min-height: 0; }
+.formaAside { padding: 14px; }
+.formaAside strong { font-size: clamp(1.35rem,2.5vw,2.2rem); }
+.formaFoot { flex: none; padding-top: 8px; min-height: 31px; }
+.moveHero { flex: 1; min-height: 0; }
+.moveOverlay { min-height: 0; height: 100%; padding: 22px 30px; }
+.moveOverlay h2 { margin: 11px 0; font-size: clamp(2.8rem,5.2vw,4.7rem); }
+.movePill { margin-top: 16px; padding: 9px 15px; }
+.moveFoot { flex: none; padding-block: 11px; }
+@media (max-width: 560px) {
+  .viewport { height: 376px; }
+  .formaNav, .moveNav { min-height: 44px; }
+  .formaHeading { padding: 11px 0 8px; }
+  .formaHeading h2 { margin-top: 6px; font-size: clamp(2rem,9vw,2.7rem); }
+  .formaFeature { grid-template-columns: minmax(0,1fr) 32%; }
+  .formaAside { flex-direction: column; align-items: flex-start; min-height: 0; padding: 11px; }
+  .formaAside strong { font-size: clamp(1.2rem,5vw,1.6rem); }
+  .formaFoot { min-height: 28px; flex-wrap: nowrap; gap: 8px; font-size: .6875rem; white-space: nowrap; overflow: hidden; }
+  .moveOverlay { justify-content: flex-end; padding: 18px 16px 22px; }
+  .moveOverlay h2 { font-size: clamp(2.25rem,9vw,3rem); }
+  .moveOverlay p { font-size: .8125rem; line-height: 1.45; }
+  .movePill { margin-top: 12px; padding: 8px 13px; }
+  .moveFoot { grid-template-columns: repeat(3,1fr); padding: 8px 12px; gap: 6px; }
+  .moveFoot b { display: none; }
+}
