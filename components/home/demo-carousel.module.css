@@ -149,5 +149,24 @@
   .moveOverlay p { font-size: .8125rem; line-height: 1.45; }
   .movePill { margin-top: 12px; padding: 8px 13px; }
   .moveFoot { grid-template-columns: repeat(3,1fr); padding: 8px 12px; gap: 6px; }
-  .moveFoot b { display: none; }
+.moveFoot b { display: none; }
+}
+
+/* Mirror the published MOVE demo: daylight runner image on desktop, navy/lime on mobile. */
+.moveHero { background: #bac8bf; }
+.moveHero > img { object-position: 58% center; }
+.moveHero::after { background: linear-gradient(90deg,rgba(242,246,239,.97) 0%,rgba(242,246,239,.88) 34%,rgba(242,246,239,0) 78%); }
+.moveOverlay { max-width: 58%; margin-inline-start: auto; color: #10212f; }
+.moveOverlay small { color: #344a4f; }
+.moveOverlay h2 { font-size: clamp(2.65rem,4.3vw,4rem); }
+.moveOverlay h2 em { color: #566a52; }
+.movePill { background: #e4ff5f; }
+.moveIndex { color: #10212f; }
+@media (max-width: 560px) {
+  .moveHero > img { object-position: 80% center; }
+  .moveHero::after { background: linear-gradient(0deg,#10212ffa 0%,#10212fc2 36%,#10212f00 80%); }
+  .moveOverlay { max-width: none; margin-inline-start: 0; color: #fff; }
+  .moveOverlay small { color: #e4ff5f; }
+  .moveOverlay h2 { font-size: clamp(2.1rem,8.6vw,2.9rem); }
+  .moveOverlay h2 em { color: #e4ff5f; }
 }

@@ -9,7 +9,7 @@ import styles from './demo-carousel.module.css';
 const previewCopy: Record<string, { firstLine: string; secondLine: string; description: string; services: string[] }> = {
   'orange-gel-v1': { firstLine: 'צבע שעושה', secondLine: 'לך מצב רוח.', description: 'מניקור מדויק, גוונים עם אופי ושעה שהיא רק שלך.', services: ['לק ג׳ל', 'מבנה אנטומי', 'נייל ארט'] },
   'forma-hair-v1': { firstLine: 'שיער שמרגיש', secondLine: 'בדיוק את.', description: 'תספורת שיושבת נכון. צבע שמאיר את הפנים. מקום לסגנון שלך.', services: ['תספורת ועיצוב', 'צבע ובליאז׳', 'טיפוח השיער'] },
-  'move-trainer-v1': { firstLine: 'יותר כוח.', secondLine: 'יותר אתם.', description: 'תוכנית ברורה, יחס אישי ואימוני כוח שנכנסים לחיים שלכם.', services: ['אימון אישי', 'אימון זוגי', 'ליווי מרחוק'] },
+  'move-trainer-v1': { firstLine: 'למצוא את', secondLine: 'הקצב שלכם.', description: 'אימון אישי שמתחיל במקום שבו אתם נמצאים, ומתקדם יחד איתכם.', services: ['אימון אישי', 'אימון זוגי', 'ליווי מרחוק'] },
 };
 
 const carouselCopy = {
