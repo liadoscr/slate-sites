@@ -5,7 +5,7 @@ payments or visitor-data collection in the demos. Service prices shown in Orange
 are fictional information, not a purchase flow. Existing contact forms on actual
 customer sites remain general enquiries, not booking or payment systems.
 
-Design direction for FORMA is adapted from [Shakuro's real estate concept](https://dribbble.com/shots/26824916-Real-Estate-Website-Design): neutral palette, large sans-serif headline, wide photographic feature and a quiet side panel. MOVE draws from [QClay's fitness concept](https://dribbble.com/shots/24184147-Fitness-Website-Design): a photo-led opening, bright lime accents and light informational cards. The demo code and images are original adaptations, not copies of Dribbble assets. ORANGE.GEL retains its existing design.
+FORMA now follows the user-provided screenshot reference: a cool-gray canvas, framed rounded hero, oversized neo-grotesk type and white bento panels with restrained green and purple accents. MOVE follows the second supplied screenshot: a matte-black gym layout, high-contrast training photography, condensed display type and acid-lime controls. The reference logos, copy, pricing and artwork were not reused. The demo code and images remain original adaptations. ORANGE.GEL retains its existing design.
 
 The renderer is selected by the saved version's allowlisted template marker.
 Public routes and the homepage carousel still require a published version; the
@@ -19,8 +19,8 @@ second gallery below it. The main navigation and demo return links target it.
 | Demo | Project | Rendering |
 | --- | --- | --- |
 | ORANGE.GEL | `855f60cc-2e52-443c-83c4-dfa2c6579210` | Existing orange nail studio, informational CTAs |
-| FORMA | `a4ade433-5583-4322-bcd3-fd7b3cc04fef` | Airy editorial headline, wide salon photograph, service list and portrait detail |
-| MOVE | `f18aaa09-836b-4a2e-9c8c-c2e5134b7902` | Dark action-photo hero, lime/navy asymmetrical training-program panels |
+| FORMA | `a4ade433-5583-4322-bcd3-fd7b3cc04fef` | Cool-gray framed hero, rounded bento cards, numbered service rows and graphic process panel |
+| MOVE | `f18aaa09-836b-4a2e-9c8c-c2e5134b7902` | Matte-black gym hero, acid-lime accents, image-led services and informational training paths |
 
 ## Import and release
 

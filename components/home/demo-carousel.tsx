@@ -8,8 +8,8 @@ import styles from './demo-carousel.module.css';
 
 const previewCopy: Record<string, { firstLine: string; secondLine: string; description: string; services: string[] }> = {
   'orange-gel-v1': { firstLine: 'צבע שעושה', secondLine: 'לך מצב רוח.', description: 'מניקור מדויק, גוונים עם אופי ושעה שהיא רק שלך.', services: ['לק ג׳ל', 'מבנה אנטומי', 'נייל ארט'] },
-  'forma-hair-v1': { firstLine: 'שיער שמרגיש', secondLine: 'בדיוק את.', description: 'תספורת שיושבת נכון. צבע שמאיר את הפנים. מקום לסגנון שלך.', services: ['תספורת ועיצוב', 'צבע ובליאז׳', 'טיפוח השיער'] },
-  'move-trainer-v1': { firstLine: 'למצוא את', secondLine: 'הקצב שלכם.', description: 'אימון אישי שמתחיל במקום שבו אתם נמצאים, ומתקדם יחד איתכם.', services: ['אימון אישי', 'אימון זוגי', 'ליווי מרחוק'] },
+  'forma-hair-v1': { firstLine: 'לגלות,', secondLine: 'לדייק.', description: 'שיער שמרגיש בדיוק את — גם ביום שאחרי.', services: ['תספורת ועיצוב', 'צבע עם עומק', 'טיפוח השיער'] },
+  'move-trainer-v1': { firstLine: 'גוף חזק מתחיל', secondLine: 'בתוכנית חכמה.', description: 'כוח, תנועה ותוכנית שאפשר להתמיד בה.', services: ['אימון אישי', 'אימון זוגי', 'ליווי מרחוק'] },
 };
 
 const carouselCopy = {
@@ -114,14 +114,15 @@ export function DemoCarousel({ demos, locale = 'he' }: { demos: DemoSummary[]; l
         const copy = previewCopy[demo.template];
         return <div className={styles.slide} key={demo.projectId} ref={element => { slides.current[index] = element; }} role="group" aria-roledescription={ui.slide} aria-label={`${index + 1} ${ui.of} ${demos.length}: ${demo.name}`} aria-hidden={index !== active}>
           {demo.template === 'forma-hair-v1' ? <div className={styles.formaPreview}>
-            <div className={styles.formaNav}><b dir="ltr">forma<span>HAIR ATELIER</span></b><span>סטודיו בוטיק לשיער · תל אביב</span><span>תפריט <span aria-hidden="true">↗</span></span></div>
-            <div className={styles.formaHeading}><small>THE EVERYDAY MUSE / 01</small><h2>{copy.firstLine}<br />{copy.secondLine}</h2><p>{copy.description}</p></div>
-            <div className={styles.formaFeature}><div className={styles.formaPhoto}><Image src={demo.image} alt={demo.imageAlt} fill sizes="(max-width: 800px) 80vw, 530px" draggable={false} /></div><div className={styles.formaAside}><span dir="ltr">FORMA / 2026</span><strong>תנועה.<br />מרקם.<br />את.</strong><span>דיוק אישי בכל פרט</span></div></div>
-            <div className={styles.formaFoot}><span>01 / גזירה אישית</span><span>02 / צבע עם עומק</span><span>03 / טיפוח השיער</span></div>
+            <div className={styles.formaShell}>
+              <div className={styles.formaNav}><b dir="ltr"><i>F</i> FORMA</b><span>הסטודיו · השירותים</span><span>לשירותים</span></div>
+              <div className={styles.formaHero}><div className={styles.formaHeading}><small>HAIR, SHAPED AROUND YOU</small><h2>{copy.firstLine}<br />{copy.secondLine}</h2><p>{copy.description}</p></div><div className={styles.formaPhoto}><Image src={demo.image} alt={demo.imageAlt} fill sizes="(max-width: 800px) 72vw, 430px" draggable={false} /><span>CUT / COLOR / CARE</span></div></div>
+            </div>
+            <div className={styles.formaFoot}>{copy.services.map((service,index) => <span key={service}><b>0{index + 1}</b>{service}</span>)}</div>
           </div> : demo.template === 'move-trainer-v1' ? <div className={styles.movePreview}>
-            <div className={styles.moveNav}><b dir="ltr">MOVE<span>PERSONAL TRAINING</span></b><span>הדרך · האימונים · עלינו</span><span>LET’S MOVE ↗</span></div>
-            <div className={styles.moveHero}><Image src={demo.image} alt={demo.imageAlt} fill sizes="(max-width: 800px) 90vw, 850px" draggable={false} /><div className={styles.moveOverlay}><small>YOUR PACE. YOUR PROGRESS.</small><h2>{copy.firstLine}<br /><em>{copy.secondLine}</em></h2><p>{copy.description}</p><span className={styles.movePill}>מגלים את הדרך <span aria-hidden="true">↙</span></span></div><span className={styles.moveIndex} dir="ltr">01 — 03</span></div>
-            <div className={styles.moveFoot}><b dir="ltr">MOVE / FORWARD</b><span>אימון אישי</span><span>אימון זוגי</span><span>ליווי מרחוק</span></div>
+            <div className={styles.moveNav}><b dir="ltr"><i>✦</i> MOVE</b><span>על MOVE · תחומי אימון · מסלולים</span><span>להכיר את הדרך ↙</span></div>
+            <div className={styles.moveHero}><Image src={demo.image} alt={demo.imageAlt} fill sizes="(max-width: 800px) 90vw, 850px" draggable={false} /><div className={styles.moveOverlay}><small>● תנועה שמתאימה לחיים שלכם</small><h2>{copy.firstLine}<br /><em>{copy.secondLine}</em></h2></div><div className={styles.moveAside}><p>{copy.description}</p><span className={styles.movePill}>מגלים את האפשרויות ↙</span></div></div>
+            <div className={styles.moveFoot}><b dir="ltr">MOVE / FORWARD</b>{copy.services.map(service => <span key={service}>{service}</span>)}</div>
           </div> : <div className={styles.window} data-demo={demo.template}>
             <div className={styles.windowBar}><span className={styles.windowDots} aria-hidden="true">● ● ●</span><b dir="ltr">{demo.name}</b><span>אתר הדגמה</span></div>
             <div className={styles.hero}><div className={styles.copy}><small>{demo.category}</small><h2>{copy.firstLine}<br /><em>{copy.secondLine}</em></h2><p>{copy.description}</p></div><div className={styles.image}><Image src={demo.image} alt={demo.imageAlt} fill sizes="(max-width: 560px) 43vw, (max-width: 800px) 260px, 280px" preload={index === 0} draggable={false} /></div></div>
