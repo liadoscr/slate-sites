@@ -17,8 +17,8 @@ export default async function NewProjectPage() {
         <Link className="brand" href="/dashboard" aria-label="חזרה לפרויקטים"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-divider" /><span className="brand-product">Sites</span></Link>
         <Link className="back-link" href="/dashboard">← כל הפרויקטים</Link>
       </header>
-      <section className="brief-page">
-        <aside className="brief-copy"><p className="kicker">01 / הבריף שלך</p><h1>הסיפור שלך.<br />נקודת ההתחלה שלנו.</h1><p>ספרו מה העסק עושה, בחרו השראה והוסיפו תוכן. אפשר לשמור טיוטה ולהשלים את הפרטים בהמשך.</p><p className="privacy-note">אחרי השמירה עוברים לפרויקט, יוצרים תוכנית עם AI ובודקים את התוצאה. הפרסום בידיים שלכם.</p></aside>
+      <section aria-label="יצירת אתר חדש">
+        <h1 className="sr-only">יצירת האתר שלכם</h1>
         <NewProjectBriefForm userId={user.id} />
       </section>
     </main>

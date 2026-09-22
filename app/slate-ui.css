@@ -164,6 +164,19 @@
 .app-shell .lead-list a, .app-shell .lead-list p { font-size: .9375rem; }
 .app-shell .lead-list a { max-width: 100%; overflow-wrap: anywhere; }
 .app-shell .lead-list time { font-size: .8125rem; }
+.app-shell .dashboard-message { margin: 0 0 24px; }
+.app-shell .danger-zone { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; margin-top: 24px; padding: 28px; border-color: #e7cbd4; background: #fffafb; }
+.app-shell .danger-zone h2 { margin: 0; font-size: 1.375rem; }
+.app-shell .danger-zone > div > p:not(.kicker), .app-shell .delete-project-confirmation > p { max-width: 680px; margin: 8px 0 0; color: var(--muted); font-size: .9375rem; }
+.app-shell .delete-project-button { flex: 0 0 auto; min-height: 48px; padding: 10px 16px; border: 1px solid #c74462; border-radius: 10px; background: #fff; color: #a21f3d; font-size: .9375rem; font-weight: 700; }
+.app-shell .delete-project-button:hover:not(:disabled) { background: #fff1f4; }
+.app-shell .delete-project-button:disabled { cursor: not-allowed; opacity: .55; }
+.app-shell .delete-project-confirmation { width: min(620px, 100%); padding: 22px; border: 1px solid #e1b7c3; border-radius: 14px; background: #fff; }
+.app-shell .delete-project-confirmation h3 { margin: 0; font-size: 1.25rem; outline: none; }
+.app-shell .delete-project-confirmation .field { margin-top: 18px; }
+.app-shell .danger-actions { display: flex; align-items: center; gap: 12px; margin-top: 18px; }
+.app-shell .delete-project-button-final { background: #a21f3d; color: #fff; }
+.app-shell .delete-project-button-final:hover:not(:disabled) { background: #86162f; }
 @media (max-width: 900px) {
   .app-shell .auth-layout { grid-template-columns: 1fr; max-width: 620px; }
   .app-shell .auth-panel { width: 100%; }
@@ -203,6 +216,9 @@
   .app-shell .plan-meta-grid > div, .app-shell .review-notes { padding: 22px 20px; }
   .app-shell .brief-summary > summary { padding: 22px; }
   .app-shell .brief-summary-content { padding: 0 22px 22px; }
+  .app-shell .danger-zone { flex-direction: column; padding: 22px 18px; }
+  .app-shell .danger-zone > .delete-project-button { width: 100%; }
+  .app-shell .danger-actions { align-items: stretch; flex-direction: column; }
 }
 @media (prefers-reduced-motion: reduce) {
   .app-shell *, .app-shell *::before, .app-shell *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }

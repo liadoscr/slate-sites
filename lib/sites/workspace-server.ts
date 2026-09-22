@@ -3,17 +3,19 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { cleanText, uuidPattern, type SiteImage, type GeneratedSitePlan } from './document';
 import type { ModelImage } from '@/lib/ai/gemini';
+import type { CreationImage } from '@/lib/creation/types';
+import { parseFocalPoint } from '@/lib/creation/validation';
 
-export type ImageChoice = { id: string; role: 'logo' | 'hero' | 'gallery' | 'reference'; alt: string };
+export type ImageChoice = CreationImage;
 export function parseImageChoices(value: unknown): ImageChoice[] {
   if (!Array.isArray(value) || value.length > 6) throw new Error('בחרו עד שש תמונות.');
   const result = value.map(item => {
     if (!item || !uuidPattern.test(item.id) || !['logo','hero','gallery','reference'].includes(item.role)) throw new Error('בחירת התמונה אינה תקינה.');
     const alt = cleanText(item.alt, 180);
     if (!alt) throw new Error('הוסיפו תיאור קצר לכל תמונה שנבחרה.');
-    return { id: item.id, role: item.role, alt } as ImageChoice;
+    return { id: item.id, role: item.role, alt, focalPoint: parseFocalPoint(item.focalPoint) } as ImageChoice;
   });
-  if (new Set(result.map(i => i.id)).size !== result.length || result.filter(i => i.role === 'hero').length > 1 || result.filter(i => i.role === 'logo').length > 1) throw new Error('בחרו לכל היותר תמונה ראשית אחת ולוגו אחד.');
+  if (new Set(result.map(i => i.id)).size !== result.length || ['hero','logo','reference'].some(role => result.filter(i => i.role === role).length > 1)) throw new Error('בחרו לכל היותר תמונה ראשית אחת, תמונת השראה אחת ולוגו אחד.');
   return result;
 }
 export function imageMime(bytes: Uint8Array): string | null {
@@ -29,6 +31,7 @@ export async function selectedImages(projectId: string, choices: ImageChoice[]) 
   for (const choice of choices) {
     const { data: asset, error } = await client.from('project_assets').select('storage_path,size_bytes').eq('project_id',projectId).eq('id',choice.id).single();
     if (error || !asset || !asset.storage_path.startsWith(`${projectId}/`) || asset.storage_path.includes('..') || asset.size_bytes > 8*1024*1024) throw new Error('תמונה לא נמצאה או גדולה מ־8MB. העלו תמונה קטנה יותר.');
+    if (asset.storage_path.startsWith(`${projectId}/reference/`) && choice.role !== 'reference') throw new Error('תמונת השראה נשארת פרטית ולא יכולה להתפרסם כתמונת עסק.');
     // Download with the owner's RLS-scoped client, never an arbitrary URL.
     const { data, error: downloadError } = await client.storage.from('project-assets').download(asset.storage_path);
     if (downloadError || !data || data.size > 8*1024*1024) throw new Error('לא הצלחנו לקרוא תמונה שנבחרה.');
@@ -49,7 +52,7 @@ export async function snapshotImages(projectId: string, requestId: string, image
     const path = `${projectId}/${requestId}/${image.choice.id}`;
     const { error } = await admin.storage.from('site-version-assets').upload(path, image.bytes, { contentType: image.model.mimeType, upsert: false });
     if (error) throw new Error('לא הצלחנו לשמור עותק של התמונה. נסו שוב.');
-    snapshots.push({ id: image.choice.id, path, role: image.choice.role, alt: image.choice.alt, mimeType: image.model.mimeType });
+    snapshots.push({ id: image.choice.id, path, role: image.choice.role, alt: image.choice.alt, mimeType: image.model.mimeType, focalPoint: image.choice.focalPoint });
   }
   return snapshots;
 }
@@ -60,6 +63,7 @@ export async function appendVersion(projectId: string, userId: string, content: 
 }
 export function workspaceError(error: unknown) {
   const message = error instanceof Error ? error.message : '';
+  if (/DELETED_PROJECT/.test(message)) return { error: 'הפרויקט נמחק בחלון אחר. חזרו ללוח הבקרה ופתחו פרויקט חדש כדי להמשיך.', status:409 };
   if (/VERSION_CONFLICT/.test(message)) return { error: 'הפרויקט השתנה בחלון אחר. רעננו לפני שמירת השינוי.', status:409 };
   if (/DAILY_LIMIT/.test(message)) return { error:'הגעתם למכסת היצירות ל־24 השעות האחרונות. נסו שוב מאוחר יותר.', status:429 };
   if (/GENERATION_BUSY/.test(message)) return { error:'כבר מתבצעת יצירה בפרויקט. המתינו לסיום ורעננו.', status:409 };

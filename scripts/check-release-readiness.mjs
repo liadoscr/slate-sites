@@ -11,9 +11,11 @@ const checks=await Promise.all([
   client.from('site_generation_jobs').select('id,phase,error_message').limit(0),
   client.from('notification_outbox').select('id').limit(0),
   client.storage.getBucket('site-version-assets'),
+  client.from('project_deletion_cleanup').select('project_id,actor_id,state').limit(0),
 ]);
 let functionsReady=false;
-try{const response=await fetch(`${url}/rest/v1/`,{headers:{apikey:key,Authorization:`Bearer ${key}`,'Accept':'application/openapi+json'},signal:AbortSignal.timeout(15000)});const schema=await response.json();functionsReady=['slate_start_generation','slate_append_version','slate_publish_version','slate_save_brief','slate_claim_notifications','slate_take_limit'].every(name=>Boolean(schema.paths?.[`/rpc/${name}`]));}catch{}
+let missingFunctions=[];
+try{const response=await fetch(`${url}/rest/v1/`,{headers:{apikey:key,Authorization:`Bearer ${key}`,'Accept':'application/openapi+json'},signal:AbortSignal.timeout(15000)});const schema=await response.json();missingFunctions=['slate_start_generation','slate_append_version','slate_publish_version','slate_delete_project','slate_save_brief','slate_claim_notifications','slate_take_limit'].filter(name=>!schema.paths?.[`/rpc/${name}`]);functionsReady=missingFunctions.length===0;}catch{}
 const databaseReady=checks.every(result=>!result.error)&&checks[4].data?.public===false&&functionsReady;
-console.log(JSON.stringify({databaseReady,checks:{designNotes:!checks[0].error,versionRequests:!checks[1].error,generationJobs:!checks[2].error,notificationOutbox:!checks[3].error,privateVersionMedia:!checks[4].error&&checks[4].data?.public===false,functionsReady},localEmailConfigured:Boolean(process.env.RESEND_API_KEY&&process.env.LEAD_EMAIL_FROM&&process.env.SLATE_SITES_APP_URL),localRetrySecretConfigured:Boolean(process.env.CRON_SECRET)}));
+console.log(JSON.stringify({databaseReady,checks:{designNotes:!checks[0].error,versionRequests:!checks[1].error,generationJobs:!checks[2].error,notificationOutbox:!checks[3].error,privateVersionMedia:!checks[4].error&&checks[4].data?.public===false,deletionCleanup:!checks[5].error,functionsReady},missingFunctions,localEmailConfigured:Boolean(process.env.RESEND_API_KEY&&process.env.LEAD_EMAIL_FROM&&process.env.SLATE_SITES_APP_URL),localRetrySecretConfigured:Boolean(process.env.CRON_SECRET)}));
 if(!databaseReady)process.exitCode=1;

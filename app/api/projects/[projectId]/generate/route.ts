@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { safeEmail, safePhone, uuidPattern, whatsappNumber } from '@/lib/sites/document';
 import { appendVersion, parseImageChoices, selectedImages, snapshotImages, workspaceError } from '@/lib/sites/workspace-server';
+import { loadCreationSettings, saveCreationSettings, validateCreationAssets } from '@/lib/creation/server';
 
 export const runtime = 'nodejs';
 export const maxDuration = 180;
@@ -37,10 +38,21 @@ export async function POST(request: Request, { params }: Context) {
   try {
     const body = await readJson(request);
     if (!uuidPattern.test(body.requestId) || body.consent !== true) return NextResponse.json({error:'אשרו את שליחת הבריף והתמונות שנבחרו ל־Gemini.'},{status:422});
-    const choices = parseImageChoices(body.images ?? []);
     const client = await createClient();
     const { data: project } = await client.from('projects').select('id,business_name,business_type,location,contact_email,contact_phone,project_briefs(business_story,primary_goal,website_copy,important_links,tone,color_preference,design_notes),design_references(url,notes)').eq('id',projectId).eq('owner_id',user.id).single();
     if (!project) return NextResponse.json({error:'הפרויקט לא נמצא או שנדרש עדכון מסד הנתונים.'},{status:404});
+    const settings = await loadCreationSettings(projectId);
+    if (settings.locks.design || settings.locks.text) return NextResponse.json({error:'יצירת כיוון חדש משנה עיצוב ותוכן. שחררו את הנעילות או השתמשו בעריכה ממוקדת.'},{status:409});
+    const choices = body.images === undefined ? settings.images : parseImageChoices(body.images);
+    if (body.images !== undefined) {
+      settings.images = choices;
+      const referenceId = choices.find(image => image.role === 'reference')?.id ?? null;
+      if (settings.referenceAssetId !== referenceId) settings.analysis = undefined;
+      settings.referenceAssetId = referenceId;
+      if (typeof body.whatsapp === 'boolean') settings.contactPreference = body.whatsapp ? 'whatsapp' : 'phone';
+      await saveCreationSettings(projectId, user.id, settings);
+    }
+    await validateCreationAssets(projectId, settings);
     const brief = Array.isArray(project.project_briefs) ? project.project_briefs[0] : project.project_briefs;
     if (!brief?.business_story && !brief?.website_copy && !brief?.primary_goal) return NextResponse.json({error:'ספרו מעט על העסק לפני היצירה.'},{status:422});
     const { data: latest } = await client.from('site_versions').select('id').eq('project_id',projectId).neq('visibility','preview').order('version_number',{ascending:false}).limit(1).maybeSingle();
@@ -53,10 +65,12 @@ export async function POST(request: Request, { params }: Context) {
         const images = await selectedImages(projectId, choices);
         if (Date.now() + 95_000 > new Date(job.expires_at).getTime()) throw new Error('הכנת התמונות ארכה יותר מדי. נסו שוב עם תמונות קטנות יותר.');
         await admin.from('site_generation_jobs').update({phase:'designing'}).eq('id',job.id);
-        const { plan } = await generateSitePlan({businessName:project.business_name,businessType:project.business_type,location:project.location,businessStory:brief.business_story,primaryGoal:brief.primary_goal,websiteCopy:brief.website_copy,importantLinks:brief.important_links,tone:brief.tone,colorPreference:brief.color_preference,designNotes:brief.design_notes,designReferences:project.design_references ?? []},images.map(i=>i.model));
+        const { plan } = await generateSitePlan({businessName:project.business_name,businessType:project.business_type,location:project.location,businessStory:brief.business_story,primaryGoal:brief.primary_goal,websiteCopy:brief.website_copy,importantLinks:brief.important_links,tone:brief.tone,colorPreference:brief.color_preference,designNotes:brief.design_notes,designReferences:[],creation:settings},images.map(i=>i.model));
         if (Date.now() > new Date(job.expires_at).getTime()) throw new Error('היצירה ארכה יותר מדי. נסו שוב.');
         await admin.from('site_generation_jobs').update({phase:'saving'}).eq('id',job.id);
-        plan.business = {name:project.business_name,type:project.business_type || '',location:project.location || '',email:safeEmail(project.contact_email),phone:safePhone(project.contact_phone),whatsapp:body.whatsapp === true ? whatsappNumber(safePhone(project.contact_phone)) : ''};
+        const currentSettings = await loadCreationSettings(projectId);
+        if (currentSettings.locks.design || currentSettings.locks.text) throw new Error('הופעלה נעילה בזמן היצירה. הטיוטה הקודמת נשמרה.');
+        plan.business = {name:project.business_name,type:project.business_type || '',location:project.location || '',email:safeEmail(project.contact_email),phone:safePhone(project.contact_phone),whatsapp:settings.contactPreference === 'whatsapp' ? whatsappNumber(safePhone(project.contact_phone)) : ''};
         plan.images = await snapshotImages(projectId,job.id,images);
         const version = await appendVersion(projectId,user.id,plan,latest?.id ?? null,job.id);
         await admin.from('site_generation_jobs').update({state:'completed',phase:'done',version_id:version.id}).eq('id',job.id);

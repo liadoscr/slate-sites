@@ -1,94 +1,20 @@
 'use client';
-
-import { FormEvent, useState } from 'react';
-import { useRouter } from 'next/navigation';
-
+import { CreationWizard, type CreationBrief } from './creation-wizard';
 type ProjectDetails = {
-  id: string;
-  businessName: string;
-  businessType: string | null;
-  location: string | null;
-  businessStory: string | null;
-  primaryGoal: string | null;
-  websiteCopy: string | null;
-  importantLinks: string | null;
-  tone: string | null;
-  colorPreference: string | null;
-  contactEmail: string | null;
-  contactPhone: string | null;
-  designNotes: string | null;
-  designReference: { id: string; url: string; notes: string | null } | null;
+  id: string; businessName: string; businessType: string | null; location: string | null;
+  businessStory: string | null; primaryGoal: string | null; websiteCopy: string | null;
+  importantLinks: string | null; tone: string | null; colorPreference: string | null;
+  contactEmail: string | null; contactPhone: string | null; designNotes: string | null;
+  designReference?: { id: string; url: string; notes: string | null } | null;
 };
-
-type EditProjectBriefFormProps = { project: ProjectDetails };
-
-function validateReference(url: string) {
-  if (!url) return '';
-  let parsed: URL;
-  try { parsed = new URL(url); } catch { throw new Error('קישור ההשראה אינו כתובת אינטרנט תקינה.'); }
-  if (parsed.protocol !== 'https:') throw new Error('קישור ההשראה חייב להתחיל ב־https://');
-  return parsed.toString();
-}
-
-export function EditProjectBriefForm({ project }: EditProjectBriefFormProps) {
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const businessName = String(form.get('businessName') || '').trim();
-    const designUrlInput = String(form.get('designUrl') || '').trim();
-    const designNotes = String(form.get('designNotes') || '').trim();
-
-    if (businessName.length < 2) { setError('הוסיפו שם עסק באורך של שתי אותיות לפחות.'); return; }
-    if (designUrlInput && designNotes.length < 12) { setError('כתבו בכמה מילים מה בדיוק רוצים לקחת מההשראה, כדי שהכיוון החדש יהיה מדויק.'); return; }
-
-    setBusy(true); setError('');
-    try {
-      const designUrl = validateReference(designUrlInput);
-      const response = await fetch('/api/projects/brief', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...Object.fromEntries(form),projectId:project.id,designUrl})});
-      const result = await response.json();
-      if(!response.ok)throw new Error(result.error || 'לא הצלחנו לשמור.');
-
-      router.replace(`/dashboard/projects/${project.id}`);
-      router.refresh();
-    } catch (submissionError) {
-      setError(submissionError instanceof Error ? submissionError.message : 'לא הצלחנו לשמור את השינויים. נסו שוב.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <form className="panel brief-form" onSubmit={submit} noValidate>
-      <h2>עריכת הבריף</h2>
-      <p>ככל שההנחיות על ההשראה מדויקות יותר, כך הכיוון של התצוגה המקדימה יהיה מותאם יותר לעסק שלכם.</p>
-      <fieldset className="brief-group"><legend><span>01</span>העסק והסיפור</legend>
-      <div className="field-grid">
-        <label className="field">שם העסק<input name="businessName" defaultValue={project.businessName} required /></label>
-        <label className="field">תחום העסק<input name="businessType" defaultValue={project.businessType ?? ''} /></label>
-        <label className="field full">אזור פעילות<input name="location" defaultValue={project.location ?? ''} /></label>
-        <label className="field">טלפון שיופיע באתר<input name="contactPhone" type="tel" dir="ltr" defaultValue={project.contactPhone ?? ''} /></label>
-        <label className="field">אימייל שיופיע באתר<input name="contactEmail" type="email" dir="ltr" defaultValue={project.contactEmail ?? ''} /><small>התראות על פניות יישלחו לאימייל המאומת של החשבון.</small></label>
-        <label className="field full">ספרו על העסק<textarea name="businessStory" defaultValue={project.businessStory ?? ''} /></label>
-        <label className="field full">מה הפעולה החשובה באתר?<input name="primaryGoal" defaultValue={project.primaryGoal ?? ''} /></label>
-      </div></fieldset>
-      <fieldset className="brief-group"><legend><span>02</span>הכיוון העיצובי</legend>
-      <div className="field-grid">
-        <label className="field full">קישור להשראה ב־Dribbble<input name="designUrl" type="url" inputMode="url" defaultValue={project.designReference?.url ?? ''} placeholder="https://dribbble.com/shots/..." /><small>מחפשים כיוון אחר? <a className="inline-link" href="https://dribbble.com/search/web-design" target="_blank" rel="noreferrer">לעיון בעיצובים של אתרים ב־Dribbble ↗</a></small></label>
-        <label className="field full">איזה כיוון עיצובי מתאים לכם?<textarea name="designNotes" defaultValue={project.designNotes ?? project.designReference?.notes ?? ''} placeholder="למשל: כותרת גדולה, צילום רחב ועיצוב אלגנטי." /><small>אפשר לתאר כיוון גם ללא קישור. תמונת השראה ניתן להעלות בפרויקט ולבחור ביצירה.</small></label>
-        <label className="field">אופי האתר<select name="tone" defaultValue={project.tone ?? ''}><option value="">בחרו אופי</option><option>נקי ומקצועי</option><option>חם ואישי</option><option>נועז וחדשני</option><option>אלגנטי ומדויק</option></select></label>
-        <label className="field">צבעים שאוהבים<input name="colors" defaultValue={project.colorPreference ?? ''} placeholder="למשל: כחול, לבן וסגול" /></label>
-      </div></fieldset>
-      <fieldset className="brief-group"><legend><span>03</span>התוכן לאתר</legend>
-      <div className="field-grid">
-        <label className="field full">טקסטים ותוכן לאתר<textarea name="websiteCopy" defaultValue={project.websiteCopy ?? ''} /></label>
-        <label className="field full">קישורים שחשוב לכלול<input name="importantLinks" defaultValue={project.importantLinks ?? ''} /></label>
-      </div></fieldset>
-      {error ? <p className="error-message" role="alert">{error}</p> : null}
-      <div className="form-actions"><button className="form-button" disabled={busy} type="submit">{busy ? 'שומרים…' : 'שמירת השינויים וחזרה לפרויקט'}</button></div>
-    </form>
-  );
+export function EditProjectBriefForm({ project, userId }: { project: ProjectDetails; userId: string }) {
+  const initial: CreationBrief = {
+    businessName: project.businessName, businessType: project.businessType ?? '',
+    location: project.location ?? '', businessStory: project.businessStory ?? '',
+    primaryGoal: project.primaryGoal ?? '', websiteCopy: project.websiteCopy ?? '',
+    importantLinks: project.importantLinks ?? '', tone: project.tone ?? '',
+    colors: project.colorPreference ?? '', contactEmail: project.contactEmail ?? '',
+    contactPhone: project.contactPhone ?? '', designNotes: project.designNotes ?? '', designUrl: '',
+  };
+  return <CreationWizard userId={userId} projectId={project.id} initialBrief={initial} />;
 }

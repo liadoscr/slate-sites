@@ -67,4 +67,42 @@ check('migration includes scoped atomic publication, job fencing and private med
   assert.ok(sql.includes("set state='completed', phase='done', version_id=saved.id"));
   assert.ok(sql.includes('from public, anon, authenticated'));assert.ok(sql.includes("'site-version-assets','site-version-assets',false"));
 });
+const deleteSql=readFileSync(resolve(root,'supabase/migrations/202609200001_project_deletion.sql'),'utf8');
+const deleteRoute=readFileSync(resolve(root,'app/api/projects/[projectId]/route.ts'),'utf8');
+const deleteUi=readFileSync(resolve(root,'components/projects/delete-project-button.tsx'),'utf8');
+check('project deletion is owner-scoped, generation-fenced and fails closed',()=>{
+  assert.ok(deleteSql.includes('begin;'));
+  assert.ok(deleteSql.includes('commit;'));
+  assert.ok(deleteSql.includes('slate_delete_project'));
+  assert.ok(deleteSql.includes("raise exception 'GENERATION_BUSY'"));
+  assert.ok(deleteSql.includes('create table if not exists public.project_deletion_cleanup'));
+  assert.ok(!deleteSql.includes('project_id uuid primary key references'));
+  assert.ok(deleteSql.includes('for select to authenticated'));
+  assert.ok(deleteSql.includes('for update to authenticated'));
+  assert.ok(!deleteSql.includes('for delete to authenticated'));
+  assert.ok(deleteSql.includes('from public, anon, authenticated'));
+  assert.ok(deleteRoute.includes("request.headers.get('origin')"));
+  assert.ok(deleteRoute.includes(".eq('owner_id', user.id)"));
+  assert.ok(deleteRoute.includes('removeProjectStorageBatch(admin, cleanup.project_id)'));
+  assert.ok(deleteRoute.includes("status: 503"));
+  assert.ok(!/\.from\('projects'\)[\s\S]{0,160}\.delete\(\)/.test(deleteRoute));
+  assert.ok(deleteUi.includes("confirmationName.trim() === businessName"));
+  assert.ok(deleteUi.includes('result.cleanupPending === true'));
+  assert.ok(deleteUi.includes("method: 'DELETE'"));
+});
+const {removeProjectStorageBatch}=load('lib/sites/project-storage.ts');
+const cleanupProject='00000000-0000-4000-8000-000000000099';
+const storedObjects={
+  'project-assets':new Set([`${cleanupProject}/a`,`${cleanupProject}/b`,`${cleanupProject}/nested/c`,`${cleanupProject}/../opaque-key`]),
+  'site-version-assets':new Set([`${cleanupProject}/request-1/d`,`${cleanupProject}/request-2/e`]),
+};
+const fakeStorageAdmin={storage:{from(bucketName){const objects=storedObjects[bucketName];return {
+  async list(folder,{limit,offset}){const prefix=`${folder}/`;const children=new Map();for(const path of objects){if(!path.startsWith(prefix))continue;const rest=path.slice(prefix.length);const [name,...tail]=rest.split('/');if(!children.has(name)||tail.length===0)children.set(name,{name,id:tail.length===0?`file-${name}`:null});}const data=[...children.values()].sort((a,b)=>a.name.localeCompare(b.name)).slice(offset,offset+limit);return {data,error:null};},
+  async remove(paths){for(const path of paths)objects.delete(path);return {error:null};},
+};}}};
+let cleanupPasses=0;let cleanupPending=true;
+while(cleanupPending&&cleanupPasses<10){const result=await removeProjectStorageBatch(fakeStorageAdmin,cleanupProject,{maxFiles:2,maxListCalls:10});assert.ok(result.removed<=2);cleanupPending=result.pending;cleanupPasses++;}
+assert.equal(cleanupPending,false);assert.ok(cleanupPasses>1);assert.equal([...storedObjects['project-assets'],...storedObjects['site-version-assets']].length,0);
+assert.deepEqual(await removeProjectStorageBatch(fakeStorageAdmin,cleanupProject,{maxFiles:2,maxListCalls:10}),{removed:0,pending:false});
+checks++;console.log('PASS project Storage cleanup is bounded, retryable and idempotent');
 console.log(`${checks} offline regression checks passed. SQL execution and authenticated end-to-end tests still require the migrated Supabase project.`);

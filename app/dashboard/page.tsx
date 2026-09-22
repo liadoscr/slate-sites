@@ -9,7 +9,7 @@ import { demoCatalog } from '@/lib/sites/demo-catalog';
 
 type Project = { id: string; business_name: string; business_type: string | null; status: string; updated_at: string; site_versions: { visibility: string }[] };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams?: Promise<{ deleted?: string }> }) {
   if (!isSupabaseConfigured()) {
     return <main className="app-shell"><header className="simple-header"><Link className="brand" href="/"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-divider" /><span className="brand-product">Sites</span></Link></header><section className="panel auth-panel"><h1>הדאשבורד מוכן לחיבור</h1><p className="setup-notice">יש להוסיף את משתני Supabase ולהריץ את קובץ המיגרציה לפני שאפשר לשמור משתמשים ופרויקטים אמיתיים.</p></section></main>;
   }
@@ -17,6 +17,7 @@ export default async function DashboardPage() {
   const supabase = await createClient();
   const user = await getCurrentUser();
   if (!user) redirect('/auth?next=/dashboard');
+  const deleted = (await searchParams)?.deleted === '1';
 
   const { data, error } = await supabase
     .from('projects')
@@ -38,6 +39,7 @@ export default async function DashboardPage() {
         <div><p className="kicker">סביבת העבודה שלך</p><h1>האתרים שלי</h1><p><bdi>{user.email}</bdi> · ממשיכים מהמקום שבו עצרתם.</p></div>
         <Link className="primary-cta" href="/dashboard/new">יצירת אתר חדש <span aria-hidden="true">＋</span></Link>
       </section>
+      {deleted ? <p className="success-message dashboard-message" role="status">הפרויקט נמחק והאתר הציבורי הוסר מהאוויר.</p> : null}
       {error ? <p className="error-message" role="alert">לא הצלחנו לטעון את האתרים. נסו לרענן את העמוד.</p> : <dl className="dashboard-summary" aria-label="סיכום האתרים"><div><dt>האתרים שלי</dt><dd>{projects.length}</dd></div><div><dt>באוויר</dt><dd>{projects.filter((project) => project.status === 'published').length}</dd></div><div><dt>בעבודה</dt><dd>{projects.filter((project) => !['published', 'archived'].includes(project.status)).length}</dd></div></dl>}
       <section className="dashboard-grid" aria-label="פרויקטים">
         {projects.map((project) => { const demo = demoCatalog.find(item => item.projectId === project.id); return (

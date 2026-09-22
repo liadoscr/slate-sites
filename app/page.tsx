@@ -18,26 +18,26 @@ const content = {
     processEyebrow: 'פשוט להתחיל', processTitle: 'שלושה צעדים. אתר אחד שהוא שלכם.',
     steps: [
       ['01', 'מספרים על העסק', 'מה אתם עושים, למי אתם פונים ומה חשוב לכם שאנשים יכירו.'],
-      ['02', 'בוחרים כיוון', 'מוסיפים השראה מ־Dribbble, טקסטים ותמונות. מתארים בדיוק מה אוהבים.'],
+      ['02', 'מראים את הכיוון', 'מעלים צילום מסך של עיצוב שאוהבים, או בוחרים כיוון מוכן. מוסיפים את תמונות העסק בנפרד.'],
       ['03', 'יוצרים ומפרסמים', 'יוצרים תוכן עם AI, בודקים תצוגה מקדימה ומפרסמים כשמוכנים.'],
     ],
-    inspiration: 'מצאו השראה ב־Dribbble ↗', workspaceEyebrow: 'החשבון שלך, סביבת העבודה שלך',
+    inspiration: 'מתחילים מתמונה ←', workspaceEyebrow: 'החשבון שלך, סביבת העבודה שלך',
     workspaceTitle: 'פחות להתעסק באתר. יותר להתמקד בעסק.',
     workspaceBody: 'הבריף, ההשראות, גרסאות התוכן והפניות מהאתר נמצאים במקום אחד. חוזרים, מעדכנים ומתקדמים בקצב שלכם.',
     workspaceAction: 'פותחים חשבון ומתחילים', signedInAction: 'ליצירת אתר חדש',
     features: [
-      ['החומרים שלכם, מסודרים', 'טקסטים, קישורי השראה וקבצים שמורים בתוך כל פרויקט.'],
+      ['החומרים שלכם, מסודרים', 'תמונת השראה פרטית, טקסטים ותמונות עסק — עם בחירות שנשמרות בפרויקט.'],
       ['רואים לפני שמפרסמים', 'תצוגה מקדימה פרטית וסטטוס הפרסום של האתר בתוך הפרויקט.'],
       ['אתם מחליטים מתי לעלות לאוויר', 'פרסום עצמאי, קישור לאתר וטופס יצירת קשר. אין צורך בהמתנה לצוות.'],
     ],
     securityEyebrow: 'פרטיות כחלק מהדרך', securityTitle: 'החומרים שלכם נשארים בחשבון שלכם.',
     securityBody: 'נכנסים עם Google או קישור למייל. הבריפים והקבצים נגישים דרך החשבון, והתצוגה המקדימה מיועדת לבעל הפרויקט. האתר עצמו הופך לציבורי רק בפרסום.',
-    betaNote: 'אנחנו בבטא: ה־AI משתמש כרגע בטקסט ובהנחיות שלכם, לא קורא את הקישור ב־Dribbble ולא משלב אוטומטית קבצים שהעליתם. אל תכללו מידע רגיש בבריף.',
+    betaNote: 'לאחר אישורכם, הבריף והתמונות שנבחרו נשלחים ל־Google Gemini. תמונת ההשראה עוזרת לפרש את הכיוון החזותי ואינה מתפרסמת באתר. התוצאה היא עיצוב מותאם, לא העתק מדויק. אל תעלו מידע רגיש.',
     finalTitle: 'מוכנים לתת לעסק מקום משלו?',
     finalBody: 'מספרים לנו על העסק, בוחרים כיוון ובונים אתר תדמיתי שנשאר בשליטה שלכם.',
     footerHeadings: ['המוצר', 'כלים', 'דוגמאות', 'החברה'],
     footerProduct: ['איך זה עובד', 'אתרי דוגמה', 'מה מקבלים', 'פרטיות באתר', 'יצירת אתר'],
-    footerTools: ['השראה ב־Dribbble', 'תוכן בעזרת AI', 'תצוגה מקדימה', 'לוח הבקרה'],
+    footerTools: ['יצירה מתמונת השראה', 'תוכן בעזרת AI', 'תצוגה מקדימה', 'לוח הבקרה'],
     footerCompany: ['אתר Slate', 'אודות Slate', 'אבטחה ב־Slate', 'יצירת קשר עם Slate'],
     footerPrivacy: 'מדיניות הפרטיות של Slate', footerAccessibility: 'הצהרת הנגישות של Slate',
     footerNote: 'Slate Sites · אתרים תדמיתיים לעסקים',
@@ -50,26 +50,26 @@ const content = {
     processEyebrow: 'Simple from the start', processTitle: 'Three steps. One website that is yours.',
     steps: [
       ['01', 'Tell us about your business', 'What you do, who you serve, and what you want people to know.'],
-      ['02', 'Choose a direction', 'Add Dribbble inspiration, your own words, and images. Tell us what you like.'],
+      ['02', 'Show your direction', 'Upload a screenshot of a design you like, or choose a starting style. Add your business photos separately.'],
       ['03', 'Create and publish', 'Draft content with AI, review a preview, and publish when you are ready.'],
     ],
-    inspiration: 'Find inspiration on Dribbble ↗', workspaceEyebrow: 'Your account, your workspace',
+    inspiration: 'Start with an image →', workspaceEyebrow: 'Your account, your workspace',
     workspaceTitle: 'Spend less time on your website. More on your business.',
     workspaceBody: 'Your brief, inspiration, content versions, and site enquiries stay together. Return and update them at your own pace.',
     workspaceAction: 'Create an account', signedInAction: 'Create a new website',
     features: [
-      ['Everything in one place', 'Keep copy, inspiration links, and uploaded files with each project.'],
+      ['Everything in one place', 'Keep private design references, copy, business photos, and your saved choices with each project.'],
       ['Preview before publishing', 'Review a private preview and publication status from your project.'],
       ['Go live when you choose', 'Publish independently with a site link and contact form. No team approval needed.'],
     ],
     securityEyebrow: 'Privacy by design', securityTitle: 'Your materials stay in your account.',
     securityBody: 'Sign in with Google or an email link. Your briefs and files are available through your account, and your preview is for the project owner. Your site becomes public only when you publish it.',
-    betaNote: 'We are in beta: AI currently uses your written brief and instructions. It does not read Dribbble links or automatically include uploaded files. Do not add sensitive information to a brief.',
+    betaNote: 'With your approval, your brief and selected images are sent to Google Gemini. The reference image guides the design and is never published on your site. Results are adapted designs, not exact copies. Do not upload sensitive information.',
     finalTitle: 'Ready to give your business a home online?',
     finalBody: 'Tell us about your business, choose a direction, and build an informational site that stays in your control.',
     footerHeadings: ['Product', 'Tools', 'Examples', 'Company'],
     footerProduct: ['How it works', 'Example websites', 'What you get', 'Privacy on this site', 'Create a website'],
-    footerTools: ['Dribbble inspiration', 'AI-assisted content', 'Private preview', 'Dashboard'],
+    footerTools: ['Image-led creation', 'AI-assisted content', 'Private preview', 'Dashboard'],
     footerCompany: ['Slate website', 'About Slate', 'Security at Slate', 'Contact Slate'],
     footerPrivacy: 'Slate privacy policy', footerAccessibility: 'Slate accessibility statement',
     footerNote: 'Slate Sites · Informational websites for businesses',
@@ -111,7 +111,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
         <section className={styles.process} id="how-it-works" aria-labelledby="process-title">
           <div className={styles.sectionHeading}><p className={styles.eyebrow}>{copy.processEyebrow}</p><h2 id="process-title">{copy.processTitle}</h2></div>
-          <ol className={styles.steps}>{copy.steps.map(([number, title, description]) => <li key={number}><span>{number}</span><h3>{title}</h3><p>{description}</p>{number === '02' ? <a href="https://dribbble.com/search/web-design" target="_blank" rel="noreferrer">{copy.inspiration}</a> : null}</li>)}</ol>
+          <ol className={styles.steps}>{copy.steps.map(([number, title, description]) => <li key={number}><span>{number}</span><h3>{title}</h3><p>{description}</p>{number === '02' ? <Link href={briefHref}>{copy.inspiration}</Link> : null}</li>)}</ol>
         </section>
 
         <section className={styles.workspace} id="your-workspace" aria-labelledby="workspace-title">
@@ -127,7 +127,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <div className={styles.footerInner}>
           <div className={styles.footerColumns}>
             <nav aria-label={copy.footerHeadings[0]}><h2>{copy.footerHeadings[0]}</h2><ul><li><a href="#how-it-works">{copy.footerProduct[0]}</a></li>{visibleDemos.length > 0 ? <li><a href="#demo-preview">{copy.footerProduct[1]}</a></li> : null}<li><a href="#your-workspace">{copy.footerProduct[2]}</a></li><li><a href="#security">{copy.footerProduct[3]}</a></li><li><Link href={briefHref}>{copy.footerProduct[4]}</Link></li></ul></nav>
-            <nav aria-label={copy.footerHeadings[1]}><h2>{copy.footerHeadings[1]}</h2><ul><li><a href="https://dribbble.com/search/web-design" target="_blank" rel="noreferrer">{copy.footerTools[0]}</a></li><li><a href="#your-workspace">{copy.footerTools[1]}</a></li>{visibleDemos.length > 0 ? <li><a href="#demo-preview">{copy.footerTools[2]}</a></li> : null}<li><Link href={accountHref}>{copy.footerTools[3]}</Link></li></ul></nav>
+            <nav aria-label={copy.footerHeadings[1]}><h2>{copy.footerHeadings[1]}</h2><ul><li><Link href={briefHref}>{copy.footerTools[0]}</Link></li><li><a href="#your-workspace">{copy.footerTools[1]}</a></li>{visibleDemos.length > 0 ? <li><a href="#demo-preview">{copy.footerTools[2]}</a></li> : null}<li><Link href={accountHref}>{copy.footerTools[3]}</Link></li></ul></nav>
             <nav aria-label={copy.footerHeadings[2]}><h2>{copy.footerHeadings[2]}</h2><ul>{visibleDemos.map(demo => <li key={demo.projectId}><Link href={`/sites/${demo.projectId}`}>{demo.name}</Link></li>)}<li><a href="#how-it-works">{copy.footerProduct[0]}</a></li></ul></nav>
             <nav aria-label={copy.footerHeadings[3]}><h2>{copy.footerHeadings[3]}</h2><ul><li><a href={slateUrl}>{copy.footerCompany[0]}</a></li><li><a href="https://www.slate.co.il/about">{copy.footerCompany[1]}</a></li><li><a href="https://www.slate.co.il/security">{copy.footerCompany[2]}</a></li><li><a href="https://www.slate.co.il/contact">{copy.footerCompany[3]}</a></li></ul></nav>
           </div>

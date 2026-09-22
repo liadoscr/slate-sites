@@ -1,4 +1,4 @@
-# Slate workspace release — September 11, 2026
+# Slate workspace release — September 20, 2026
 
 This release extends the existing Next.js/Vercel + Supabase application. It does
 not redeploy the separate static Orange demo or migrate hosting providers.
@@ -32,6 +32,14 @@ not redeploy the separate static Orange demo or migrate hosting providers.
   bounded retries, and honest provider-acceptance status. Notifications go to the
   owner's verified Auth email, never to a visitor-supplied recipient.
 - Strict same-origin login redirect validation and bounded JSON input parsing.
+- Owner-controlled permanent project deletion with exact-name confirmation. A
+  published project's dynamic public URL disappears with the database record;
+  a durable, owner-scoped cleanup record is created in the same transaction and
+  both private Storage prefixes are removed in bounded, idempotent batches. If a
+  Storage request fails or more batches remain, the owner is told that cleanup is
+  pending and can retry the same action without restoring the public site. There is no
+  customer-specific Vercel deployment to delete because all sites run inside the
+  shared Slate Sites application. Deletion is refused while AI generation is active.
 
 ## Required rollout order
 
@@ -45,11 +53,19 @@ not redeploy the separate static Orange demo or migrate hosting providers.
    additive: it retains historical versions and leads, freezes version content,
    and demotes older duplicate public versions without deleting them. The latest
    previously public version stays public. Initial schema must already exist.
-4. Run `node scripts/check-release-readiness.mjs`; then deploy this exact release
+4. In the same SQL Editor, run
+   `supabase/migrations/202609200001_project_deletion.sql` once. This replaces the
+   broad project RLS policy with read/create/update policies and reserves permanent
+   deletion for the server-owned, generation-fenced flow. It also creates the
+   server-only `project_deletion_cleanup` outbox used for safe manual retries.
+   Existing projects remain. The application fails closed with HTTP 503 if this
+   migration has not been applied; it never falls back to an unfenced direct delete.
+5. Run `node scripts/check-release-readiness.mjs`; then deploy this exact release
    through the existing GitHub/Vercel workflow. Do not deploy the static `dist/`.
-5. Verify owner sign-in, generation, photo selection, revision review/undo, draft
-   isolation, and publish/unpublish. Use a separate owner account to check access
-   isolation. Browser/device/accessibility checks have not yet been certified.
+6. Verify owner sign-in, generation, photo selection, revision review/undo, draft
+   isolation, publish/unpublish, and deletion of one disposable test project. Use a
+   separate owner account to check access isolation. Browser/device/accessibility
+   checks have not yet been certified.
 
 ## Email notification setup
 
@@ -85,7 +101,8 @@ Provider acceptance is not proof of delivery to the recipient's inbox.
   only fictional business details and a tiny synthetic image; no site persistence.
 
 Still outside this release: voice briefs, a full guided/autosaving onboarding
-conversation, custom domains, QR/social launch kits, analytics, permanent asset
-deletion/retention automation, legal review, complete accessibility auditing, and
-end-to-end production acceptance. Orange remains a clearly labeled hand-crafted
-demo. Do not describe these remaining items as implemented or certified.
+conversation, custom domains, QR/social launch kits, analytics, unattended automatic
+retry of pending post-deletion Storage cleanup, legal review, complete accessibility
+auditing, and end-to-end production acceptance. Manual, owner-authorized cleanup
+retry is implemented. Orange remains a clearly labeled hand-crafted demo. Do not
+describe these remaining items as implemented or certified.
