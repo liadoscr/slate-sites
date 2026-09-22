@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { WorkspaceHeader } from '@/components/projects/workspace-header';
 import { notFound,redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
@@ -26,7 +27,7 @@ export default async function ProjectPage({params}:{params:Promise<{projectId:st
   ]);
   const plan=latest?.content;const ready=isSitePlan(plan);const demo=getCuratedDemo(plan);const curated=Boolean(demo);
   return <main className="app-shell">
-    <header className="simple-header"><Link className="brand" href="/dashboard"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-divider"/><span className="brand-product">Sites</span></Link><Link className="back-link" href="/dashboard">← כל הפרויקטים</Link></header>
+    <WorkspaceHeader />
     <section className="dashboard-top"><div><p className="kicker">סביבת העבודה שלך</p><h1>{project.business_name}</h1><p>{project.business_type}{project.location?` · ${project.location}`:''}</p></div><div className="project-actions"><span className="status-pill" data-status={live?'published':'draft'}>{live?latest?.id===live.id?'האתר באוויר':'שינויים שעדיין לא פורסמו':'טיוטה פרטית'}</span><Link className="secondary-action" href={`/dashboard/projects/${projectId}/edit`}>העסק, ההשראה והתמונות</Link></div></section>
     <ol className="project-progress" aria-label="התקדמות הפרויקט"><li data-complete="true"><span>01</span><div><b>הסיפור שלך</b><small>הבריף נשמר</small></div></li><li data-complete={ready}><span>02</span><div><b>האתר שלך</b><small>{latest?`טיוטה ${latest.version_number}`:'מוכנים ליצירה'}</small></div></li><li data-complete={Boolean(live)}><span>03</span><div><b>באוויר</b><small>{live?`גרסה ${live.version_number}`:'לאחר הבדיקה שלך'}</small></div></li></ol>
     <section className="panel ai-plan-panel"><div className="ai-plan-heading"><div><p className="kicker">{demo?`${demo.name} · דמו ידני`:'Slate Sites'}</p><h2>{curated?'אתר ההדגמה שלך':ready?'כאן האתר שלך מקבל צורה':'ניצור את האתר הראשון שלך'}</h2><p>{ready?'בדקו, דייקו ופרסמו — ההחלטה אצלכם.':'הבריף והתמונות שבחרתם הופכים לאתר שאפשר לראות ולשפר.'}</p></div><div className="ai-plan-actions">{ready&&latest?<><Link className="preview-top-action" href={`/dashboard/projects/${projectId}/preview?version=${latest.id}`}>פתיחת תצוגה מקדימה ↗</Link><PublishSiteButton key={latest.id} projectId={projectId} versionId={latest.id} isCurrentVersionPublished={latest.visibility==='public'} hasLiveSite={Boolean(live)} liveUrl={live?.published_url??null}/></>:null}<a className="secondary-action" href="#new-direction">{ready?'יצירת כיוון חדש':'התחלת היצירה'}</a></div></div>

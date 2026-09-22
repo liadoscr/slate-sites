@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
+import { LogoutButton } from '@/components/auth/logout-button';
 import styles from './marketing-header.module.css';
 
 type MarketingHeaderProps = {
@@ -90,6 +91,7 @@ export function MarketingHeader({ locale, accountHref, isSignedIn, showDemos }: 
 
         <div className={styles.desktopActions}>
           <Link className={styles.account} href={accountHref}>{accountLabel}</Link>
+          {isSignedIn && <LogoutButton locale={locale} />}
           <Link className={styles.language} href={languageHref} hrefLang={english ? 'he' : 'en'} aria-label={english ? 'Switch to Hebrew' : 'Switch to English'}><GlobeIcon /><span>{languageLabel}</span></Link>
         </div>
 
@@ -112,6 +114,7 @@ export function MarketingHeader({ locale, accountHref, isSignedIn, showDemos }: 
           ? <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" onClick={closeMenu}>{link.label}</a>
           : <a key={link.href} href={link.href} onClick={closeMenu}>{link.label}</a>)}
         <Link href={accountHref} onClick={closeMenu}>{accountLabel}</Link>
+        {isSignedIn && <LogoutButton locale={locale} />}
         <Link className={styles.mobileLanguage} href={languageHref} hrefLang={english ? 'he' : 'en'} onClick={closeMenu}><GlobeIcon />{languageLabel}</Link>
       </nav>
     </header>

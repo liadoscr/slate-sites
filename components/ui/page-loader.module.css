@@ -1,0 +1,22 @@
+.screen {
+  min-height: 70vh;
+  min-height: 70svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 40px 20px;
+  color: #15365d;
+}
+.mark { display: flex; align-items: center; gap: 16px; }
+.word { font-size: 54px; font-weight: 800; letter-spacing: -.085em; line-height: 1; }
+.dot, .product { color: #4773cb; }
+.product { font-size: 25px; font-weight: 700; }
+.divider { width: 1px; height: 30px; background: #c6cfda; }
+.track { width: 140px; height: 3px; margin-top: 28px; overflow: hidden; border-radius: 4px; background: #e6edf8; direction: ltr; }
+.track span { display: block; width: 45%; height: 100%; border-radius: inherit; background: #4773cb; animation: progress 1.3s ease-in-out infinite alternate; }
+.caption { margin: 18px 0 0; color: #586b84; font-size: 14px; }
+@keyframes progress { from { transform: translateX(-100%); } to { transform: translateX(225%); } }
+@media (prefers-reduced-motion: reduce) {
+  .track span { animation: none; width: 100%; }
+}

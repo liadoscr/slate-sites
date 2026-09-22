@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { WorkspaceHeader } from '@/components/projects/workspace-header';
 import { redirect } from 'next/navigation';
 import { NewProjectBriefForm } from '@/components/projects/new-project-brief-form';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
@@ -13,10 +14,7 @@ export default async function NewProjectPage() {
 
   return (
     <main className="app-shell">
-      <header className="simple-header">
-        <Link className="brand" href="/dashboard" aria-label="חזרה לפרויקטים"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-divider" /><span className="brand-product">Sites</span></Link>
-        <Link className="back-link" href="/dashboard">← כל הפרויקטים</Link>
-      </header>
+      <WorkspaceHeader />
       <section aria-label="יצירת אתר חדש">
         <h1 className="sr-only">יצירת האתר שלכם</h1>
         <NewProjectBriefForm userId={user.id} />

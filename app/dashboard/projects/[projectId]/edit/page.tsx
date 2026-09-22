@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { WorkspaceHeader } from '@/components/projects/workspace-header';
 import { notFound, redirect } from 'next/navigation';
 import { EditProjectBriefForm } from '@/components/projects/edit-project-brief-form';
 import { getCurrentUser } from '@/lib/data/current-user';
@@ -27,7 +27,7 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
 
   return (
     <main className="app-shell">
-      <header className="simple-header"><Link className="brand" href="/dashboard"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-divider" /><span className="brand-product">Sites</span></Link><Link className="back-link" href={`/dashboard/projects/${projectId}`}>← חזרה לפרויקט</Link></header>
+      <WorkspaceHeader backHref={`/dashboard/projects/${projectId}`} backLabel="← חזרה לפרויקט" />
       <section aria-label="עריכת הכיוון והבריף">
         <h1 className="sr-only">עדכון הבריף והכיוון שלכם</h1>
         <EditProjectBriefForm userId={user.id} project={{ id: project.id, businessName: project.business_name, businessType: project.business_type, location: project.location, contactEmail:project.contact_email,contactPhone:project.contact_phone,designNotes:brief?.design_notes??null,businessStory: brief?.business_story ?? null, primaryGoal: brief?.primary_goal ?? null, websiteCopy: brief?.website_copy ?? null, importantLinks: brief?.important_links ?? null, tone: brief?.tone ?? null, colorPreference: brief?.color_preference ?? null, designReference }} />

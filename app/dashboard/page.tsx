@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { WorkspaceHeader } from '@/components/projects/workspace-header';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
@@ -31,10 +32,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: P
 
   return (
     <main className="app-shell">
-      <header className="simple-header">
-        <Link className="brand" href="/" aria-label="Slate Sites, דף הבית"><span className="brand-slate">slate<span className="brand-dot">.</span></span><span className="brand-divider" /><span className="brand-product">Sites</span></Link>
-        <Link className="back-link" href="/">לאתר Slate Sites ↗</Link>
-      </header>
+      <WorkspaceHeader homeHref="/" backHref="/" backLabel="לאתר Slate Sites ↗" />
       <section className="dashboard-top">
         <div><p className="kicker">סביבת העבודה שלך</p><h1>האתרים שלי</h1><p><bdi>{user.email}</bdi> · ממשיכים מהמקום שבו עצרתם.</p></div>
         <Link className="primary-cta" href="/dashboard/new">יצירת אתר חדש <span aria-hidden="true">＋</span></Link>

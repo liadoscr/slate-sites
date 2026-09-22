@@ -1,0 +1,6 @@
+.wrapper { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 8px 12px; border: 1px solid #d9e2ee; border-radius: 999px; background: #fff; color: #29496f; font: inherit; font-size: 14px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+.button:hover:not(:disabled) { background: #f1f5fc; border-color: #5374aa; }
+.button:focus-visible { outline: 3px solid #4773cb; outline-offset: 3px; }
+.button:disabled { opacity: .65; cursor: wait; }
+.error { max-width: 220px; margin: 0; color: #a21f3d; font-size: 13px; }

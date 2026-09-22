@@ -46,7 +46,7 @@
 .desktopNav { justify-content: center; gap: clamp(16px, 2.1vw, 31px); white-space: nowrap; }
 .desktopNav a { color: #38506f; font-size: 13px; font-weight: 600; transition: color .18s ease; }
 .desktopNav a:hover { color: #3265c6; }
-.desktopActions { justify-self: end; gap: 16px; }
+.desktopActions { justify-self: end; gap: 10px; }
 .account {
   display: inline-flex;
   align-items: center;
@@ -67,7 +67,7 @@
 .menuButton,
 .mobileMenu { display: none; }
 
-@media (max-width: 768px) {
+@media (max-width: 1100px) {
   .header { height: 64px; }
   .inner { grid-template-columns: 1fr auto; width: min(100% - 36px, 1280px); gap: 16px; }
   .documentIcon { width: 24px; height: 28px; }
