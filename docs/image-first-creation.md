@@ -15,6 +15,10 @@ The creation flow separates a private visual reference from usable business phot
 
 ## Design and editing
 
+The setup now uses three screens: business facts, design direction, and publishable photos/contact details. Fine controls remain optional; crop and alt-text adjustments live in the preview editor. Reference analysis runs on Continue only after explicit consent. Business-photo permission is separate from reference-use permission. A project with only a logo/reference must explicitly choose a photo-free draft before creation. The first newly uploaded business photo is assigned to the hero automatically, and logos have their own upload control.
+
+Generation navigates to an owner-protected `/dashboard/projects/<id>/creating?job=<id>` progress page. It polls the exact actor/project/job, survives reload, and opens the saved version's private preview on completion. Failed requests do not redirect to an unrelated or older version. The preview exposes text, appearance and publication actions; locks and detailed controls stay in the project editor. No database migration is needed for these UX changes.
+
 Reference analysis produces an interpretation of palette, layout, spacing and typography. The owner chooses whether to borrow structure, colors or both. Generation supports five constrained layout families, light/dark modes and section-level presentation. This is not pixel-perfect screenshot-to-code reproduction; reference business copy and images are not reused.
 
 Edits create a private proposal first. Text edits preserve presentation; section-design edits preserve copy and asset identity. The owner can compare/apply proposals, restore saved versions, adjust desktop/mobile image focus and lock text/design. Locks are checked server-side, including again after AI work, but are not a substitute for database transaction-level multi-editor collaboration.
@@ -23,6 +27,6 @@ Quality checks cover content/contact fields, alternative text, referenced image 
 
 ## Validation
 
-Run `npm run typecheck`, `npm run build`, `node scripts/check-workspace.mjs`, `node scripts/check-creation.mjs`, `node scripts/check-demos.mjs`, and `node scripts/check-demo-carousel.mjs`.
+Run `npm run typecheck`, `npm run build`, `node scripts/check-workspace.mjs`, `node scripts/check-creation.mjs`, `node scripts/check-creation-journey.mjs`, `node scripts/check-demos.mjs`, and `node scripts/check-demo-carousel.mjs`. For a synthetic, static layout preview only, run `node scripts/check-creation-journey.mjs --serve` and visit localhost:4181 with `?step=0`, `1`, or `2`. This harness does not authenticate, upload or write to the database.
 
 Offline tests use mocked database/AI responses. A signed-in live test should create a disposable project, upload a reference and business photo, analyze, reload to confirm saved choices, generate, compare desktop/mobile, make and undo a section edit, and verify publish/unpublish. Do not use personal customer data for test fixtures. Project deletion has its own separately required migration and rollout notes in `workspace-release.md`.

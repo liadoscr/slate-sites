@@ -1,9 +1,32 @@
-.wizard { --border: #e6e3ef; --muted: #716b80; --purple: #5145e5; width: 100%; color: #211e30; }
+.wizard { --border: #e6e3ef; --muted: #716b80; --purple: #5145e5; width: 100%; max-width: 800px; margin-inline: auto; color: #211e30; }
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+.choices button { padding: 20px; text-align: start; border: 1px solid var(--border); border-radius: 14px; background: #fff; color: #211e30; font: inherit; }
+.choices button[aria-pressed=true] { border-color: var(--purple); background: #f5f3ff; box-shadow: 0 0 0 1px var(--purple); }
+.choices span { display: block; color: var(--muted); font-size: .85rem; margin-top: 8px; }
+.referenceSummary { display: flex; gap: 16px; align-items: center; background: #f4f3f8; border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 20px; }
+.referenceSummary img { width: 80px; height: 70px; object-fit: contain; background: white; border-radius: 6px; }
+.referenceSummary p { margin: 4px 0 0; font-size: .85rem; color: var(--muted); }
+.photoArea { padding: 20px; border: 1px solid #d9d5e8; border-radius: 14px; margin-bottom: 24px; }
+.photoArea h3 { margin-top: 0; }
+.photoGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.photoGrid > div { display: flex; flex-direction: column; align-items: start; font-size: .8rem; gap: 6px; min-width: 0; }
+.photoGrid img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 9px; }
+.logoPreview { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+.logoPreview img { width: 80px; height: 80px; object-fit: contain; }
+.directionSummary { padding: 16px; border-inline-start: 3px solid var(--purple); margin-bottom: 24px; background: #faf9ff; }
+.directionSummary p { line-height: 1.7; color: var(--muted); font-size: .9rem; }
+@media (max-width: 600px) {
+  .choices { grid-template-columns: 1fr; gap: 10px; }
+  .choices button { padding: 16px; }
+  .photoGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .photoArea { padding: 14px; }
+  .wizard .actions { position: sticky; bottom: 0; z-index: 10; background: #fff; padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); margin-top: 24px; }
+}
 .topline { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 24px; }
 .badge { display: inline-block; width: fit-content; color: #4b40bf; background: #eeecfd; padding: 6px 12px; border-radius: 30px; font-size: .8rem; font-weight: 700; }
 .saveStatus { color: var(--muted); font-size: .8rem; max-width: 65%; }
 .resume { padding: 12px 16px; background: #eef6ef; border-radius: 10px; color: #28603a; font-size: .9rem; }
-.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0 0 30px; padding: 0; list-style: none; border: 1px solid var(--border); border-radius: 14px; background: #fff; overflow: hidden; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 0 30px; padding: 0; list-style: none; border: 1px solid var(--border); border-radius: 14px; background: #fff; overflow: hidden; }
 .steps li { min-width: 0; }
 .steps button { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; padding: 17px 10px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: .9rem; min-height: 64px; }
 .steps button[aria-current] { background: #f1efff; color: #493bbb; }

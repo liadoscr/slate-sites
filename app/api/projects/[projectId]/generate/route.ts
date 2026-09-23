@@ -12,13 +12,17 @@ export const runtime = 'nodejs';
 export const maxDuration = 180;
 type Context = { params: Promise<{ projectId: string }> };
 
-export async function GET(_request: Request, { params }: Context) {
+export async function GET(request: Request, { params }: Context) {
   const { projectId } = await params;
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error:'צריך להתחבר.' },{ status:401 });
   if (!uuidPattern.test(projectId)) return NextResponse.json({ error:'לא נמצא.' },{ status:404 });
   const admin = createAdminClient();
-  const { data: job, error } = await admin.from('site_generation_jobs').select('id,state,phase,error_message,version_id,expires_at').eq('project_id',projectId).eq('actor_id',user.id).order('created_at',{ascending:false}).limit(1).maybeSingle();
+  const jobId = new URL(request.url).searchParams.get('job');
+  if (jobId && !uuidPattern.test(jobId)) return NextResponse.json({ error:'לא נמצא.' },{ status:404 });
+  let query = admin.from('site_generation_jobs').select('id,state,phase,error_message,version_id,expires_at').eq('project_id',projectId).eq('actor_id',user.id);
+  if (jobId) query = query.eq('id', jobId);
+  const { data: job, error } = await query.order('created_at',{ascending:false}).limit(1).maybeSingle();
   if (error) return NextResponse.json({ job:null, setupRequired:true },{ headers:{'Cache-Control':'no-store'} });
   if (job?.state === 'running' && new Date(job.expires_at).getTime() < Date.now()) {
     const { data: saved } = await admin.from('site_versions').select('id').eq('project_id',projectId).eq('request_id',job.id).maybeSingle();

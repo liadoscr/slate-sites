@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { CreationSettings } from '@/lib/creation/types';
+import { uuidPattern } from '@/lib/sites/document';
 
 type Job = { id: string; state: string; phase: string; error_message?: string };
 export function GenerateSitePlanButton({ projectId, hasVersion = false }: { projectId: string; assets?: unknown[]; hasVersion?: boolean }) {
@@ -42,6 +43,10 @@ export function GenerateSitePlanButton({ projectId, hasVersion = false }: { proj
     try {
       const response = await fetch(`/api/projects/${projectId}/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: crypto.randomUUID(), consent }) });
       const data = await response.json(); if (!response.ok) throw new Error(data.error);
+      if (uuidPattern.test(data.jobId ?? '')) {
+        router.push(`/dashboard/projects/${projectId}/creating?job=${data.jobId}`);
+        return;
+      }
       setJob({ id: data.jobId, state: data.state, phase: 'preparing' }); waiting.current = true;
     } catch (e) { setError(e instanceof Error ? e.message : 'לא הצלחנו להתחיל את היצירה.'); }
     finally { setBusy(false); }

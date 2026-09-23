@@ -28,10 +28,12 @@ function FocalEditor({ image, projectId, versionId, disabled, change }: { image:
   </form>;
 }
 
-export function SiteWorkbench({ projectId, versionId, plan, versions, curated = false }: { projectId: string; versionId: string; plan: GeneratedSitePlan; versions: Version[]; curated?: boolean }) {
+export function SiteWorkbench({ projectId, versionId, plan, versions, curated = false, initialEditTab }: { projectId: string; versionId: string; plan: GeneratedSitePlan; versions: Version[]; curated?: boolean; initialEditTab?: 'text' | 'design' }) {
   const router = useRouter();
   const [selected, setSelected] = useState('site-header');
-  const [editTab, setEditTab] = useState<'text' | 'design'>('text');
+  const [editTab, setEditTab] = useState<'text' | 'design'>(initialEditTab ?? 'text');
+  const [editorOpen, setEditorOpen] = useState(Boolean(initialEditTab));
+  useEffect(() => { if (initialEditTab) { setEditTab(initialEditTab); setEditorOpen(true); } }, [initialEditTab]);
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [showOriginal, setShowOriginal] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -170,13 +172,14 @@ export function SiteWorkbench({ projectId, versionId, plan, versions, curated = 
     </div> : null}
 
     {!curated ? <>
-      <section className={styles.locks} aria-label="נעילת החלטות">
+      <details className={styles.secondaryEditor}><summary>אפשרויות מתקדמות — נעילת תוכן או עיצוב</summary><section className={styles.locks} aria-label="נעילת החלטות">
         <div><h3>מרוצים מחלק מהאתר?</h3><p>נעלו אותו בזמן שאתם מדייקים את החלק השני.</p></div>
         <div className={styles.actions}><button className={styles.lockButton} type="button" aria-pressed={Boolean(settings?.locks.design)} disabled={disabled} onClick={() => void toggleLock('design')}>{settings?.locks.design ? 'העיצוב נעול · ביטול נעילה' : 'נעילת העיצוב'}</button><button className={styles.lockButton} type="button" aria-pressed={Boolean(settings?.locks.text)} disabled={disabled} onClick={() => void toggleLock('text')}>{settings?.locks.text ? 'התוכן נעול · ביטול נעילה' : 'נעילת התוכן'}</button></div>
         {!settings && !settingsError ? <p className={styles.note} role="status">טוענים את אפשרויות העריכה…</p> : null}
-      </section>
+      </section></details>
 
-      <section className={styles.editor} aria-label="עריכת האתר">
+      <div className={styles.actions}><button type="button" className="secondary-action" onClick={() => { setEditTab('text'); setEditorOpen(true); }}>שינוי טקסט</button><button type="button" className="secondary-action" onClick={() => { setEditTab('design'); setEditorOpen(true); }}>שינוי עיצוב ותמונות</button></div>
+      <section id="site-editor" hidden={!editorOpen} className={styles.editor} aria-label="עריכת האתר">
         <div className={styles.editorHeading}><div><h3>מדייקים את האתר</h3><p>בחרו מקטע והכינו הצעה לשינוי.</p></div><div className={styles.tabs} aria-label="סוג העריכה"><button type="button" aria-pressed={editTab === 'text'} onClick={() => setEditTab('text')}>תוכן וטקסט</button><button type="button" aria-pressed={editTab === 'design'} onClick={() => setEditTab('design')}>עיצוב ותמונות</button></div></div>
         <label className="field">באיזה חלק מטפלים?<select value={selected} disabled={busy} onChange={event => setSelected(event.target.value)}><option value="site-header">פתיחת האתר והכפתור הראשי</option>{plan.sections.filter(item => item.kind !== 'hero' && item.kind !== 'contact').map(item => <option value={item.id} key={item.id}>{item.label}</option>)}</select></label>
         {(editTab === 'text' && settings?.locks.text) || (editTab === 'design' && settings?.locks.design) ? <p className={styles.lockNotice}>החלק הזה נעול. בטלו את הנעילה למעלה כדי לערוך אותו.</p> : null}

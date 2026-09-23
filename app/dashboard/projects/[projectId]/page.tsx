@@ -12,7 +12,9 @@ import { LeadInbox } from '@/components/projects/lead-inbox';
 import { DeleteProjectButton } from '@/components/projects/delete-project-button';
 import { isSitePlan } from '@/lib/sites/document';
 import { getCuratedDemo } from '@/lib/sites/demo-catalog';
-export default async function ProjectPage({params}:{params:Promise<{projectId:string}>}){
+export default async function ProjectPage({params,searchParams}:{params:Promise<{projectId:string}>;searchParams:Promise<{edit?:string}>}){
+  const { edit } = await searchParams;
+  const initialEditTab = edit === 'text' || edit === 'design' ? edit : undefined;
   if(!isSupabaseConfigured())redirect('/dashboard');
   const {projectId}=await params;if(!await getCurrentUser())redirect(`/auth?next=/dashboard/projects/${projectId}`);
   const client=await createClient();
@@ -32,7 +34,7 @@ export default async function ProjectPage({params}:{params:Promise<{projectId:st
     <ol className="project-progress" aria-label="התקדמות הפרויקט"><li data-complete="true"><span>01</span><div><b>הסיפור שלך</b><small>הבריף נשמר</small></div></li><li data-complete={ready}><span>02</span><div><b>האתר שלך</b><small>{latest?`טיוטה ${latest.version_number}`:'מוכנים ליצירה'}</small></div></li><li data-complete={Boolean(live)}><span>03</span><div><b>באוויר</b><small>{live?`גרסה ${live.version_number}`:'לאחר הבדיקה שלך'}</small></div></li></ol>
     <section className="panel ai-plan-panel"><div className="ai-plan-heading"><div><p className="kicker">{demo?`${demo.name} · דמו ידני`:'Slate Sites'}</p><h2>{curated?'אתר ההדגמה שלך':ready?'כאן האתר שלך מקבל צורה':'ניצור את האתר הראשון שלך'}</h2><p>{ready?'בדקו, דייקו ופרסמו — ההחלטה אצלכם.':'הבריף והתמונות שבחרתם הופכים לאתר שאפשר לראות ולשפר.'}</p></div><div className="ai-plan-actions">{ready&&latest?<><Link className="preview-top-action" href={`/dashboard/projects/${projectId}/preview?version=${latest.id}`}>פתיחת תצוגה מקדימה ↗</Link><PublishSiteButton key={latest.id} projectId={projectId} versionId={latest.id} isCurrentVersionPublished={latest.visibility==='public'} hasLiveSite={Boolean(live)} liveUrl={live?.published_url??null}/></>:null}<a className="secondary-action" href="#new-direction">{ready?'יצירת כיוון חדש':'התחלת היצירה'}</a></div></div>
       {curated?<p className="ai-privacy-note">זהו דמו שעוצב ידנית. יצירת AI תיצור טיוטה נפרדת, ולא תחליף את הדמו המפורסם ללא אישורכם.</p>:null}
-      {ready&&latest?<SiteWorkbench key={latest.id} projectId={projectId} versionId={latest.id} plan={plan} versions={versions??[]} curated={curated}/>:<div className="empty-ai-plan"><b>מכאן יוצרים את הכיוון הראשון</b><p>בחרו תמונות ליצירה, או התחילו מהסיפור של העסק בלבד.</p></div>}
+      {ready&&latest?<SiteWorkbench key={latest.id} projectId={projectId} versionId={latest.id} plan={plan} versions={versions??[]} curated={curated} initialEditTab={initialEditTab}/>:<div className="empty-ai-plan"><b>מכאן יוצרים את הכיוון הראשון</b><p>בחרו תמונות ליצירה, או התחילו מהסיפור של העסק בלבד.</p></div>}
       <div id="new-direction"><GenerateSitePlanButton projectId={projectId} assets={assets} hasVersion={ready}/></div>
     </section>
     <details className="panel brief-summary"><summary>הבריף והחומרים שלך</summary><div className="brief-summary-content"><div className="field-grid"><p className="small-print"><b>מטרת האתר</b><br/>{brief?.primary_goal||'לא נוספה עדיין'}</p><p className="small-print"><b>אופי האתר</b><br/>{brief?.tone||'לא נבחר עדיין'}</p><p className="small-print field full"><b>הסיפור של העסק</b><br/>{brief?.business_story||'לא נוסף עדיין'}</p></div><AssetLibrary projectId={projectId} assets={assets}/></div></details>
