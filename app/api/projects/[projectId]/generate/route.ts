@@ -1,4 +1,5 @@
 import { after, NextResponse } from 'next/server';
+import { logOperationError, withErrorReference } from '@/lib/observability/errors';
 import { readJson } from '@/lib/http/request';
 import { generateSitePlan } from '@/lib/ai/gemini';
 import { getCurrentUser } from '@/lib/data/current-user';
@@ -65,12 +66,15 @@ export async function POST(request: Request, { params }: Context) {
     if (error) throw new Error(error.message);
     if (!job.claimed) return NextResponse.json({jobId:job.id,state:job.state},{status:job.state === 'running' ? 202 : 200});
     after(async () => {
+      let phase = 'preparing';
       try {
         const images = await selectedImages(projectId, choices);
         if (Date.now() + 95_000 > new Date(job.expires_at).getTime()) throw new Error('הכנת התמונות ארכה יותר מדי. נסו שוב עם תמונות קטנות יותר.');
+        phase = 'designing';
         await admin.from('site_generation_jobs').update({phase:'designing'}).eq('id',job.id);
         const { plan } = await generateSitePlan({businessName:project.business_name,businessType:project.business_type,location:project.location,businessStory:brief.business_story,primaryGoal:brief.primary_goal,websiteCopy:brief.website_copy,importantLinks:brief.important_links,tone:brief.tone,colorPreference:brief.color_preference,designNotes:brief.design_notes,designReferences:[],creation:settings},images.map(i=>i.model));
         if (Date.now() > new Date(job.expires_at).getTime()) throw new Error('היצירה ארכה יותר מדי. נסו שוב.');
+        phase = 'saving';
         await admin.from('site_generation_jobs').update({phase:'saving'}).eq('id',job.id);
         const currentSettings = await loadCreationSettings(projectId);
         if (currentSettings.locks.design || currentSettings.locks.text) throw new Error('הופעלה נעילה בזמן היצירה. הטיוטה הקודמת נשמרה.');
@@ -80,10 +84,15 @@ export async function POST(request: Request, { params }: Context) {
         await admin.from('site_generation_jobs').update({state:'completed',phase:'done',version_id:version.id}).eq('id',job.id);
       } catch (error) {
         const result = workspaceError(error);
+        const reference = logOperationError(error, { operation: 'generate', projectId, jobId: job.id, phase });
+        result.error = withErrorReference(result.error, reference);
         await admin.from('site_generation_jobs').update({state:'failed',error_message:result.error}).eq('id',job.id).eq('state','running');
-        console.error('Site generation failed', { projectId, status:result.status });
       }
     });
     return NextResponse.json({jobId:job.id,state:'running'},{status:202});
-  } catch (error) { const result = workspaceError(error); return NextResponse.json({error:result.error},{status:result.status}); }
+  } catch (error) {
+    const result = workspaceError(error);
+    const reference = logOperationError(error, { operation: 'generate', projectId, phase: 'preparing' });
+    return NextResponse.json({error:withErrorReference(result.error, reference)},{status:result.status});
+  }
 }

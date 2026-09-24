@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { logOperationError, withErrorReference } from '@/lib/observability/errors';
 import { getCurrentUser } from '@/lib/data/current-user';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -48,6 +49,8 @@ export async function POST(request: Request, { params }: Context) {
     return NextResponse.json({ analysis, settings: current }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     const result = workspaceError(error);
+    const reference = logOperationError(error, { operation: 'analyze', projectId, jobId: claimedId });
+    result.error = withErrorReference(result.error, reference);
     if (claimedId) await admin.from('site_generation_jobs').update({ state: 'failed', error_message: result.error }).eq('id', claimedId).eq('state', 'running');
     return NextResponse.json({ error: result.error }, { status: result.status });
   }

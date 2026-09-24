@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { logOperationError, withErrorReference } from '@/lib/observability/errors';
 import { readJson } from '@/lib/http/request';
 import { getCurrentUser } from '@/lib/data/current-user';
 import { createClient } from '@/lib/supabase/server';
@@ -143,6 +144,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
     return NextResponse.json({ versionId: version.id, versionNumber: version.version_number, proposal, plan: version.content });
   } catch (error) {
     const result = workspaceError(error);
+    const reference = logOperationError(error, { operation: 'revise', projectId, jobId });
+    result.error = withErrorReference(result.error, reference);
     if (jobId) await createAdminClient().from('site_generation_jobs').update({ state: 'failed', error_message: result.error }).eq('id', jobId).eq('state', 'running');
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
