@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { focalPointFor, paletteFor, safeEmail, safePhone, themeFor, type GeneratedSitePlan, type SiteImage } from '@/lib/sites/document';
+import { SiteMotion } from './site-motion';
 import styles from './site-renderer.module.css';
 
 export function SiteRenderer({plan,projectId,versionId,contact,compact=false}:{plan:GeneratedSitePlan;projectId:string;versionId:string;contact?:ReactNode;compact?:boolean}) {
@@ -27,7 +28,7 @@ export function SiteRenderer({plan,projectId,versionId,contact,compact=false}:{p
     '--site-radius': theme.corners === 'soft' ? '24px' : '3px',
   } as CSSProperties;
   const spareImages = images.filter(i => i.role === 'gallery' && !sections.some(s => s.imageId === i.id) && i.id !== hero?.id);
-  return <article className={styles.site} data-layout={theme.layout} data-font={theme.font} data-mode={theme.mode} data-density={theme.density} data-compact={compact} style={style} dir="rtl" lang="he">
+  return <article className={styles.site} data-layout={theme.layout} data-font={theme.font} data-mode={theme.mode} data-density={theme.density} data-motion={theme.motion} data-compact={compact} style={style} dir="rtl" lang="he">
     <a className={styles.skip} href="#site-content">דילוג לתוכן</a>
     <nav className={styles.nav} aria-label="ניווט באתר"><a href="#site-top" className={styles.brand}>{logo ? image(logo,true) : null}<b>{business.name}</b></a><a className={styles.navContact} href="#contact">יצירת קשר</a></nav>
     <div id="site-content">
@@ -39,18 +40,19 @@ export function SiteRenderer({plan,projectId,versionId,contact,compact=false}:{p
         const photo = images.find(i=>i.id===section.imageId && i.role!=='logo');
         const variant = section.presentation?.layout ?? (theme.layout === 'centered' || theme.layout === 'bento' ? 'cards' : 'split');
         const tone = section.presentation?.tone ?? (theme.layout === 'bento' || theme.layout === 'centered' ? 'muted' : 'default');
-        return <section className={styles.section} data-kind={section.kind} data-image={Boolean(photo)} data-variant={variant} data-tone={tone} id={`content-${index}`} key={section.id}>
+        return <section className={styles.section} data-site-reveal="" data-kind={section.kind} data-image={Boolean(photo)} data-variant={variant} data-tone={tone} id={`content-${index}`} key={section.id}>
           <div className={styles.sectionCopy}><p className={styles.eyebrow}>{section.label}</p><h2>{section.headline}</h2><p>{section.body}</p>{section.cta ? <a className={styles.textLink} href={primary}>{section.cta}</a> : null}</div>
           {photo ? <div className={styles.sectionImage}>{image(photo)}</div> : null}
         </section>;
       })}</div>
-      {spareImages.length ? <section className={styles.gallery} aria-label="תמונות מהעסק">{spareImages.map(i=><figure key={i.id}>{image(i)}</figure>)}</section> : null}
-      <section className={styles.contact} id="contact"><div><p className={styles.eyebrow}>נשמח לשמוע מכם</p><h2>{plan.contactCta}</h2><div className={styles.contactLinks}>
+      {spareImages.length ? <section className={styles.gallery} aria-label="תמונות מהעסק">{spareImages.map(i=><figure key={i.id} data-site-reveal="">{image(i)}</figure>)}</section> : null}
+      <section className={styles.contact} id="contact"><div data-site-reveal=""><p className={styles.eyebrow}>נשמח לשמוע מכם</p><h2>{plan.contactCta}</h2><div className={styles.contactLinks}>
         {safePhone(business.phone)?<a href={`tel:${safePhone(business.phone)}`} dir="ltr">{business.phone}</a>:null}
         {safeEmail(business.email)?<a href={`mailto:${safeEmail(business.email)}`}>{business.email}</a>:null}
         {business.whatsapp && /^\d{8,15}$/.test(business.whatsapp)?<a href={`https://wa.me/${business.whatsapp}`}>הודעה ב־WhatsApp</a>:null}
       </div></div>{contact ?? <p>טופס יצירת הקשר יהיה פעיל באתר המפורסם.</p>}</section>
     </div>
     <footer className={styles.footer}><b>{business.name}</b><span>נבנה עם Slate Sites</span></footer>
+    {theme.motion !== 'off' ? <SiteMotion level={theme.motion ?? 'off'} versionId={versionId} /> : null}
   </article>;
 }

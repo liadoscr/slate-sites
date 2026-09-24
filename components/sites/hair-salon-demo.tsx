@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { SiteMotion } from './site-motion';
+import motion from './demo-motion.module.css';
 import styles from './hair-salon-demo.module.css';
 
 const services = [
@@ -9,7 +11,7 @@ const services = [
 ];
 
 export function HairSalonDemo() {
-  return <div className={styles.site} dir="rtl" lang="he" data-demo="forma-hair-v1">
+  return <div className={`${styles.site} ${motion.enabled}`} data-motion="subtle" dir="rtl" lang="he" data-demo="forma-hair-v1">
     <a className={styles.skip} href="#main">דילוג לתוכן</a>
     <div className={styles.demoNote}><span>אתר הדגמה · עסק דמיוני ותמונות להמחשה</span><Link href="/#demo-preview">חזרה לדוגמאות ←</Link></div>
 
@@ -36,7 +38,7 @@ export function HairSalonDemo() {
         </div>
       </section>
 
-      <section className={styles.bento} id="services" aria-labelledby="services-title">
+      <section data-site-reveal="" className={styles.bento} id="services" aria-labelledby="services-title">
         <article className={styles.servicesCard}>
           <div className={styles.cardHeading}><p className={styles.eyebrow}>01 / השירותים</p><h2 id="services-title">שלוש דרכים<br />להרגיש יותר את.</h2></div>
           <div className={styles.serviceRows}>{services.map(service => <div className={styles.serviceRow} id={`service-${service.number}`} key={service.number}><span>{service.number}</span><h3>{service.name}</h3><p>{service.description}</p></div>)}</div>
@@ -55,7 +57,7 @@ export function HairSalonDemo() {
         </article>
       </section>
 
-      <section className={styles.questions} id="questions" aria-labelledby="questions-title">
+      <section data-site-reveal="" className={styles.questions} id="questions" aria-labelledby="questions-title">
         <div className={styles.questionsIntro}><p className={styles.eyebrow}>03 / לפני שמגיעים</p><h2 id="questions-title">כמה דברים<br />שטוב לדעת.</h2><p>פשוט, ברור ובלי הפתעות — כל מה שיעזור להגיע רגועה יותר.</p></div>
         <div className={styles.questionList}>
           <details><summary>לא בטוחה איזה כיוון יתאים לך?</summary><p>אפשר להביא תמונות השראה ולספר מה נוח לך ביום־יום. נתרגם את הכיוון למשהו שמתאים לשיער ולשגרה שלך.</p></details>
@@ -64,9 +66,10 @@ export function HairSalonDemo() {
         </div>
       </section>
 
-      <section className={styles.endcap} aria-labelledby="endcap-title"><div><p className={styles.eyebrow}>FORMA / THE EVERYDAY MUSE</p><h2 id="endcap-title">גם לעסק שלכם<br />מגיע אתר מדויק.</h2></div><div><p>זהו אתר הדגמה לעסק דמיוני. Slate Sites הופך את הסיפור, התמונות והכיוון שלכם לאתר תדמיתי מקורי.</p><Link href="/auth?next=/dashboard/new">בנו אתר לעסק שלכם <span aria-hidden="true">←</span></Link></div></section>
+      <section data-site-reveal="" className={styles.endcap} aria-labelledby="endcap-title"><div><p className={styles.eyebrow}>FORMA / THE EVERYDAY MUSE</p><h2 id="endcap-title">גם לעסק שלכם<br />מגיע אתר מדויק.</h2></div><div><p>זהו אתר הדגמה לעסק דמיוני. Slate Sites הופך את הסיפור, התמונות והכיוון שלכם לאתר תדמיתי מקורי.</p><Link href="/auth?next=/dashboard/new">בנו אתר לעסק שלכם <span aria-hidden="true">←</span></Link></div></section>
     </main>
 
     <footer className={styles.footer}><a href="#top" className={styles.wordmark} dir="ltr"><span>F</span> FORMA</a><span>סטודיו לעיצוב שיער · דמו להמחשה בלבד</span><Link href="/">נבנה עם Slate Sites</Link></footer>
+    <SiteMotion level="subtle" versionId="forma-hair-v1" />
   </div>;
 }

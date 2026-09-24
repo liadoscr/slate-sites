@@ -37,6 +37,13 @@ assert.throws(() => parseCreationSettings({ ...settings, brandColor: 'url(x)' })
 assert.equal(parseCreationSettings({ ...settings, analysis: { summary: 'client forged' } }).analysis, undefined);
 console.log('PASS creation choices, private-reference identity and focal points are bounded');
 
+assert.equal(defaultCreationSettings().motion, 'off');
+const legacySettings = { ...settings }; delete legacySettings.motion;
+assert.equal(parseCreationSettings(legacySettings).motion, 'off');
+for (const motion of ['off', 'subtle', 'expressive']) assert.equal(parseCreationSettings({ ...settings, motion }).motion, motion);
+for (const motion of [null, 'spin', 'EXPRESSIVE', {}, ['subtle'], true]) assert.equal(parseCreationSettings({ ...settings, motion }).motion, 'off');
+console.log('PASS animation settings are opt-in, allowlisted, and backwards compatible');
+
 let owner = true; let stored = structuredClone(settings); let assetRows = [];
 const uploads = []; let downloads = 0;
 const client = {
@@ -59,7 +66,7 @@ mocks.set('@/lib/supabase/admin', { createAdminClient: () => admin });
 mocks.set('@/lib/data/current-user', { getCurrentUser: async () => ({ id: 'test-owner' }) });
 const { selectedImages, snapshotImages, parseImageChoices } = load('lib/sites/workspace-server.ts');
 assert.throws(() => parseImageChoices([{ id: imageId, role: 'reference', alt: 'a' }, { id: photoId, role: 'reference', alt: 'b' }]));
-const { saveCreationSettings } = load('lib/creation/server.ts');
+const { saveCreationSettings, loadCreationSettings } = load('lib/creation/server.ts');
 await assert.rejects(saveCreationSettings(projectId, 'test-owner', { ...settings, images: settings.images.map(image => ({ ...image, role: 'reference' })) }));
 assetRows = [{ id: imageId, storage_path: `${projectId}/reference/${imageId}`, size_bytes: 4, mime_type: 'image/jpeg' }];
 await assert.rejects(selectedImages(projectId, [{ id: imageId, role: 'hero', alt: 'attempt' }]), /פרטית/);
@@ -79,6 +86,17 @@ assetRows = [{ id: imageId, storage_path: `${projectId}/reference/${imageId}`, s
 const creationRoute = load('app/api/projects/[projectId]/creation/route.ts');
 const context = { params: Promise.resolve({ projectId }) };
 const request = (method, body, origin = 'https://app.test') => new Request(`https://app.test/api/projects/${projectId}/creation`, { method, headers: { origin, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+for (const motion of ['off', 'subtle', 'expressive']) {
+  assert.equal((await creationRoute.PUT(request('PUT', { settings: { ...settings, motion } }), context)).status, 200);
+  assert.equal(stored.motion, motion);
+  assert.equal((await loadCreationSettings(projectId)).motion, motion);
+  const loaded = await creationRoute.GET(new Request('https://app.test'), context);
+  assert.equal(loaded.status, 200);
+  assert.equal((await loaded.json()).settings.motion, motion);
+}
+stored = structuredClone(legacySettings);
+assert.equal((await loadCreationSettings(projectId)).motion, 'off');
+console.log('PASS animation choices persist and reload through the owner-scoped settings API');
 stored.analysis = { summary: 'server analysis', palette: ['#123456'], layout: 'split', mode: 'light', density: 'airy', typography: 'modern', features: [] };
 stored.locks = { design: true, text: false };
 assert.equal((await creationRoute.PUT(request('PUT', { settings: { ...settings, notes: 'New note', analysis: { summary: 'forged' } } }), context)).status, 200);
@@ -104,6 +122,18 @@ assert.equal(generated.plan.theme.mode, 'dark');
 assert.equal(generated.plan.theme.density, 'compact');
 assert.ok(generated.plan.sections.every(section => !section.imageId));
 assert.ok(modelInput.config.systemInstruction.includes('Never invent reviews'));
+const { themeFor } = load('lib/sites/document.ts');
+for (const motion of ['off', 'subtle', 'expressive']) {
+  output = { ...plan, theme: { ...plan.theme, motion: motion === 'expressive' ? 'off' : 'expressive' } };
+  const chosen = await engine.generateSitePlan({ businessName: 'עסק', designReferences: [], creation: { ...settings, motion } });
+  assert.equal(chosen.plan.theme.motion, motion, 'explicit owner preference overrides AI output');
+}
+output = { ...plan, theme: { ...plan.theme, motion: 'expressive' } };
+for (const creation of [undefined, legacySettings, { ...settings, motion: 'untrusted-animation' }]) {
+  const noOptIn = await engine.generateSitePlan({ businessName: 'עסק', designReferences: [], creation });
+  assert.equal(themeFor(noOptIn.plan).motion, 'off', 'AI output cannot opt a site into animations');
+}
+console.log('PASS generation uses the explicit animation setting and ignores model-injected motion');
 output = { layout: 'band', tone: 'accent', headline: 'malicious text change' };
 const original = { id: 'about', kind: 'about', label: 'אודות', headline: 'קיים', body: 'תוכן מקורי', imageId: photoId };
 assert.deepEqual(await engine.redesignSection(original, 'פס צבע', plan.theme), { ...original, presentation: { layout: 'band', tone: 'accent' } });

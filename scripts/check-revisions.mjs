@@ -109,6 +109,59 @@ await check('request lock flags cannot bypass saved design or text locks', async
   assert.equal(state.appends.length, 0);
 });
 
+await check('every animation mode creates a content-preserving preview with no AI request', async () => {
+  state.locks.text = true;
+  for (const motion of ['off', 'subtle', 'expressive']) {
+    const result = await post({ mode: 'theme', motion });
+    assert.equal(result.status, 200); assert.equal(result.body.proposal, true);
+    assert.deepEqual(result.body.plan, { ...structuredClone(plan), theme: { ...plan.theme, motion }, revisionOf: baseId });
+    const saved = state.appends.at(-1);
+    assert.equal(saved.proposal, true); assert.equal(saved.expected, baseId);
+    assert.equal(saved.content.theme.motion, motion);
+  }
+  assert.equal(state.modelCalls, 0); assert.equal(state.jobs.length, 0);
+  assert.equal(state.versions.get(baseId).content.theme.motion, undefined, 'the current draft is unchanged until apply');
+});
+
+await check('invalid animation values cannot reach a saved version or trigger AI', async () => {
+  for (const motion of ['spin', '', 'SUBTLE', null, true, {}, ['expressive']]) {
+    assert.equal((await post({ mode: 'theme', motion })).status, 422);
+  }
+  assert.equal(state.appends.length, 0); assert.equal(state.modelCalls, 0); assert.equal(state.jobs.length, 0);
+});
+
+await check('animation changes honor saved and mid-request design locks', async () => {
+  state.locks.design = true;
+  assert.equal((await post({ mode: 'theme', motion: 'subtle', locks: { design: false } })).status, 409);
+  assert.equal(state.appends.length, 0);
+  state.locks.design = false;
+  state.locksSequence = [{ design: false, text: false }, { design: true, text: false }];
+  assert.equal((await post({ mode: 'theme', motion: 'expressive' })).status, 409);
+  assert.equal(state.appends.length, 0); assert.equal(state.modelCalls, 0);
+});
+
+await check('animation proposals can be applied and restored only when design is unlocked', async () => {
+  const animated = { ...structuredClone(plan), theme: { ...plan.theme, motion: 'expressive' }, revisionOf: baseId };
+  state.versions.set(sourceId, { id: sourceId, visibility: 'preview', content: animated });
+  state.locks.design = true;
+  assert.equal((await post({ mode: 'apply', sourceVersionId: sourceId })).status, 409);
+  state.locks = { design: false, text: true };
+  const applied = await post({ mode: 'apply', sourceVersionId: sourceId });
+  assert.equal(applied.status, 200); assert.equal(applied.body.proposal, false);
+  assert.equal(applied.body.plan.theme.motion, 'expressive'); assert.equal(applied.body.plan.revisionOf, undefined);
+  assert.deepEqual(applied.body.plan.sections, plan.sections);
+
+  state.versions.set(baseId, { id: baseId, visibility: 'private', content: applied.body.plan });
+  state.versions.set(sourceId, { id: sourceId, visibility: 'private', content: structuredClone(plan) });
+  state.locks.design = true;
+  assert.equal((await post({ mode: 'restore', sourceVersionId: sourceId })).status, 409);
+  state.locks.design = false;
+  const restored = await post({ mode: 'restore', sourceVersionId: sourceId });
+  assert.equal(restored.status, 200); assert.equal(restored.body.proposal, false);
+  assert.deepEqual(restored.body.plan, plan, 'restoring an older static version also removes animation');
+  assert.equal(state.modelCalls, 0); assert.equal(state.jobs.length, 0);
+});
+
 await check('text-only AI preserves all design and unselected sections under a design lock', async () => {
   state.locks.design = true;
   const result = await post({ mode: 'rewrite', sectionId: 'about', instruction: 'קצרו את התוכן', consent: true });

@@ -1,14 +1,14 @@
 // Offline regression checks: no database writes, AI calls or email sends.
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
 const require=createRequire(import.meta.url);
 const swc=require('next/dist/build/swc');
 const root=resolve(import.meta.dirname,'..');
 const mocks=new Map(); const cache=new Map();
 function load(path){
-  const filename=resolve(root,path);if(cache.has(filename))return cache.get(filename);
+  let filename=resolve(root,path);if(!existsSync(filename))filename+=existsSync(`${filename}.ts`)?'.ts':'.tsx';if(cache.has(filename))return cache.get(filename);
   const source=readFileSync(filename,'utf8');
   const {code}=swc.transformSync(source,{filename,jsc:{parser:{syntax:'typescript',tsx:filename.endsWith('.tsx')},transform:{react:{runtime:'automatic'}},target:'es2022'},module:{type:'commonjs'}});
   const module={exports:{}};cache.set(filename,module.exports);
@@ -16,7 +16,8 @@ function load(path){
     if(specifier==='server-only')return {};
     if(mocks.has(specifier))return mocks.get(specifier);
     if(specifier.endsWith('.css'))return new Proxy({},{get:(_,name)=>String(name)});
-    if(specifier.startsWith('@/'))return load(`${specifier.slice(2)}.ts`);
+    if(specifier.startsWith('@/'))return load(specifier.slice(2));
+    if(specifier.startsWith('.'))return load(resolve(dirname(filename),specifier));
     return require(specifier);
   },module,module.exports);
   cache.set(filename,module.exports);return module.exports;

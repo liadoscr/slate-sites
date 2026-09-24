@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ClipboardEvent, type DragEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { defaultCreationSettings, type CreationSettings, type CreationImage } from '@/lib/creation/types';
+import { motionFor } from '@/lib/sites/document';
 import styles from './creation-wizard.module.css';
 
 export type CreationBrief = {
@@ -45,8 +46,6 @@ export function CreationWizard({ userId, projectId: existingId, initialBrief }: 
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
   const [saveState, setSaveState] = useState('');
-  const [rights, setRights] = useState(false);
-  const [referenceRights, setReferenceRights] = useState(false);
   const [aiConsent, setAiConsent] = useState(false);
   const [analyzeConsent, setAnalyzeConsent] = useState(false);
   const [withoutPhotos, setWithoutPhotos] = useState(false);
@@ -171,7 +170,6 @@ export function CreationWizard({ userId, projectId: existingId, initialBrief }: 
   async function upload(files: File[], role: CreationImage['role']) {
     if (!files.length || busy || !ready || actionInFlight.current) return;
     setError('');
-    if (!(role === 'reference' ? referenceRights : rights)) { setError('לפני ההעלאה, אשרו שיש לכם הרשאה להשתמש בתמונות.'); return; }
     const selected = settings.images.filter(image => (role !== 'reference' || image.role !== 'reference') && (role !== 'logo' || image.role !== 'logo'));
     const bytes = selected.reduce((total, image) => total + (assets.find(asset => asset.id === image.id)?.size_bytes ?? 0), 0);
     if (selected.length + files.length > 6 || files.some(file => !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 4 * 1024 * 1024) || files.reduce((total, file) => total + file.size, bytes) > 12 * 1024 * 1024) {
@@ -265,12 +263,12 @@ export function CreationWizard({ userId, projectId: existingId, initialBrief }: 
             <button type="button" aria-pressed={designChoice === 'style'} onClick={() => { setDesignChoice('style'); if (settings.referenceAssetId) removeImage(settings.referenceAssetId); }}><b>בחרו איתי סגנון</b><span>נקודת התחלה ללא תמונה</span></button>
           </div>
           {designChoice === 'reference' ? <>
-            <label className={styles.check}><input type="checkbox" checked={referenceRights} onChange={event => setReferenceRights(event.target.checked)} />יש לי הרשאה להשתמש בתמונה לצורך השראה.</label>
+            <p className={styles.hint} id="reference-upload-notice">העלו תמונה שבבעלותכם או שיש לכם הרשאה להשתמש בה לצורך השראה.</p>
             <div className={`${styles.dropzone} ${dragging ? styles.dragging : ''}`} onPaste={pasteImage} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={dropImage} tabIndex={0} aria-label="העלאה, גרירה או הדבקה של צילום עיצוב">
               {reference?.url ? <img className={styles.referenceImage} src={reference.url} alt="דוגמת העיצוב — לא תמונה שתופיע באתר" /> : <div className={styles.imageIcon} aria-hidden="true">▧</div>}
               <b>{reference ? 'זו דוגמת העיצוב שלכם' : 'העלו או הדביקו צילום של אתר שאהבתם'}</b>
-              <span>לעיצוב בלבד — צילום המסך והתמונות שבתוכו לא יוצגו באתר שלכם.</span>
-              <input type="file" accept="image/jpeg,image/png,image/webp" aria-label="בחירת דוגמת עיצוב" onChange={event => { void upload(Array.from(event.target.files ?? []).slice(0, 1), 'reference'); event.target.value = ''; }} />
+              <span>השראה לעיצוב — לא לפרסום. צילום המסך והתמונות שבתוכו לא יוצגו באתר שלכם.</span>
+              <input type="file" accept="image/jpeg,image/png,image/webp" aria-label="בחירת דוגמת עיצוב" aria-describedby="reference-upload-notice" onChange={event => { void upload(Array.from(event.target.files ?? []).slice(0, 1), 'reference'); event.target.value = ''; }} />
               <small>JPG, PNG או WebP · עד 4MB</small>
               {reference ? <button className={styles.textButton} type="button" onClick={() => removeImage(reference.id)}>הסרת הדוגמה</button> : null}
             </div>
@@ -279,6 +277,7 @@ export function CreationWizard({ userId, projectId: existingId, initialBrief }: 
           </> : null}
           {designChoice === 'style' ? <div className={styles.starters}>{([{ key: 'minimal', label: 'נקי ושקט', text: 'בהיר, פשוט ומרווח' }, { key: 'editorial', label: 'מגזיני ואישי', text: 'כותרות גדולות ותמונות מובילות' }, { key: 'bold', label: 'נועז ובולט', text: 'כהה, ניגודי ובעל נוכחות' }] as const).map(starter => <button key={starter.key} className={styles.starter} data-style={starter.key} aria-pressed={settings.starter === starter.key} type="button" onClick={() => updateSettings({ starter: starter.key })}><span className={styles.miniLayout} aria-hidden="true"><i /><i /><i /></span><b>{starter.label}</b><small>{starter.text}</small></button>)}</div> : null}
           {settings.analysis ? <div className={styles.analysis}><b>הכיוון שזיהינו</b><p>{settings.analysis.summary}</p><div className={styles.palette}>{palette.filter(color => /^#[a-f0-9]{6}$/i.test(color)).map((color, index) => <span key={index} style={{ backgroundColor: color }} title={color} aria-label={color} />)}</div></div> : null}
+          <label className={styles.field}>תנועה ואנימציות — לבחירתכם<select value={motionFor(settings.motion)} onChange={event => updateSettings({ motion: motionFor(event.target.value) })} aria-describedby="creation-motion-help"><option value="off">ללא אנימציות</option><option value="subtle">עדינות — הופעה רכה בגלילה</option><option value="expressive">מודגשות — הופעה עם תנועה קלה</option></select><small id="creation-motion-help">אנימציות בגלילה ותגובות במעבר עכבר, בלי לשנות את התוכן. מכבדות העדפת תנועה מופחתת במכשיר. אפשר לשנות גם אחרי היצירה, ללא פעולת AI.</small></label>
           <details className={styles.more}><summary>רוצים לדייק את הכיוון? — לא חובה</summary>
             <label className={styles.field}>מה לשמור, ומה לשנות?<textarea value={settings.notes} maxLength={1000} onChange={event => updateSettings({ notes: event.target.value })} placeholder="למשל: כותרת גדולה, פחות טקסט ויותר תמונות" /></label>
             {reference ? <label className={styles.field}>מה לקחת מהדוגמה?<select value={settings.referenceFocus} onChange={event => updateSettings({ referenceFocus: event.target.value as CreationSettings['referenceFocus'] })}><option value="both">המבנה והצבעים יחד</option><option value="structure">בעיקר המבנה</option><option value="colors">בעיקר הצבעים</option></select></label> : null}
@@ -291,13 +290,13 @@ export function CreationWizard({ userId, projectId: existingId, initialBrief }: 
           <div className={styles.imageRoles}>
             {reference ? <div className={styles.referenceSummary}>{reference.url ? <img src={reference.url} alt="" /> : null}<div><b>דוגמת עיצוב</b><p>פרטית. לא תופיע באתר.</p></div></div> : null}
             <div className={styles.photoArea}><h3>התמונות שיופיעו באתר</h3><p className={styles.hint}>תמונות המוצרים, המקום או השירות שלכם. נבחר להן מיקום מתאים אוטומטית.</p>
-              <label className={styles.check}><input type="checkbox" checked={rights} onChange={event => setRights(event.target.checked)} />יש לי הרשאה לפרסם את תמונות העסק שאעלה.</label>
-              <label className={styles.uploadBusiness}><b>+ הוספת תמונות עסק</b><input type="file" multiple accept="image/jpeg,image/png,image/webp" onChange={event => { void upload(Array.from(event.target.files ?? []), 'gallery'); event.target.value = ''; }} /><span>עד 6 קבצים כולל דוגמת העיצוב והלוגו · עד 4MB לקובץ ו־12MB בסך הכול</span></label>
+              <p className={styles.hint} id="business-upload-notice">העלו תמונות ולוגו שבבעלותכם או שיש לכם הרשאה לפרסם באתר.</p>
+              <label className={styles.uploadBusiness}><b>+ הוספת תמונות עסק</b><input type="file" multiple accept="image/jpeg,image/png,image/webp" aria-describedby="business-upload-notice" onChange={event => { void upload(Array.from(event.target.files ?? []), 'gallery'); event.target.value = ''; }} /><span>עד 6 קבצים כולל דוגמת העיצוב והלוגו · עד 4MB לקובץ ו־12MB בסך הכול</span></label>
               <div className={styles.photoGrid}>{photos.map(image => { const asset = assets.find(item => item.id === image.id); return <div key={image.id}>{asset?.url ? <img src={asset.url} alt={image.alt} /> : <span>התמונה נשמרה</span>}<span>{image.role === 'hero' ? 'תמונה ראשית' : 'תמונת עסק'}</span><button type="button" className={styles.textButton} onClick={() => removeImage(image.id)}>הסרה</button></div>; })}</div>
               {!photos.length ? <div className={styles.warning}><b>אין עדיין תמונות להצגה באתר</b><p>{reference ? 'התמונות שבתוך דוגמת העיצוב לא מועתקות לאתר. בלי תמונות עסק, הטיוטה תהיה מבוססת טקסט ותיראה שונה מדוגמה עשירה בצילום.' : 'אפשר ליצור טיוטה מבוססת טקסט ולהוסיף תמונות בהמשך.'}</p><label className={styles.check}><input type="checkbox" checked={withoutPhotos} onChange={event => setWithoutPhotos(event.target.checked)} />ליצור בלי תמונות עסק כרגע</label></div> : null}
             </div>
           </div>
-          <details className={styles.more}><summary>{logo ? 'הלוגו שלכם — שינוי או הסרה' : 'יש לכם לוגו? הוסיפו אותו כאן — לא חובה'}</summary>{logo ? <div className={styles.logoPreview}><img src={assets.find(asset => asset.id === logo.id)?.url || ''} alt={logo.alt} /><button type="button" className={styles.textButton} onClick={() => removeImage(logo.id)}>הסרת הלוגו</button></div> : null}<input type="file" aria-label="העלאת לוגו" accept="image/jpeg,image/png,image/webp" onChange={event => { void upload(Array.from(event.target.files ?? []).slice(0, 1), 'logo'); event.target.value = ''; }} /></details>
+          <details className={styles.more}><summary>{logo ? 'הלוגו שלכם — שינוי או הסרה' : 'יש לכם לוגו? הוסיפו אותו כאן — לא חובה'}</summary>{logo ? <div className={styles.logoPreview}><img src={assets.find(asset => asset.id === logo.id)?.url || ''} alt={logo.alt} /><button type="button" className={styles.textButton} onClick={() => removeImage(logo.id)}>הסרת הלוגו</button></div> : null}<input type="file" aria-label="העלאת לוגו" aria-describedby="business-upload-notice" accept="image/jpeg,image/png,image/webp" onChange={event => { void upload(Array.from(event.target.files ?? []).slice(0, 1), 'logo'); event.target.value = ''; }} /></details>
           <h3>איך יצרו אתכם קשר?</h3>
           <div className={styles.grid}><label className={styles.field}>הדרך המועדפת<select value={settings.contactPreference} onChange={event => updateSettings({ contactPreference: event.target.value as CreationSettings['contactPreference'] })}><option value="whatsapp">WhatsApp</option><option value="phone">טלפון</option><option value="email">אימייל</option><option value="form">טופס פנייה</option></select></label>{['phone', 'whatsapp'].includes(settings.contactPreference) ? input('הטלפון שיופיע באתר', 'contactPhone', '0501234567', 'tel', 40) : settings.contactPreference === 'email' ? input('האימייל שיופיע באתר', 'contactEmail', 'hello@business.co.il', 'email', 254) : <p className={styles.hint}>הפניות יופיעו באזור האישי אחרי פרסום האתר. ללא הזמנות או תשלומים.</p>}</div>
           {(!brief.contactPhone && ['phone', 'whatsapp'].includes(settings.contactPreference)) || (!brief.contactEmail && settings.contactPreference === 'email') ? <p className={styles.warning}>הוסיפו את פרט הקשר שבחרתם. בינתיים אפשר ליצור טיוטה פרטית ולתקן לפני הפרסום.</p> : null}

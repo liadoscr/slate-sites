@@ -1,0 +1,27 @@
+/* Animation enhancement only: never changes the demo layout or hides SSR content. */
+.enabled [data-site-reveal]:focus-within {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .enabled[data-motion] a > span[aria-hidden="true"] {
+    display: inline-block;
+    transition: transform 180ms ease;
+  }
+  .enabled[data-motion] a:hover > span[aria-hidden="true"] { transform: translateX(-3px); }
+  .enabled[data-motion="expressive"] a:hover > span[aria-hidden="true"] { transform: translate(-3px, 2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enabled [data-site-reveal] { opacity: 1 !important; transform: none !important; }
+  .enabled[data-motion] *, .enabled[data-motion] *::before, .enabled[data-motion] *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  /* Also suppress the nail demo's pre-existing hover movement. */
+  .enabled[data-motion] a:hover, .enabled[data-motion] article:hover,
+  .enabled[data-motion] a > span[aria-hidden="true"],
+  .enabled[data-motion] [data-demo-shade] { transform: none !important; }
+}

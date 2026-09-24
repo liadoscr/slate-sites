@@ -1,7 +1,7 @@
 import 'server-only';
 import { GoogleGenAI } from '@google/genai';
 
-import { safeAccent, type GeneratedSitePlan, type SiteLayout, type SiteTheme, type SiteSection as GeneratedSiteSection } from '@/lib/sites/document';
+import { motionFor, safeAccent, type GeneratedSitePlan, type SiteLayout, type SiteTheme, type SiteSection as GeneratedSiteSection } from '@/lib/sites/document';
 import type { CreationSettings, ReferenceAnalysis } from '@/lib/creation/types';
 export type { GeneratedSitePlan } from '@/lib/sites/document';
 export type ModelImage = { id: string; role: string; alt: string; mimeType: string; data: string };
@@ -223,6 +223,8 @@ export async function generateSitePlan(brief: SitePlanBrief, images: ModelImage[
   const plan = normalizePlan(JSON.parse(response.text), images.filter(i => i.role === 'hero' || i.role === 'gallery').map(i => i.id));
   const creation = brief.creation;
   if (creation && plan.theme) {
+    // Motion is an explicit owner choice, never inferred from a screenshot or AI output.
+    plan.theme.motion = motionFor(creation.motion);
     const analysis = creation.analysis;
     if (analysis && creation.referenceFocus !== 'colors') {
       plan.theme.layout = analysis.layout;

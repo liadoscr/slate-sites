@@ -57,7 +57,7 @@ export function GenerateSitePlanButton({ projectId, hasVersion = false }: { proj
       <p>{hasVersion ? 'כיוון חדש נשמר כטיוטה חדשה. הגרסאות הקודמות נשארות בהיסטוריה, והאתר שבאוויר לא משתנה עד לפרסום.' : 'תמונת ההשראה, פרטי העסק ובחירות התמונות נשמרו במסלול היצירה.'}</p>
       {settings ? <p className="small-print">{settings.referenceAssetId ? 'תמונת השראה פרטית נבחרה' : 'מתחילים מכיוון עיצוב מוכן'} · {settings.images.filter(image => image.role !== 'reference').length} תמונות עסק נבחרו. {settings.analysis ? `כיוון: ${settings.analysis.summary}` : ''}</p> : null}
       <Link className="secondary-action" href={`/dashboard/projects/${projectId}/edit`}>עדכון ההשראה, העסק והתמונות ←</Link>
-      <label className="checkbox"><input type="checkbox" checked={consent} disabled={busy || running} onChange={event => setConsent(event.target.checked)} />אני מאשר/ת לשלוח ל־Google Gemini את הבריף והתמונות שנבחרו. יש לי הרשאה להשתמש בהן ולא כללתי מידע רגיש.</label>
+      <label className="checkbox"><input type="checkbox" checked={consent} disabled={busy || running} onChange={event => setConsent(event.target.checked)} />אני מאשר/ת לשלוח ל־Google Gemini את הבריף והתמונות שנבחרו. לא כללתי מידע רגיש.</label>
       <p className="small-print">תמונת ההשראה לא מתפרסמת באתר. עד 8 פעולות AI לחשבון ב־24 שעות בזמן הבטא, כולל ניתוח השראה ועריכות.</p>
       <button className="generate-plan-button" type="button" onClick={generate} disabled={busy || running || !consent || !settings}>{busy || running ? 'היצירה בעבודה…' : hasVersion ? 'יצירת כיוון נוסף עם AI' : 'יצירת האתר עם AI'}</button>
     </details>

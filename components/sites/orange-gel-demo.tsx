@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { SiteMotion } from './site-motion';
+import motion from './demo-motion.module.css';
 import heroImage from '@/public/gel-orange-hero.png';
 import styles from '@/app/nail.module.css';
 
@@ -22,7 +24,7 @@ const shades = [
 // Preserved product demo, selected by a marker in its saved site version.
 export function OrangeGelDemo() {
   return (
-    <main className={styles.site} id="top">
+    <main className={`${styles.site} ${motion.enabled}`} data-motion="subtle" id="top">
       <aside className={styles.demoNotice} id="demo-notice"><span>אתר תדמית לדוגמה של Slate Sites. העסק, המחירים וההמלצה להמחשה בלבד.</span><Link href="/#demo-preview">לכל הדוגמאות ←</Link></aside>
       <header className={styles.header}>
         <a className={styles.logo} href="#top" aria-label="ORANGE GEL, דף הבית">
@@ -70,7 +72,7 @@ export function OrangeGelDemo() {
         <div>לק ג׳ל <span>✦</span> בנייה אנטומית <span>✦</span> חיזוק טבעי <span>✦</span> נייל ארט עדין <span>✦</span> לק ג׳ל <span>✦</span></div>
       </div>
 
-      <section className={styles.treatments} id="treatments" aria-labelledby="treatments-title">
+      <section data-site-reveal="" className={styles.treatments} id="treatments" aria-labelledby="treatments-title">
         <div className={styles.sectionIntro}>
           <p className={styles.sectionNumber}>01 / טיפולים</p>
           <h2 id="treatments-title">כל מה שהציפורניים שלך צריכות.<br /><em>בלי קיצורי דרך.</em></h2>
@@ -88,7 +90,7 @@ export function OrangeGelDemo() {
         </div>
       </section>
 
-      <section className={styles.studio} id="studio" aria-labelledby="studio-title">
+      <section data-site-reveal="" className={styles.studio} id="studio" aria-labelledby="studio-title">
         <p className={styles.sectionNumber}>02 / הסטודיו</p>
         <div className={styles.studioHeadline}>
           <span aria-hidden="true">GOOD</span>
@@ -105,7 +107,7 @@ export function OrangeGelDemo() {
         </div>
       </section>
 
-      <section className={styles.shades} id="shades" aria-labelledby="shades-title">
+      <section data-site-reveal="" className={styles.shades} id="shades" aria-labelledby="shades-title">
         <div className={styles.shadesHeading}>
           <p className={styles.sectionNumber}>03 / הצבעים</p>
           <h2 id="shades-title">מה הצבע שלך<br /><em>היום?</em></h2>
@@ -114,7 +116,7 @@ export function OrangeGelDemo() {
         <div className={styles.shadeList}>
           {shades.map((shade, index) => (
             <div className={styles.shade} key={shade.name}>
-              <span className={styles.shadeCircle} style={{ backgroundColor: shade.color, color: shade.dark ? '#fff' : '#171717' }}>
+              <span data-demo-shade="" className={styles.shadeCircle} style={{ backgroundColor: shade.color, color: shade.dark ? '#fff' : '#171717' }}>
                 {String(index + 1).padStart(2, '0')}
               </span>
               <b>{shade.name}</b>
@@ -123,7 +125,7 @@ export function OrangeGelDemo() {
         </div>
       </section>
 
-      <section className={styles.booking} id="contact" aria-labelledby="contact-title">
+      <section data-site-reveal="" className={styles.booking} id="contact" aria-labelledby="contact-title">
         <div className={styles.reviewCard}>
           <div className={styles.stars}>★★★★★ <span>המלצה לדוגמה</span></div>
           <blockquote>״סוף סוף מצאתי מישהי שגם רואה כל פרט קטן וגם ממש כיף להעביר איתה שעה. הג׳ל נשאר מושלם כמעט חודש.״</blockquote>
@@ -149,6 +151,7 @@ export function OrangeGelDemo() {
         <Link href="/">נבנה עם Slate Sites</Link>
         <span>© 2026</span>
       </footer>
+      <SiteMotion level="subtle" versionId="orange-gel-v1" />
     </main>
   );
 }

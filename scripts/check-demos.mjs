@@ -52,8 +52,21 @@ for (const demo of [orange,...demos]) {
   for(const [,src] of html.matchAll(/<img\b[^>]*src="([^"]+)"/g)) assert.ok(existsSync(resolve(root,'public'+src)),`Missing image ${src}`);
   assert.ok(html.includes('להמחשה'));
   assert.ok(getCuratedDemo(demo.plan));
+  const motion = demo.template === 'move-trainer-v1' ? 'expressive' : 'subtle';
+  assert.ok(html.includes(`data-motion="${motion}"`), `${demo.template}: expected animation preset`);
+  const sections = [...html.matchAll(/<section\b[^>]*>/g)].map(match => match[0]);
+  assert.ok(!sections[0].includes('data-site-reveal'), 'Hero stays visible without entrance animation');
+  assert.ok(sections.slice(1).every(tag => tag.includes('data-site-reveal')), 'Below-hero sections opt into scroll reveals');
+  assert.ok(sections.length > 3 && !sections.some(tag => /hidden|opacity:0/.test(tag)), 'Server content remains visible without JavaScript');
+  assert.ok(html.includes('<span hidden="" aria-hidden="true"></span>'), 'Shared motion controller is mounted inside the demo');
   console.log(`PASS ${demo.template}: informational copy, real anchors, local images, no booking/payment or data collection`);
 }
+const motionCss = readFileSync(resolve(root, 'components/sites/demo-motion.module.css'), 'utf8');
+assert.match(motionCss, /prefers-reduced-motion: reduce/);
+assert.match(motionCss, /focus-within/);
+assert.match(motionCss, /animation: none !important/);
+assert.match(motionCss, /transition: none !important/);
+console.log('PASS demo motion presets, visible SSR heroes/sections, shared controller and reduced-motion fallbacks');
 for (const demo of demos) {
   assert.ok(statSync(resolve(root,'public'+demo.image)).size<200000,'Demo hero is under 200KB');
   assert.ok(demo.plan.business.phone==='' && demo.plan.business.email==='','No fictional contact recipient');

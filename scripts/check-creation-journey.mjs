@@ -68,6 +68,27 @@ await settle();
 assert.equal(w.slots[3], 1);
 console.log('PASS short business screen, three steps, no promotional sidebar');
 
+// Run the real autosave effect with a controlled timer; no network or elapsed wait.
+const originalWindow = globalThis.window;
+let autosave;
+globalThis.window = { setTimeout(callback) { autosave = callback; return 1; }, clearTimeout() {} };
+w = wizard({ 3: 1 }); tree = nodes(w.render());
+const motionControl = () => nodes(w.render()).find(n => n.type === 'select' && n.props['aria-describedby'] === 'creation-motion-help');
+assert.equal(motionControl().props.value, 'off');
+assert.deepEqual(nodes(motionControl()).filter(n => n.type === 'option').map(n => n.props.value), ['off', 'subtle', 'expressive']);
+for (const motion of ['subtle', 'expressive', 'off']) {
+  motionControl().props.onChange({ target: { value: motion } });
+  assert.equal(w.slots[1].motion, motion);
+  w.render(); calls.length = 0;
+  const stopAutosave = w.effects[1]();
+  assert.equal(typeof autosave, 'function'); autosave(); await settle(); stopAutosave();
+  const write = calls.find(c => c.url.endsWith('/creation'));
+  assert.equal(JSON.parse(write.body).settings.motion, motion);
+  assert.ok(!calls.some(c => c.url.endsWith('/generate') || c.url.endsWith('/analyze')));
+}
+if (originalWindow === undefined) delete globalThis.window; else globalThis.window = originalWindow;
+console.log('PASS accessible animation choices default off and autosave without any AI request');
+
 w = wizard({ 1: refSettings, 2: [asset], 3: 1 }); tree = nodes(w.render());
 calls.length = 0;
 await tree.find(n => n.type === 'button' && text(n).startsWith('המשך —')).props.onClick();
@@ -102,15 +123,90 @@ assert.equal(calls.filter(c => c.url.endsWith('/generate')).length, 1);
 console.log('PASS missing-photo acknowledgement, saved draft, and exact-job handoff');
 
 w = wizard({ 3: 2 }); tree = nodes(w.render()); calls.length = 0;
-const businessRights = tree.find(n => n.type === 'label' && text(n).includes('הרשאה לפרסם'));
-nodes(businessRights).find(n => n.type === 'input').props.onChange({ target: { checked: true } });
-tree = nodes(w.render());
+assert.ok(text(w.render()).includes('העלו תמונות ולוגו שבבעלותכם'));
+assert.ok(!tree.some(n => n.type === 'label' && text(n).includes('הרשאה')));
 await tree.find(n => n.type === 'input' && n.props.multiple).props.onChange({ target: { files: [new File(['test'], 'photo.png', { type: 'image/png' })], value: '' } });
 // Upload handlers intentionally fire-and-forget; drain the bounded mock promise chain.
 for (let i = 0; i < 30; i++) await new Promise(resolve => setImmediate(resolve));
 assert.equal(calls.find(c => c.url.endsWith('/assets')).body.get('role'), 'hero');
 assert.equal(w.slots[1].images[0].role, 'hero');
-console.log('PASS first business photo placed automatically, independently of reference rights');
+assert.ok(!calls.some(c => c.url.endsWith('/generate') || c.url.endsWith('/analyze')));
+console.log('PASS business upload without rights checkbox, first photo becomes hero, no implicit AI consent');
+
+for (const method of ['file', 'paste', 'drop']) {
+  w = wizard({ 3: 1 }); tree = nodes(w.render()); calls.length = 0;
+  assert.ok(text(w.render()).includes('העלו תמונה שבבעלותכם'));
+  assert.ok(text(w.render()).includes('השראה לעיצוב — לא לפרסום'));
+  assert.ok(!tree.some(n => n.type === 'label' && text(n).includes('הרשאה')));
+  const file = new File(['test'], 'reference.png', { type: 'image/png' });
+  const zone = tree.find(n => n.props?.onPaste);
+  if (method === 'file') tree.find(n => n.type === 'input' && n.props.type === 'file').props.onChange({ target: { files: [file], value: '' } });
+  if (method === 'paste') zone.props.onPaste({ clipboardData: { files: [file] }, preventDefault() {} });
+  if (method === 'drop') zone.props.onDrop({ dataTransfer: { files: [file] }, preventDefault() {} });
+  await settle();
+  assert.equal(calls.find(c => c.url.endsWith('/assets')).body.get('role'), 'reference');
+  assert.equal(w.slots[1].referenceAssetId, photoId);
+  assert.ok(!calls.some(c => c.url.endsWith('/generate') || c.url.endsWith('/analyze')));
+}
+console.log('PASS reference file/paste/drop uploads without rights checkbox or implicit AI consent');
+
+w = wizard({ 3: 2 }); tree = nodes(w.render()); calls.length = 0;
+tree.find(n => n.props?.['aria-label'] === 'העלאת לוגו').props.onChange({ target: { files: [new File(['test'], 'logo.png', { type: 'image/png' })], value: '' } });
+await settle();
+assert.equal(calls.find(c => c.url.endsWith('/assets')).body.get('role'), 'logo');
+console.log('PASS logo upload without rights checkbox');
+
+for (const file of [new File(['bad'], 'script.svg', { type: 'image/svg+xml' }), new File([new Uint8Array(4 * 1024 * 1024 + 1)], 'large.png', { type: 'image/png' })]) {
+  w = wizard({ 3: 2 }); tree = nodes(w.render()); calls.length = 0;
+  tree.find(n => n.type === 'input' && n.props.multiple).props.onChange({ target: { files: [file], value: '' } });
+  await settle();
+  assert.equal(calls.length, 0);
+  assert.ok(nodes(w.render()).some(n => n.props?.role === 'alert'));
+}
+console.log('PASS unsupported files and oversized images remain blocked');
+
+const editorPlan = {
+  version: 1, siteTitle: 'עסק לבדיקה', positioning: 'שירות אישי', contactCta: 'צרו קשר',
+  visualDirection: { summary: 'כיוון עיצוב', palette: ['#5048e5'], typography: 'modern', layout: 'split' },
+  sections: [{ id: 'hero', kind: 'hero', label: 'פתיחה', headline: 'עסק לבדיקה', body: 'תוכן קיים' }],
+  seo: { title: 'עסק לבדיקה', description: 'תיאור', keywords: [] }, missingInformation: [], reviewNotes: [],
+};
+const documentHelpers = load('lib/sites/document.ts');
+const locksHelpers = load('lib/sites/revision-locks.ts', { './document': documentHelpers });
+function editor(locked = false) {
+  const h = harness({ 9: { ...defaultCreationSettings(), locks: { design: locked, text: false } } });
+  const { SiteWorkbench } = load('components/projects/site-workbench.tsx', {
+    react: h.hooks, 'next/navigation': { useRouter: () => router },
+    '@/components/sites/site-renderer': { SiteRenderer: () => null },
+    './preview-viewport': { PreviewViewport: ({ children }) => children },
+    '@/lib/sites/revision-locks': locksHelpers,
+  });
+  return { ...h, render() { h.reset(); return SiteWorkbench({ projectId: id, versionId: photoId, plan: editorPlan, versions: [], initialEditTab: 'design' }); } };
+}
+const motionForm = fixture => nodes(fixture.render()).find(n => n.type === 'form' && nodes(n).some(child => child.type === 'select' && child.props.name === 'motion'));
+let edit = editor(), form = motionForm(edit);
+assert.equal(nodes(form).find(n => n.type === 'select').props.defaultValue, 'off', 'existing versions without motion stay static');
+assert.equal(nodes(form).find(n => n.type === 'fieldset').props.disabled, false);
+assert.ok(!nodes(form).some(n => n.type === 'input' && n.props.type === 'checkbox'), 'non-AI change requires no AI consent');
+assert.equal(nodes(motionForm(editor(true))).find(n => n.type === 'fieldset').props.disabled, true);
+const uploadFetch = globalThis.fetch, nativeFormData = globalThis.FormData;
+globalThis.FormData = class { constructor(target) { this.fields = target.fields; } get(key) { return this.fields[key] ?? null; } };
+globalThis.fetch = async (url, init) => {
+  calls.push({ url, body: init.body });
+  return Response.json({ proposal: true, versionId: jobId, plan: { ...editorPlan, theme: { motion: JSON.parse(init.body).motion } } });
+};
+for (const motion of ['off', 'subtle', 'expressive']) {
+  edit = editor(); form = motionForm(edit); calls.length = 0;
+  form.props.onSubmit({ preventDefault() {}, currentTarget: { fields: { motion, headline: 'not submitted', consent: true } } });
+  await settle();
+  assert.equal(calls.length, 1); assert.ok(calls[0].url.endsWith('/revisions'));
+  const payload = JSON.parse(calls[0].body);
+  assert.deepEqual(Object.keys(payload).sort(), ['baseVersionId', 'mode', 'motion', 'requestId']);
+  assert.equal(payload.mode, 'theme'); assert.equal(payload.motion, motion); assert.equal(payload.baseVersionId, photoId);
+  assert.ok(nodes(edit.render()).some(n => n.props?.['aria-label'] === 'בדיקת הצעת השינוי'), 'change opens review before apply');
+}
+globalThis.fetch = uploadFetch; globalThis.FormData = nativeFormData;
+console.log('PASS editor motion-only form needs no AI consent, respects design locks, and opens a review proposal');
 
 const progressHarness = harness();
 let pollUrl;

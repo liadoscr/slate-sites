@@ -40,7 +40,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
       delete plan.revisionOf;
       proposal = false;
     } else if (body.mode === 'theme') {
+      if ('motion' in body && !['off', 'subtle', 'expressive'].includes(body.motion)) return NextResponse.json({ error: 'בחרו סגנון אנימציה נתמך.' }, { status: 422 });
       plan.theme = themeFor(plan);
+      if ('motion' in body) plan.theme.motion = body.motion;
       if (['split', 'editorial', 'centered', 'immersive', 'bento'].includes(body.layout)) plan.theme.layout = body.layout;
       if (['light', 'dark'].includes(body.colorMode)) plan.theme.mode = body.colorMode;
       if (['airy', 'compact'].includes(body.density)) plan.theme.density = body.density;

@@ -4,7 +4,9 @@ export type SiteSection = {
   presentation?: { layout: 'split' | 'cards' | 'band'; tone: 'default' | 'muted' | 'accent' };
 };
 export type SiteLayout = 'split' | 'editorial' | 'centered' | 'immersive' | 'bento';
-export type SiteTheme = { layout: SiteLayout; accent: string; font: 'modern' | 'editorial'; corners: 'soft' | 'square'; mode?: 'light' | 'dark'; density?: 'airy' | 'compact' };
+export type SiteMotion = 'off' | 'subtle' | 'expressive';
+export function motionFor(value: unknown): SiteMotion { return value === 'subtle' || value === 'expressive' ? value : 'off'; }
+export type SiteTheme = { layout: SiteLayout; accent: string; font: 'modern' | 'editorial'; corners: 'soft' | 'square'; mode?: 'light' | 'dark'; density?: 'airy' | 'compact'; motion?: SiteMotion };
 export type SiteImage = { id: string; path: string; alt: string; role: 'logo' | 'hero' | 'gallery'; mimeType: string; focalPoint?: { x: number; y: number; mobileX: number; mobileY: number } };
 export type BusinessSnapshot = { name: string; type: string; location: string; email: string; phone: string; whatsapp: string };
 export type GeneratedSitePlan = {
@@ -59,7 +61,7 @@ export function safeAccent(value: unknown, mode: 'light' | 'dark' = 'light') {
 export function themeFor(plan: GeneratedSitePlan): SiteTheme {
   const theme = plan.theme;
   const mode = theme?.mode === 'dark' ? 'dark' : 'light';
-  return { layout: ['split', 'editorial', 'centered', 'immersive', 'bento'].includes(theme?.layout ?? '') ? theme!.layout : 'split', accent: safeAccent(theme?.accent ?? plan.visualDirection?.palette?.find(c => /^#[0-9a-f]{6}$/i.test(c)), mode), font: theme?.font === 'editorial' ? 'editorial' : 'modern', corners: theme?.corners === 'square' ? 'square' : 'soft', mode, density: theme?.density === 'compact' ? 'compact' : 'airy' };
+  return { layout: ['split', 'editorial', 'centered', 'immersive', 'bento'].includes(theme?.layout ?? '') ? theme!.layout : 'split', accent: safeAccent(theme?.accent ?? plan.visualDirection?.palette?.find(c => /^#[0-9a-f]{6}$/i.test(c)), mode), font: theme?.font === 'editorial' ? 'editorial' : 'modern', corners: theme?.corners === 'square' ? 'square' : 'soft', mode, density: theme?.density === 'compact' ? 'compact' : 'airy', motion: motionFor(theme?.motion) };
 }
 export function paletteFor(theme: SiteTheme) {
   const dark = theme.mode === 'dark';

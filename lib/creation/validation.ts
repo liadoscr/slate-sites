@@ -1,4 +1,4 @@
-import { cleanText, uuidPattern } from '@/lib/sites/document';
+import { cleanText, motionFor, uuidPattern } from '@/lib/sites/document';
 import { defaultCreationSettings, type CreationSettings, type FocalPoint } from './types';
 
 export function parseFocalPoint(value: unknown): FocalPoint | undefined {
@@ -33,6 +33,7 @@ export function parseCreationSettings(value: unknown): CreationSettings {
     referenceAssetId: reference?.id ?? null,
     referenceFocus: ['structure', 'colors', 'both'].includes(input.referenceFocus) ? input.referenceFocus : defaults.referenceFocus,
     starter: ['minimal', 'editorial', 'bold'].includes(input.starter) ? input.starter : defaults.starter,
+    motion: motionFor(input.motion),
     brandColor, notes: cleanText(input.notes, 1200),
     contactPreference: ['whatsapp', 'phone', 'email', 'form'].includes(input.contactPreference) ? input.contactPreference : defaults.contactPreference,
     images,

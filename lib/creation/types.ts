@@ -1,3 +1,5 @@
+import type { SiteMotion } from '@/lib/sites/document';
+
 export type ReferenceAnalysis = {
   summary: string;
   palette: string[];
@@ -20,6 +22,7 @@ export type CreationSettings = {
   referenceAssetId: string | null;
   referenceFocus: 'structure' | 'colors' | 'both';
   starter: 'minimal' | 'editorial' | 'bold';
+  motion: SiteMotion;
   brandColor: string;
   notes: string;
   contactPreference: 'whatsapp' | 'phone' | 'email' | 'form';
@@ -31,7 +34,7 @@ export type CreationSettings = {
 export function defaultCreationSettings(): CreationSettings {
   return {
     schemaVersion: 1, referenceAssetId: null, referenceFocus: 'both',
-    starter: 'minimal', brandColor: '', notes: '', contactPreference: 'whatsapp',
+    starter: 'minimal', motion: 'off', brandColor: '', notes: '', contactPreference: 'whatsapp',
     images: [], locks: { design: false, text: false },
   };
 }
