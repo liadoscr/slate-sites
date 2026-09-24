@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { SiteMotion } from './site-motion';
+import { DemoMotion } from './demo-motion';
 import motion from './demo-motion.module.css';
 import heroImage from '@/public/gel-orange-hero.png';
 import styles from '@/app/nail.module.css';
@@ -24,7 +24,7 @@ const shades = [
 // Preserved product demo, selected by a marker in its saved site version.
 export function OrangeGelDemo() {
   return (
-    <main className={`${styles.site} ${motion.enabled}`} data-motion="subtle" id="top">
+    <main className={`${styles.site} ${motion.enabled}`} data-choreography="orange" data-motion="subtle" id="top">
       <aside className={styles.demoNotice} id="demo-notice"><span>אתר תדמית לדוגמה של Slate Sites. העסק, המחירים וההמלצה להמחשה בלבד.</span><Link href="/#demo-preview">לכל הדוגמאות ←</Link></aside>
       <header className={styles.header}>
         <a className={styles.logo} href="#top" aria-label="ORANGE GEL, דף הבית">
@@ -41,7 +41,7 @@ export function OrangeGelDemo() {
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className={styles.heroCopy}>
           <p className={styles.eyebrow}>סטודיו לק ג׳ל · רמת גן</p>
-          <h1 id="hero-title">צבע שעושה<br />לך <em>מצב רוח.</em></h1>
+          <h1 id="hero-title"><span data-demo-enter="line">צבע שעושה</span><br /><span data-demo-enter="line" data-demo-order="1">לך <em>מצב רוח.</em></span></h1>
           <p className={styles.heroText}>מניקור מדויק, חומרים מעולים ושעה שהיא רק שלך. יוצאות עם ידיים שקשה להפסיק להסתכל עליהן.</p>
           <div className={styles.heroActions}>
             <a className={styles.primaryCta} href="#treatments">לגלות את הטיפולים <span aria-hidden="true">←</span></a>
@@ -53,9 +53,9 @@ export function OrangeGelDemo() {
           </div>
         </div>
 
-        <div className={styles.heroVisual}>
+        <div data-demo-enter="image" className={styles.heroVisual}>
           <Image
-            className={styles.heroImage}
+            data-demo-drift="" className={styles.heroImage}
             src={heroImage}
             alt="יד עם מניקור ג׳ל כתום מבריק על כדור כרום"
             fill
@@ -72,15 +72,15 @@ export function OrangeGelDemo() {
         <div>לק ג׳ל <span>✦</span> בנייה אנטומית <span>✦</span> חיזוק טבעי <span>✦</span> נייל ארט עדין <span>✦</span> לק ג׳ל <span>✦</span></div>
       </div>
 
-      <section data-site-reveal="" className={styles.treatments} id="treatments" aria-labelledby="treatments-title">
+      <section className={styles.treatments} id="treatments" aria-labelledby="treatments-title">
         <div className={styles.sectionIntro}>
           <p className={styles.sectionNumber}>01 / טיפולים</p>
-          <h2 id="treatments-title">כל מה שהציפורניים שלך צריכות.<br /><em>בלי קיצורי דרך.</em></h2>
+          <h2 data-demo-enter="line" id="treatments-title">כל מה שהציפורניים שלך צריכות.<br /><em>בלי קיצורי דרך.</em></h2>
           <p>כל טיפול מתחיל באבחון קצר ומסתיים בשמן קוטיקולה, קרם ידיים והנחיות מדויקות לשמירה בבית.</p>
         </div>
         <div className={styles.treatmentGrid}>
           {treatments.map((treatment, index) => (
-            <article className={`${styles.treatmentCard} ${index === 0 ? styles.featuredTreatment : ''}`} key={treatment.number}>
+            <article data-demo-enter="card" data-demo-order={index} className={`${styles.treatmentCard} ${index === 0 ? styles.featuredTreatment : ''}`} key={treatment.number}>
               <span className={styles.cardNumber}>{treatment.number}</span>
               <h3>{treatment.name}</h3>
               <p>{treatment.description}</p>
@@ -90,14 +90,14 @@ export function OrangeGelDemo() {
         </div>
       </section>
 
-      <section data-site-reveal="" className={styles.studio} id="studio" aria-labelledby="studio-title">
+      <section className={styles.studio} id="studio" aria-labelledby="studio-title">
         <p className={styles.sectionNumber}>02 / הסטודיו</p>
         <div className={styles.studioHeadline}>
           <span aria-hidden="true">GOOD</span>
-          <h2 id="studio-title">ציפורניים טובות.<br /><em>מצב רוח טוב.</em></h2>
+          <h2 data-demo-enter="line" id="studio-title">ציפורניים טובות.<br /><em>מצב רוח טוב.</em></h2>
           <span aria-hidden="true">MOOD</span>
         </div>
-        <div className={styles.studioDetails}>
+        <div data-demo-enter="detail" className={styles.studioDetails}>
           <p className={styles.studioLead}>ORANGE.GEL הוא סטודיו קטן ואישי שבו אסתטיקה, סטריליות ודיוק מקבלים את אותו מקום.</p>
           <ol>
             <li><span>01</span><div><strong>עובדות נקי</strong><p>כלים עוברים חיטוי ועיקור בין לקוחה ללקוחה. תמיד.</p></div></li>
@@ -107,15 +107,15 @@ export function OrangeGelDemo() {
         </div>
       </section>
 
-      <section data-site-reveal="" className={styles.shades} id="shades" aria-labelledby="shades-title">
+      <section className={styles.shades} id="shades" aria-labelledby="shades-title">
         <div className={styles.shadesHeading}>
           <p className={styles.sectionNumber}>03 / הצבעים</p>
-          <h2 id="shades-title">מה הצבע שלך<br /><em>היום?</em></h2>
+          <h2 data-demo-enter="line" id="shades-title">מה הצבע שלך<br /><em>היום?</em></h2>
           <p>מעל 120 גוונים מחכים בסטודיו. אלה השישה שאנחנו לא מפסיקות לבחור החודש.</p>
         </div>
         <div className={styles.shadeList}>
           {shades.map((shade, index) => (
-            <div className={styles.shade} key={shade.name}>
+            <div data-demo-enter="card" data-demo-order={index} className={styles.shade} key={shade.name}>
               <span data-demo-shade="" className={styles.shadeCircle} style={{ backgroundColor: shade.color, color: shade.dark ? '#fff' : '#171717' }}>
                 {String(index + 1).padStart(2, '0')}
               </span>
@@ -125,8 +125,8 @@ export function OrangeGelDemo() {
         </div>
       </section>
 
-      <section data-site-reveal="" className={styles.booking} id="contact" aria-labelledby="contact-title">
-        <div className={styles.reviewCard}>
+      <section className={styles.booking} id="contact" aria-labelledby="contact-title">
+        <div data-demo-enter="card" className={styles.reviewCard}>
           <div className={styles.stars}>★★★★★ <span>המלצה לדוגמה</span></div>
           <blockquote>״סוף סוף מצאתי מישהי שגם רואה כל פרט קטן וגם ממש כיף להעביר איתה שעה. הג׳ל נשאר מושלם כמעט חודש.״</blockquote>
           <p>— נטע לוי, לקוחה קבועה</p>
@@ -134,10 +134,10 @@ export function OrangeGelDemo() {
         </div>
         <div className={styles.bookingCard}>
           <p className={styles.sectionNumber}>04 / נעים להכיר</p>
-          <h2 id="contact-title">הצבע שלך.<br /><em>הסיפור שלך.</em></h2>
+          <h2 data-demo-enter="line" id="contact-title">הצבע שלך.<br /><em>הסיפור שלך.</em></h2>
           <p>מקום קטן עם אהבה גדולה לפרטים. אלה הפרטים של הסטודיו לדוגמה — התוכן להמחשה בלבד.</p>
           <Link className={styles.bookingCta} href="/auth?next=/dashboard/new">בנו אתר לעסק שלכם <span aria-hidden="true">←</span></Link>
-          <dl className={styles.contactList}>
+          <dl data-demo-enter="detail" className={styles.contactList}>
             <div><dt>טלפון לדוגמה</dt><dd>03-555-0148</dd></div>
             <div><dt>כתובת</dt><dd>הרא״ה 18, רמת גן</dd></div>
             <div><dt>שעות</dt><dd>א׳—ה׳, 09:00–20:00</dd></div>
@@ -151,7 +151,7 @@ export function OrangeGelDemo() {
         <Link href="/">נבנה עם Slate Sites</Link>
         <span>© 2026</span>
       </footer>
-      <SiteMotion level="subtle" versionId="orange-gel-v1" />
+      <DemoMotion style="orange" />
     </main>
   );
 }

@@ -1,8 +1,11 @@
 /* Animation enhancement only: never changes the demo layout or hides SSR content. */
-.enabled [data-site-reveal]:focus-within {
+.enabled [data-demo-enter]:focus-within {
   opacity: 1 !important;
   transform: none !important;
+  clip-path: none !important;
 }
+.enabled h1 [data-demo-enter] { display: inline-block; }
+.enabled [data-demo-drift] { scale: 1.04; }
 
 @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
   .enabled[data-motion] a > span[aria-hidden="true"] {
@@ -14,7 +17,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .enabled [data-site-reveal] { opacity: 1 !important; transform: none !important; }
+  .enabled [data-demo-enter] { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+  .enabled [data-demo-drift] { translate: none !important; scale: none !important; }
   .enabled[data-motion] *, .enabled[data-motion] *::before, .enabled[data-motion] *::after {
     animation: none !important;
     transition: none !important;
@@ -24,4 +28,7 @@
   .enabled[data-motion] a:hover, .enabled[data-motion] article:hover,
   .enabled[data-motion] a > span[aria-hidden="true"],
   .enabled[data-motion] [data-demo-shade] { transform: none !important; }
+}
+@media (max-width: 720px), (pointer: coarse) {
+  .enabled [data-demo-drift] { translate: none !important; scale: none; }
 }

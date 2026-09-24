@@ -18,7 +18,7 @@ function load(path) {
   const { code } = swc.transformSync(readFileSync(file, 'utf8'), {filename:file,jsc:{parser:{syntax:'typescript',tsx:file.endsWith('.tsx')},transform:{react:{runtime:'automatic'}},target:'es2022'},module:{type:'commonjs'}});
   const module = {exports:{}};
   new Function('require','module','exports',code)(specifier => {
-    if (specifier==='next/image') return ({src,alt,...props}) => React.createElement('img',{src:typeof src==='string'?src:src.src,alt,'data-preload':props.preload?'true':undefined});
+    if (specifier==='next/image') return ({src,alt,fill,preload,unoptimized,sizes,...props}) => React.createElement('img',{...props,src:typeof src==='string'?src:src.src,alt,'data-preload':preload?'true':undefined,style:{...(fill?{position:'absolute',inset:0,width:'100%',height:'100%'}:{}),...props.style}});
     if (specifier==='next/link') return ({children,...props}) => React.createElement('a',props,children);
     if (specifier.endsWith('.css')) return new Proxy({},{get:(_,name)=>name==='__esModule'?false:String(name)});
     if (specifier.endsWith('.png')) return {src:'/gel-orange-hero.png'};
@@ -56,7 +56,11 @@ for (const demo of [orange,...demos]) {
   assert.ok(html.includes(`data-motion="${motion}"`), `${demo.template}: expected animation preset`);
   const sections = [...html.matchAll(/<section\b[^>]*>/g)].map(match => match[0]);
   assert.ok(!sections[0].includes('data-site-reveal'), 'Hero stays visible without entrance animation');
-  assert.ok(sections.slice(1).every(tag => tag.includes('data-site-reveal')), 'Below-hero sections opt into scroll reveals');
+  assert.ok(!html.includes('data-site-reveal'), 'Demos choreograph elements instead of fading entire sections');
+  assert.ok((html.match(/data-demo-enter="line"/g) || []).length >= 4, 'Headlines have their own entrances');
+  assert.ok((html.match(/data-demo-enter="card"/g) || []).length >= 3, 'Cards have independent reveals');
+  assert.ok(html.includes('data-demo-order="1"'), 'Sequences have staggered timing');
+  assert.ok(html.includes('data-demo-drift=""'), 'Hero photography has bounded desktop scroll movement');
   assert.ok(sections.length > 3 && !sections.some(tag => /hidden|opacity:0/.test(tag)), 'Server content remains visible without JavaScript');
   assert.ok(html.includes('<span hidden="" aria-hidden="true"></span>'), 'Shared motion controller is mounted inside the demo');
   console.log(`PASS ${demo.template}: informational copy, real anchors, local images, no booking/payment or data collection`);
@@ -79,3 +83,29 @@ assert.equal((home.match(/<DemoCarousel\b/g)||[]).length,1,'Homepage has one dem
 assert.ok(!home.includes('id="examples"') && !home.includes('styles.exampleGrid'),'No duplicate demo gallery');
 assert.ok(home.includes('href="#demo-preview"'),'Examples navigation targets the carousel');
 console.log('PASS homepage uses only the demo carousel and navigation targets it');
+
+if (process.argv.includes('--serve')) {
+  const { createServer } = await import('node:http');
+  const controller = swc.transformSync(readFileSync(resolve(root,'components/sites/demo-motion-controller.ts'),'utf8'), {filename:'demo-motion-controller.ts',jsc:{parser:{syntax:'typescript'},target:'es2022'},module:{type:'es6'}}).code;
+  const fixtures = [
+    {data:orange,style:'orange',css:'app/nail.module.css'},
+    {data:demos[0],style:'forma',css:'components/sites/hair-salon-demo.module.css'},
+    {data:demos[1],style:'move',css:'components/sites/personal-trainer-demo.module.css'},
+  ];
+  createServer((request,response)=>{
+    const url = new URL(request.url,'http://127.0.0.1:4184');
+    if(url.pathname.startsWith('/demos/') || url.pathname==='/gel-orange-hero.png') {
+      const path=resolve(root,'public',url.pathname.slice(1));
+      if(!path.startsWith(resolve(root,'public') + '\\') || !existsSync(path)) {response.writeHead(404);response.end();return;}
+      response.writeHead(200,{'Content-Type':path.endsWith('.webp')?'image/webp':'image/png'});response.end(readFileSync(path));return;
+    }
+    const fixture=fixtures.find(item=>item.style===url.searchParams.get('demo')) || fixtures[0];
+    const css=readFileSync(resolve(root,fixture.css),'utf8');
+    const html=renderToStaticMarkup(React.createElement(CuratedDemo,{content:fixture.data.plan}));
+    response.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});
+    response.end(`<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif}${css}${motionCss}</style>${html}<script type="module">${controller}
+      document.querySelectorAll('[data-demo-enter]').forEach(element=>{const animate=element.animate.bind(element);element.dataset.revealCount='0';element.animate=(...args)=>{element.dataset.revealCount=String(Number(element.dataset.revealCount)+1);return animate(...args);};});
+      attachDemoMotion(document.querySelector('[data-choreography]'),${JSON.stringify(fixture.style)});
+    </script></html>`);
+  }).listen(4184,'127.0.0.1',()=>console.log('Local demo motion fixture: http://127.0.0.1:4184/?demo=orange (or forma/move). No customer data or database writes.'));
+}
