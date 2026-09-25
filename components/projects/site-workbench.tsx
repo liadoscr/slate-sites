@@ -46,6 +46,7 @@ export function SiteWorkbench({ projectId, versionId, plan, versions, curated = 
   const [referenceFailed, setReferenceFailed] = useState(false);
   const [referenceUrl, setReferenceUrl] = useState('');
   const requestAttempt = useRef<{ key: string; id: string } | null>(null);
+  const imageUploadInFlight = useRef(false);
   const settingsRequest = useRef(0);
   const reviewPanel = useRef<HTMLElement | null>(null);
 
@@ -134,6 +135,22 @@ export function SiteWorkbench({ projectId, versionId, plan, versions, curated = 
     finally { setBusy(false); }
   };
 
+  async function replacePhoto(file: File | undefined) {
+    if (!file || busy || settingsBusy || !settings || settings.locks.design || settings.locks.text || imageUploadInFlight.current) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 4 * 1024 * 1024) { setError('בחרו תמונת JPG, PNG או WebP עד 4MB.'); return; }
+    imageUploadInFlight.current = true; setBusy(true); setError('');
+    const sectionId = selected;
+    try {
+      const alt = file.name.replace(/\.[^.]+$/, '').slice(0, 180) || 'תמונת העסק';
+      const form = new FormData(); form.set('file', file); form.set('role', 'gallery'); form.set('alt', alt);
+      const response = await fetch(`/api/projects/${projectId}/assets`, { method: 'POST', body: form });
+      const data = await response.json();
+      if (!response.ok || !data.asset?.id) throw new Error(data.error || 'לא הצלחנו להעלות את התמונה.');
+      await change({ mode: 'replace-image', sectionId, assetId: data.asset.id, alt }, 'תמונה משלכם');
+    } catch (failure) { setError(failure instanceof Error ? failure.message : 'החלפת התמונה נכשלה.'); }
+    finally { imageUploadInFlight.current = false; setBusy(false); }
+  }
+
   const editingHeader = selected === 'site-header';
   const theme = themeFor(plan);
   const section: SiteSection = editingHeader ? {
@@ -152,6 +169,7 @@ export function SiteWorkbench({ projectId, versionId, plan, versions, curated = 
   const checks = launchChecks(shown);
 
   return <div className={`site-workbench ${styles.workbench}`}>
+    {!curated && settings?.creationMode === 'automatic' ? <div className={styles.explainer}><b>הטיוטה מוכנה לבדיקה שלכם</b><p>עברו על התוכן והתמונות, ואז השלימו את השם ופרטי הקשר. תמונות המאגר הן להמחשה בלבד.</p><a href="#business-details">להשלמת פרטי העסק ↓</a></div> : null}
     {message ? <p className="success-message" role="status">{message}</p> : null}
     {error ? <p className="error-message" role="alert">{error}</p> : null}
     {settingsError ? <div className="error-message" role="alert">{settingsError} <button className="quiet-button" type="button" disabled={settingsBusy} onClick={() => void loadSettings()}>ניסיון נוסף</button></div> : null}
@@ -198,6 +216,7 @@ export function SiteWorkbench({ projectId, versionId, plan, versions, curated = 
             {images.map(image => <form key={`alt-${versionId}-${image.id}`} onSubmit={event => { event.preventDefault(); void change({ mode: 'image', imageId: image.id, alt: new FormData(event.currentTarget).get('alt') }, 'תיאור תמונה'); }}><fieldset disabled={textDisabled}><legend>תיאור תמונה</legend><div className={styles.altImage}><img src={`/api/sites/${projectId}/media/${versionId}/${image.id}`} alt={image.alt} loading="lazy" /><label className="field">מה רואים בתמונה?<input name="alt" defaultValue={image.alt} maxLength={180} required /></label></div><button className="secondary-button">בדיקת התיאור</button></fieldset></form>)}
           </details>
         </> : <>
+          <fieldset disabled={designDisabled || textDisabled}><legend>תמונה משלכם במקטע הנבחר</legend><label className="field">החלפת התמונה ב״{section.label}״<input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void replacePhoto(file); }} /></label><p className={styles.note}>JPG, PNG או WebP עד 4MB. העלו רק תמונה שבבעלותכם או שיש לכם הרשאה לפרסם. ההחלפה לא משתמשת ב־AI ותוצג לאישור לפני שמירת הטיוטה.</p></fieldset>
           <form key={`motion-${versionId}`} onSubmit={event => { event.preventDefault(); void change({ mode: 'theme', motion: new FormData(event.currentTarget).get('motion') }, 'תנועה ואנימציות'); }}>
             <fieldset disabled={designDisabled}><legend>תנועה ואנימציות באתר</legend><label className="field">סגנון האנימציה<select name="motion" defaultValue={theme.motion} aria-describedby="editor-motion-help"><option value="off">ללא אנימציות</option><option value="subtle">עדינות — הופעה רכה בגלילה</option><option value="expressive">מודגשות — הופעה עם תנועה קלה</option></select></label><p className={styles.note} id="editor-motion-help">הופעה חד־פעמית בגלילה ותגובות במעבר עכבר. העדפת תנועה מופחתת במכשיר מכבה אותן. השינוי אינו משתמש ב־AI; אשרו את ההצעה ופרסמו כדי לעדכן את האתר שבאוויר.</p><button className="secondary-button">תצוגה מקדימה של האנימציות</button></fieldset>
           </form>
@@ -216,9 +235,29 @@ export function SiteWorkbench({ projectId, versionId, plan, versions, curated = 
     </> : null}
 
     <section className={styles.quality} aria-label="מוכנות לפרסום"><div><h3>עוברים על האתר לפני הפרסום</h3><p>בדיקות בסיסיות של התוכן והמבנה {candidate && !showOriginal ? 'בהצעה המוצגת' : 'בטיוטה השמורה'}.</p></div><ul className="launch-checks">{checks.map(check => <li key={check.label}><span>{check.ok ? '✓' : 'כדאי להשלים'}</span>{check.label}</li>)}</ul>
-      <div className={styles.contactSummary}><b>פרטי הקשר בגרסה הזו</b><p>{shown.business?.phone || 'לא נוסף טלפון'} · {shown.business?.email || 'לא נוסף אימייל'}</p>
-        {!curated ? <details className={styles.secondaryEditor}><summary>עדכון פרטי הקשר בטיוטה</summary><form key={`contact-${versionId}`} onSubmit={event => { event.preventDefault(); const form = new FormData(event.currentTarget); void change({ mode: 'contact', phone: form.get('phone'), email: form.get('email'), whatsapp: form.get('whatsapp') === 'on', contactPreference: form.get('contactPreference') }, 'פרטי הקשר והכפתור הראשי'); }}><fieldset disabled={textDisabled}><legend>איך פונים לעסק</legend><div className={styles.editorGrid}><label className="field">טלפון<input name="phone" type="tel" dir="ltr" defaultValue={plan.business?.phone} /></label><label className="field">אימייל<input name="email" type="email" dir="ltr" defaultValue={plan.business?.email} /></label></div><label className="checkbox"><input name="whatsapp" type="checkbox" defaultChecked={Boolean(plan.business?.whatsapp)} />המספר מחובר ל־WhatsApp ואפשר לפרסם קישור אליו.</label><label className="field">הפעולה הראשית<select name="contactPreference" defaultValue={plan.contactPreference ?? 'form'}><option value="whatsapp">שליחת הודעה ב־WhatsApp</option><option value="phone">שיחת טלפון</option><option value="email">שליחת אימייל</option><option value="form">טופס פנייה</option></select></label><button className="secondary-button">בדיקת פרטי הקשר החדשים</button><p className={styles.note}>השינוי יישמר בגרסת האתר אחרי אישור ההצעה. פרטי הבריף ליצירה חדשה נערכים בנפרד.</p></fieldset></form></details> : <a href={`/dashboard/projects/${projectId}/edit`}>עריכת פרטי העסק בבריף</a>}
+      <div id="business-details" className={styles.contactSummary}><b>פרטי העסק בגרסה הזו</b><p>{shown.business?.name}{shown.business?.location ? ` · ${shown.business.location}` : ''}</p><p>{shown.business?.phone || 'לא נוסף טלפון'} · {shown.business?.email || 'לא נוסף אימייל'}</p>
+        {!curated ? <details className={styles.secondaryEditor} open={!plan.business?.phone && !plan.business?.email}>
+          <summary>השלמת שם, כתובת ופרטי קשר</summary>
+          <form key={`contact-${versionId}`} onSubmit={event => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            void change({ mode: 'contact', businessName: form.get('businessName'), location: form.get('location'), phone: form.get('phone'), email: form.get('email'), whatsapp: form.get('whatsapp') === 'on', contactPreference: form.get('contactPreference') }, 'פרטי העסק והכפתור הראשי');
+          }}><fieldset disabled={textDisabled}>
+            <legend>הפרטים שלכם, כפי שיופיעו באתר</legend>
+            <div className={styles.editorGrid}>
+              <label className="field">שם העסק<input name="businessName" required minLength={2} maxLength={120} autoComplete="organization" defaultValue={plan.business?.name} /></label>
+              <label className="field">כתובת או אזור פעילות<input name="location" maxLength={120} autoComplete="street-address" placeholder="למשל: הרצל 12, תל אביב — או שירות בכל הארץ" defaultValue={plan.business?.location} /></label>
+              <label className="field">טלפון<input name="phone" type="tel" dir="ltr" maxLength={40} autoComplete="tel" defaultValue={plan.business?.phone} /></label>
+              <label className="field">אימייל<input name="email" type="email" dir="ltr" maxLength={254} autoComplete="email" defaultValue={plan.business?.email} /></label>
+            </div>
+            <label className="checkbox"><input name="whatsapp" type="checkbox" defaultChecked={Boolean(plan.business?.whatsapp)} />המספר מחובר ל־WhatsApp ואפשר לפרסם קישור אליו.</label>
+            <label className="field">הפעולה הראשית<select name="contactPreference" defaultValue={plan.contactPreference ?? 'form'}><option value="whatsapp">שליחת הודעה ב־WhatsApp</option><option value="phone">שיחת טלפון</option><option value="email">שליחת אימייל</option><option value="form">טופס פנייה</option></select></label>
+            <button className="secondary-button">בדיקת הפרטים החדשים</button>
+            <p className={styles.note}>השינוי יישמר בגרסת האתר אחרי אישור ההצעה. פרטי הבריף ליצירה חדשה נערכים בנפרד.</p>
+          </fieldset></form>
+        </details> : <a href={`/dashboard/projects/${projectId}/edit`}>עריכת פרטי העסק בבריף</a>}
       </div>
+      {shown.reviewNotes?.length ? <div className={styles.note}><b>הערות ליצירה הזו</b><ul>{shown.reviewNotes.map((item, index) => <li key={index}>{item}</li>)}</ul></div> : null}
       {shown.missingInformation?.length ? <details className={styles.missing}><summary>מידע שכדאי לוודא או להשלים ({shown.missingInformation.length})</summary><p className={styles.note}>הנקודות זוהו בזמן היצירה; בדקו אילו מהן עדיין רלוונטיות אחרי העריכה.</p><ul>{shown.missingInformation.map((item, index) => <li key={index}>{item}</li>)}</ul></details> : null}
       <p className={styles.note}>אין כאן בדיקה אוטומטית של דמיון לתמונת ההשראה או בדיקת נגישות מלאה. עברו על תצוגת המחשב והמובייל, וודאו שהמידע נכון, הקישורים נפתחים והתמונות חתוכות היטב.</p>
     </section>

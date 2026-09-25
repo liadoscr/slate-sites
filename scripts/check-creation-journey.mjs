@@ -233,6 +233,7 @@ let user = { id };
 const filters = [];
 const query = { select() { return query; }, eq(key, value) { filters.push([key, value]); return query; }, order() { return query; }, limit() { return query; }, async maybeSingle() { return { data: { id: jobId, state: 'running', expires_at: new Date(Date.now() + 60000).toISOString() } }; } };
 const generationRoute = load('app/api/projects/[projectId]/generate/route.ts', {
+  'server-only': {}, '@/lib/stock/snapshot': {},
   '@/lib/data/current-user': { getCurrentUser: async () => user },
   '@/lib/supabase/admin': { createAdminClient: () => ({ from: () => query }) },
   '@/lib/supabase/server': {}, '@/lib/ai/gemini': {}, '@/lib/sites/workspace-server': {}, '@/lib/creation/server': {},

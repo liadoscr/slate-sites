@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { focalPointFor, paletteFor, safeEmail, safePhone, themeFor, type GeneratedSitePlan, type SiteImage } from '@/lib/sites/document';
 import { SiteMotion } from './site-motion';
+import { stockAttributionFor } from '@/lib/stock/attribution';
 import styles from './site-renderer.module.css';
 
 export function SiteRenderer({plan,projectId,versionId,contact,compact=false}:{plan:GeneratedSitePlan;projectId:string;versionId:string;contact?:ReactNode;compact?:boolean}) {
@@ -20,7 +21,7 @@ export function SiteRenderer({plan,projectId,versionId,contact,compact=false}:{p
   const primary = (plan.contactPreference && contactTargets[plan.contactPreference]) || contactTargets.whatsapp || contactTargets.phone || contactTargets.email || '#contact';
   const image = (asset: SiteImage, heroImage=false) => {
     const focal = focalPointFor(asset);
-    return <img src={`/api/sites/${projectId}/media/${versionId}/${asset.id}`} alt={asset.alt} loading={heroImage?'eager':'lazy'} decoding="async" style={{ '--image-position': `${focal.x}% ${focal.y}%`, '--image-mobile-position': `${focal.mobileX}% ${focal.mobileY}%` } as CSSProperties} />;
+    return <><img src={`/api/sites/${projectId}/media/${versionId}/${asset.id}`} alt={asset.alt} loading={heroImage?'eager':'lazy'} decoding="async" style={{ '--image-position': `${focal.x}% ${focal.y}%`, '--image-mobile-position': `${focal.mobileX}% ${focal.mobileY}%` } as CSSProperties} />{stockAttributionFor(asset.attribution) ? <small className={styles.stockLabel}>תמונת מאגר להמחשה</small> : null}</>;
   };
   const style = {
     '--site-accent': palette.accent, '--site-on-accent': palette.onAccent, '--site-background': palette.background,
@@ -28,6 +29,7 @@ export function SiteRenderer({plan,projectId,versionId,contact,compact=false}:{p
     '--site-radius': theme.corners === 'soft' ? '24px' : '3px',
   } as CSSProperties;
   const spareImages = images.filter(i => i.role === 'gallery' && !sections.some(s => s.imageId === i.id) && i.id !== hero?.id);
+  const credits = images.map(asset => stockAttributionFor(asset.attribution)).filter(credit => credit !== undefined);
   return <article className={styles.site} data-layout={theme.layout} data-font={theme.font} data-mode={theme.mode} data-density={theme.density} data-motion={theme.motion} data-compact={compact} style={style} dir="rtl" lang="he">
     <a className={styles.skip} href="#site-content">דילוג לתוכן</a>
     <nav className={styles.nav} aria-label="ניווט באתר"><a href="#site-top" className={styles.brand}>{logo ? image(logo,true) : null}<b>{business.name}</b></a><a className={styles.navContact} href="#contact">יצירת קשר</a></nav>
@@ -45,13 +47,15 @@ export function SiteRenderer({plan,projectId,versionId,contact,compact=false}:{p
           {photo ? <div className={styles.sectionImage}>{image(photo)}</div> : null}
         </section>;
       })}</div>
-      {spareImages.length ? <section className={styles.gallery} aria-label="תמונות מהעסק">{spareImages.map(i=><figure key={i.id} data-site-reveal="">{image(i)}</figure>)}</section> : null}
+      {spareImages.length ? <section className={styles.gallery} aria-label={credits.length ? 'תמונות להמחשה' : 'תמונות מהעסק'}>{spareImages.map(i=><figure key={i.id} data-site-reveal="">{image(i)}</figure>)}</section> : null}
       <section className={styles.contact} id="contact"><div data-site-reveal=""><p className={styles.eyebrow}>נשמח לשמוע מכם</p><h2>{plan.contactCta}</h2><div className={styles.contactLinks}>
         {safePhone(business.phone)?<a href={`tel:${safePhone(business.phone)}`} dir="ltr">{business.phone}</a>:null}
         {safeEmail(business.email)?<a href={`mailto:${safeEmail(business.email)}`}>{business.email}</a>:null}
+        {business.location ? <span>{business.location}</span> : null}
         {business.whatsapp && /^\d{8,15}$/.test(business.whatsapp)?<a href={`https://wa.me/${business.whatsapp}`}>הודעה ב־WhatsApp</a>:null}
       </div></div>{contact ?? <p>טופס יצירת הקשר יהיה פעיל באתר המפורסם.</p>}</section>
     </div>
+    {credits.length ? <aside className={styles.stockCredits} aria-label="מקור התמונות"><p>תמונות להמחשה בלבד, לא תיעוד של העסק. <a href="https://www.pexels.com/" target="_blank" rel="noopener noreferrer">Photos provided by Pexels</a></p><ul>{credits.map((credit, index) => <li key={`${credit.photoId}-${index}`}><a href={credit.sourceUrl} target="_blank" rel="noopener noreferrer">צילום: {credit.photographer} / Pexels</a></li>)}</ul></aside> : null}
     <footer className={styles.footer}><b>{business.name}</b><span>נבנה עם Slate Sites</span></footer>
     {theme.motion !== 'off' ? <SiteMotion level={theme.motion ?? 'off'} versionId={versionId} /> : null}
   </article>;

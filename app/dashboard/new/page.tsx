@@ -17,7 +17,7 @@ export default async function NewProjectPage() {
       <WorkspaceHeader />
       <section aria-label="יצירת אתר חדש">
         <h1 className="sr-only">יצירת האתר שלכם</h1>
-        <NewProjectBriefForm userId={user.id} />
+        <NewProjectBriefForm userId={user.id} stockPhotosAvailable={Boolean(process.env.PEXELS_API_KEY)} />
       </section>
     </main>
   );

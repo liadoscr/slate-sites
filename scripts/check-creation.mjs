@@ -134,6 +134,17 @@ for (const creation of [undefined, legacySettings, { ...settings, motion: 'untru
   assert.equal(themeFor(noOptIn.plan).motion, 'off', 'AI output cannot opt a site into animations');
 }
 console.log('PASS generation uses the explicit animation setting and ignores model-injected motion');
+const automatic = { ...defaultCreationSettings(), creationMode: 'automatic', imageSource: 'stock', contactPreference: 'form' };
+assert.deepEqual(parseCreationSettings(automatic), automatic);
+output = { ...plan, stockSubject: 'butcher', theme: { ...plan.theme, layout: 'editorial' } };
+const quick = await engine.generateSitePlan({ businessName: 'העסק שלי', businessStory: 'קצבייה משפחתית', designReferences: [], creation: automatic });
+assert.equal(quick.plan.theme.layout, 'editorial', 'automatic layout is not overwritten by the default starter');
+assert.equal(quick.plan.contactPreference, 'form');
+assert.deepEqual(quick.stockQueries, ['fresh meat butcher counter']);
+assert.ok(modelInput.config.responseJsonSchema.required.includes('stockSubject'));
+output = { ...plan, stockSubject: 'private@example.com 0501234567 https://evil.test' };
+assert.deepEqual((await engine.generateSitePlan({ businessName: 'עסק', designReferences: [], creation: automatic })).stockQueries, []);
+console.log('PASS automatic mode round-trip, model layout choice, blank-contact form default and allowlisted outbound stock query');
 output = { layout: 'band', tone: 'accent', headline: 'malicious text change' };
 const original = { id: 'about', kind: 'about', label: 'אודות', headline: 'קיים', body: 'תוכן מקורי', imageId: photoId };
 assert.deepEqual(await engine.redesignSection(original, 'פס צבע', plan.theme), { ...original, presentation: { layout: 'band', tone: 'accent' } });

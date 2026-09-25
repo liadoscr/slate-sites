@@ -19,6 +19,8 @@ export type CreationImage = {
 };
 export type CreationSettings = {
   schemaVersion: 1;
+  creationMode?: 'guided' | 'automatic';
+  imageSource?: 'uploads' | 'stock';
   referenceAssetId: string | null;
   referenceFocus: 'structure' | 'colors' | 'both';
   starter: 'minimal' | 'editorial' | 'bold';
@@ -33,7 +35,7 @@ export type CreationSettings = {
 
 export function defaultCreationSettings(): CreationSettings {
   return {
-    schemaVersion: 1, referenceAssetId: null, referenceFocus: 'both',
+    schemaVersion: 1, creationMode: 'guided', imageSource: 'uploads', referenceAssetId: null, referenceFocus: 'both',
     starter: 'minimal', motion: 'off', brandColor: '', notes: '', contactPreference: 'whatsapp',
     images: [], locks: { design: false, text: false },
   };

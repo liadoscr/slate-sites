@@ -7,7 +7,7 @@ export type SiteLayout = 'split' | 'editorial' | 'centered' | 'immersive' | 'ben
 export type SiteMotion = 'off' | 'subtle' | 'expressive';
 export function motionFor(value: unknown): SiteMotion { return value === 'subtle' || value === 'expressive' ? value : 'off'; }
 export type SiteTheme = { layout: SiteLayout; accent: string; font: 'modern' | 'editorial'; corners: 'soft' | 'square'; mode?: 'light' | 'dark'; density?: 'airy' | 'compact'; motion?: SiteMotion };
-export type SiteImage = { id: string; path: string; alt: string; role: 'logo' | 'hero' | 'gallery'; mimeType: string; focalPoint?: { x: number; y: number; mobileX: number; mobileY: number } };
+export type SiteImage = { id: string; path: string; alt: string; role: 'logo' | 'hero' | 'gallery'; mimeType: string; attribution?: import('@/lib/stock/attribution').StockAttribution; focalPoint?: { x: number; y: number; mobileX: number; mobileY: number } };
 export type BusinessSnapshot = { name: string; type: string; location: string; email: string; phone: string; whatsapp: string };
 export type GeneratedSitePlan = {
   version: 1; siteTitle: string; positioning: string;

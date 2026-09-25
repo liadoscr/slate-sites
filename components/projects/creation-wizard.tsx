@@ -102,7 +102,7 @@ export function CreationWizard({ userId, projectId: existingId, initialBrief }: 
   }, [existingId, initialBrief, storageKey, userId]);
 
   function updateBrief(key: keyof CreationBrief, value: string) { const next = { ...latest.current.brief, [key]: value }; latest.current = { ...latest.current, brief: next }; setBrief(next); }
-  function updateSettings(patch: Partial<CreationSettings>) { const next = { ...latest.current.settings, ...patch }; latest.current = { ...latest.current, settings: next }; setSettings(next); }
+  function updateSettings(patch: Partial<CreationSettings>) { const next = { ...latest.current.settings, ...(('starter' in patch || 'referenceFocus' in patch) ? { creationMode: 'guided' as const } : {}), ...patch }; latest.current = { ...latest.current, settings: next }; setSettings(next); }
   function saveDraft() {
     const snapshot = latest.current;
     const serialized = JSON.stringify(snapshot);
@@ -185,7 +185,7 @@ export function CreationWizard({ userId, projectId: existingId, initialBrief }: 
         const form = new FormData(); form.set('file', file); form.set('role', placedRole); form.set('alt', role === 'reference' ? 'תמונת השראה לעיצוב' : file.name.replace(/\.[^.]+$/, '').slice(0, 180) || 'תמונת העסק');
         const result = await jsonRequest(`/api/projects/${project}/assets`, { method: 'POST', body: form });
         setAssets(previous => [...previous.filter(asset => asset.id !== result.asset.id), result.asset]);
-        nextSettings = { ...nextSettings, images: [...nextSettings.images, result.image], ...(role === 'reference' ? { referenceAssetId: result.image.id, analysis: undefined } : {}) };
+        nextSettings = { ...nextSettings, images: [...nextSettings.images, result.image], ...(role === 'reference' ? { referenceAssetId: result.image.id, analysis: undefined, creationMode: 'guided' as const } : {}) };
         // Save each successful selection separately, including after partial upload failure.
         const stored = await jsonRequest(`/api/projects/${project}/creation`, writeRequest('PUT', { settings: nextSettings }));
         nextSettings = stored.settings ?? nextSettings;
@@ -201,7 +201,7 @@ export function CreationWizard({ userId, projectId: existingId, initialBrief }: 
     if (!ready || busy || actionInFlight.current) return;
     if (generate && !aiConsent) { setError('אשרו את שליחת התוכן והתמונות שנבחרו ל־Gemini.'); return; }
     if (generate && ![brief.businessStory, brief.websiteCopy, brief.primaryGoal].some(value => value.trim())) { setError('ספרו לפחות משפט אחד על העסק.'); setStep(0); return; }
-    if (generate && !settings.images.some(image => image.role === 'hero' || image.role === 'gallery') && !withoutPhotos) {
+    if (generate && settings.imageSource !== 'stock' && !settings.images.some(image => image.role === 'hero' || image.role === 'gallery') && !withoutPhotos) {
       setError('הוסיפו תמונות עסק או בחרו במפורש ליצור בלי תמונות.'); return;
     }
     actionInFlight.current = true;
@@ -286,6 +286,7 @@ export function CreationWizard({ userId, projectId: existingId, initialBrief }: 
           <p className={styles.hint}>האתר יותאם לעסק ולעברית לפי אפשרויות העיצוב הנתמכות. זו השראה, לא העתק מדויק של צילום המסך.</p>
         </> : null}
         {step === 2 ? <>
+          {settings.imageSource === 'stock' ? <div className={styles.notice}><b>בחירת תמונות מאגר אוטומטית</b><p>היצירה תחפש צילומים להמחשה ב־Pexels לפי תחום העסק. אלה לא תמונות אמיתיות של העסק או הצוות. אפשר להחליף אותן בתצוגה המקדימה.</p><button type="button" className={styles.textButton} onClick={() => updateSettings({ imageSource: 'uploads' })}>להשתמש רק בתמונות שלי או ליצור בלי תמונות</button></div> : null}
           {settings.analysis ? <div className={styles.directionSummary}><b>הכיוון שלכם</b><p>{settings.analysis.summary}</p><button className={styles.textButton} type="button" onClick={() => void goTo(1)}>שינוי הכיוון</button></div> : null}
           <div className={styles.imageRoles}>
             {reference ? <div className={styles.referenceSummary}>{reference.url ? <img src={reference.url} alt="" /> : null}<div><b>דוגמת עיצוב</b><p>פרטית. לא תופיע באתר.</p></div></div> : null}
@@ -293,7 +294,7 @@ export function CreationWizard({ userId, projectId: existingId, initialBrief }: 
               <p className={styles.hint} id="business-upload-notice">העלו תמונות ולוגו שבבעלותכם או שיש לכם הרשאה לפרסם באתר.</p>
               <label className={styles.uploadBusiness}><b>+ הוספת תמונות עסק</b><input type="file" multiple accept="image/jpeg,image/png,image/webp" aria-describedby="business-upload-notice" onChange={event => { void upload(Array.from(event.target.files ?? []), 'gallery'); event.target.value = ''; }} /><span>עד 6 קבצים כולל דוגמת העיצוב והלוגו · עד 4MB לקובץ ו־12MB בסך הכול</span></label>
               <div className={styles.photoGrid}>{photos.map(image => { const asset = assets.find(item => item.id === image.id); return <div key={image.id}>{asset?.url ? <img src={asset.url} alt={image.alt} /> : <span>התמונה נשמרה</span>}<span>{image.role === 'hero' ? 'תמונה ראשית' : 'תמונת עסק'}</span><button type="button" className={styles.textButton} onClick={() => removeImage(image.id)}>הסרה</button></div>; })}</div>
-              {!photos.length ? <div className={styles.warning}><b>אין עדיין תמונות להצגה באתר</b><p>{reference ? 'התמונות שבתוך דוגמת העיצוב לא מועתקות לאתר. בלי תמונות עסק, הטיוטה תהיה מבוססת טקסט ותיראה שונה מדוגמה עשירה בצילום.' : 'אפשר ליצור טיוטה מבוססת טקסט ולהוסיף תמונות בהמשך.'}</p><label className={styles.check}><input type="checkbox" checked={withoutPhotos} onChange={event => setWithoutPhotos(event.target.checked)} />ליצור בלי תמונות עסק כרגע</label></div> : null}
+              {!photos.length && settings.imageSource !== 'stock' ? <div className={styles.warning}><b>אין עדיין תמונות להצגה באתר</b><p>{reference ? 'התמונות שבתוך דוגמת העיצוב לא מועתקות לאתר. בלי תמונות עסק, הטיוטה תהיה מבוססת טקסט ותיראה שונה מדוגמה עשירה בצילום.' : 'אפשר ליצור טיוטה מבוססת טקסט ולהוסיף תמונות בהמשך.'}</p><label className={styles.check}><input type="checkbox" checked={withoutPhotos} onChange={event => setWithoutPhotos(event.target.checked)} />ליצור בלי תמונות עסק כרגע</label></div> : null}
             </div>
           </div>
           <details className={styles.more}><summary>{logo ? 'הלוגו שלכם — שינוי או הסרה' : 'יש לכם לוגו? הוסיפו אותו כאן — לא חובה'}</summary>{logo ? <div className={styles.logoPreview}><img src={assets.find(asset => asset.id === logo.id)?.url || ''} alt={logo.alt} /><button type="button" className={styles.textButton} onClick={() => removeImage(logo.id)}>הסרת הלוגו</button></div> : null}<input type="file" aria-label="העלאת לוגו" aria-describedby="business-upload-notice" accept="image/jpeg,image/png,image/webp" onChange={event => { void upload(Array.from(event.target.files ?? []).slice(0, 1), 'logo'); event.target.value = ''; }} /></details>
@@ -302,7 +303,7 @@ export function CreationWizard({ userId, projectId: existingId, initialBrief }: 
           {(!brief.contactPhone && ['phone', 'whatsapp'].includes(settings.contactPreference)) || (!brief.contactEmail && settings.contactPreference === 'email') ? <p className={styles.warning}>הוסיפו את פרט הקשר שבחרתם. בינתיים אפשר ליצור טיוטה פרטית ולתקן לפני הפרסום.</p> : null}
           <details className={styles.more}><summary>עוד תוכן וקישורים — לא חובה</summary><label className={styles.field}>מה עוד חשוב שיופיע?<textarea value={brief.websiteCopy} maxLength={4000} onChange={event => updateBrief('websiteCopy', event.target.value)} placeholder="שעות פעילות, שירותים, שאלות נפוצות או המלצות אמיתיות…" /></label>{input('קישורים לעסק', 'importantLinks', 'Instagram, Google Maps…', 'text', 1200)}{input('טלפון נוסף / שמור', 'contactPhone', '', 'tel', 40)}{input('אימייל נוסף / שמור', 'contactEmail', '', 'email', 254)}</details>
           <div className={styles.notice}><b>השלב הבא: רואים את האתר שלכם</b><p>ניצור טיוטה פרטית ונפתח אותה אוטומטית. תוכלו לשנות טקסט, תמונות ועיצוב לפני הפרסום.</p></div>
-          <label className={styles.check}><input type="checkbox" checked={aiConsent} onChange={event => setAiConsent(event.target.checked)} />מאשר/ת לשלוח ל־Google Gemini את פרטי העסק והתמונות שנבחרו ליצירת האתר. לא כללתי מידע רגיש. היצירה משתמשת בפעולת AI אחת ממכסת הבטא.</label>
+          <label className={styles.check}><input type="checkbox" checked={aiConsent} onChange={event => setAiConsent(event.target.checked)} />מאשר/ת לשלוח ל־Google Gemini את פרטי העסק והתמונות שנבחרו ליצירת האתר. {settings.imageSource === 'stock' ? 'מאשר/ת גם חיפוש תמונות ב־Pexels באמצעות מילות חיפוש כלליות בלבד. ' : ''}לא כללתי מידע רגיש. היצירה משתמשת בפעולת AI אחת ממכסת הבטא.</label>
         </> : null}
         {(step === 1 || step === 2) && availableAssets.some(asset => (step === 1) === asset.storage_path.includes('/reference/')) ? <details className={styles.more}><summary>תמונות שכבר העליתם</summary><div className={styles.library}>{availableAssets.filter(asset => (step === 1) === asset.storage_path.includes('/reference/')).map(asset => <button key={asset.id} type="button" onClick={() => { addExisting(asset); if (step === 1) setDesignChoice('reference'); }}>{asset.url ? <img src={asset.url} alt="" /> : null}<span>{asset.original_name}</span><small>הוספה +</small></button>)}</div></details> : null}
       </fieldset>

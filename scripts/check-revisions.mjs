@@ -76,6 +76,8 @@ mocks.set('@/lib/ai/gemini', {
   redesignSection: async section => { state.modelCalls++; return { ...section, id: 'untrusted-id', headline: 'טקסט לא מורשה', imageId: 'untrusted-image', presentation: { layout: 'cards', tone: 'muted' } }; },
 });
 mocks.set('@/lib/sites/workspace-server', {
+  selectedImages: async (_project, choices) => choices,
+  snapshotImages: async (_project, _request, choices) => choices.map(choice => ({ ...choice, path: `${projectId}/snapshot/${choice.id}`, mimeType: 'image/jpeg' })),
   appendVersion: async (project, actor, content, expected, request, proposal) => {
     state.appends.push({ project, actor, content: structuredClone(content), expected, request, proposal });
     return { id: sourceId, version_number: 2, content };
@@ -253,4 +255,32 @@ await check('lock comparison ignores property insertion order but protects struc
   assert.ok(revisionLockError(plan, { ...structuredClone(plan), template: 'another-renderer' }, { design: true, text: false }));
 });
 
+await check('stock photo replacement creates a private proposal without AI or changing other sections', async () => {
+  const assetId = '77777777-7777-4777-8777-777777777777';
+  const result = await post({ mode: 'replace-image', sectionId: 'site-header', assetId, alt: 'צילום אמיתי של העסק' });
+  assert.equal(result.status, 200); assert.equal(result.body.proposal, true);
+  assert.equal(result.body.plan.heroImageId, assetId);
+  assert.equal(result.body.plan.sections[1].imageId, imageId, 'shared old image remains assigned to other section');
+  assert.ok(result.body.plan.images.some(image => image.id === imageId));
+  assert.ok(result.body.plan.images.some(image => image.id === assetId && !image.attribution));
+  assert.deepEqual(state.versions.get(baseId).content, plan);
+  assert.equal(state.modelCalls, 0);
+});
+await check('replacing a section image preserves a shared implicit gallery hero', async () => {
+  const content = state.versions.get(baseId).content;
+  delete content.heroImageId;
+  content.images[0].role = 'gallery';
+  const result = await post({ mode: 'replace-image', sectionId: 'about', assetId: '77777777-7777-4777-8777-777777777777', alt: 'תמונת העסק' });
+  assert.equal(result.status, 200);
+  assert.equal(result.body.plan.images.find(image => image.role === 'gallery').id, imageId);
+  assert.equal(result.body.plan.sections[1].imageId, '77777777-7777-4777-8777-777777777777');
+});
+await check('replacement honors locks, validates section/asset and fences a mid-request lock', async () => {
+  const values={mode:'replace-image',sectionId:'site-header',assetId:'77777777-7777-4777-8777-777777777777',alt:'תמונה'};
+  for(const lock of ['design','text']) {state.locks[lock]=true; assert.equal((await post(values)).status,409);state.locks[lock]=false;}
+  assert.equal((await post({...values,assetId:'invalid'})).status,422);
+  assert.equal((await post({...values,sectionId:'missing'})).status,422);
+  state.locksSequence=[{design:false,text:false},{design:true,text:false}];
+  assert.equal((await post(values)).status,409); assert.equal(state.appends.length,0);
+});
 console.log(`${checks} revision checks passed. No real database writes or AI calls were made.`);

@@ -30,6 +30,8 @@ export function parseCreationSettings(value: unknown): CreationSettings {
   if (brandColor && !/^#[0-9a-f]{6}$/i.test(brandColor)) throw new Error('צבע המותג אינו תקין.');
   return {
     schemaVersion: 1,
+    creationMode: input.creationMode === 'automatic' ? 'automatic' : 'guided',
+    imageSource: input.imageSource === 'stock' ? 'stock' : 'uploads',
     referenceAssetId: reference?.id ?? null,
     referenceFocus: ['structure', 'colors', 'both'].includes(input.referenceFocus) ? input.referenceFocus : defaults.referenceFocus,
     starter: ['minimal', 'editorial', 'bold'].includes(input.starter) ? input.starter : defaults.starter,

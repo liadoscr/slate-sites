@@ -8,7 +8,7 @@ import { redesignSection, rewriteSection } from '@/lib/ai/gemini';
 import { loadCreationSettings } from '@/lib/creation/server';
 import { cleanText, focalPointFor, isSitePlan, themeFor, safeAccent, safeEmail, safePhone, whatsappNumber, uuidPattern, type SiteSection } from '@/lib/sites/document';
 import { revisionLockError } from '@/lib/sites/revision-locks';
-import { appendVersion, workspaceError } from '@/lib/sites/workspace-server';
+import { appendVersion, selectedImages, snapshotImages, workspaceError } from '@/lib/sites/workspace-server';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120;
@@ -60,10 +60,38 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
       const email = safeEmail(body.email);
       if ((cleanText(body.phone) && !phone) || (cleanText(body.email) && !email)) return NextResponse.json({ error: 'בדקו שהטלפון והאימייל תקינים.' }, { status: 422 });
       if (!plan.business || !['whatsapp', 'phone', 'email', 'form'].includes(body.contactPreference)) return NextResponse.json({ error: 'בחרו דרך יצירת קשר.' }, { status: 422 });
+      const businessName = 'businessName' in body ? cleanText(body.businessName, 121) : plan.business.name;
+      const location = 'location' in body ? cleanText(body.location, 121) : plan.business.location;
+      if ('businessName' in body && (typeof body.businessName !== 'string' || businessName.length < 2 || businessName.length > 120 || !/[\p{L}\p{N}]/u.test(businessName))) return NextResponse.json({ error: 'הוסיפו שם עסק באורך 2 עד 120 תווים.' }, { status: 422 });
+      if ('location' in body && (typeof body.location !== 'string' || location.length > 120)) return NextResponse.json({ error: 'הכתובת או אזור הפעילות יכולים להכיל עד 120 תווים.' }, { status: 422 });
       const whatsapp = body.whatsapp === true && phone ? whatsappNumber(phone) : '';
       if ((body.contactPreference === 'whatsapp' && !whatsapp) || (body.contactPreference === 'phone' && !phone) || (body.contactPreference === 'email' && !email)) return NextResponse.json({ error: 'השלימו את פרטי הקשר של הפעולה הראשית שבחרתם.' }, { status: 422 });
-      plan.business = { ...plan.business, phone, email, whatsapp };
+      // Like other contact edits, these details belong to the reviewed version.
+      // Keep the creation brief separate; saving a proposal must not mutate it.
+      plan.business = { ...plan.business, name: businessName, location, phone, email, whatsapp };
       plan.contactPreference = body.contactPreference;
+    } else if (body.mode === 'replace-image') {
+      if (settings.locks.design || settings.locks.text) return NextResponse.json({ error: 'החלפת תמונה משנה גם עיצוב וגם תיאור. בטלו קודם את הנעילות.' }, { status: 409 });
+      const header = body.sectionId === 'site-header';
+      const section = plan.sections.find(item => item.id === body.sectionId && !['hero', 'contact'].includes(item.kind ?? ''));
+      const alt = cleanText(body.alt, 180);
+      if ((!header && !section) || !uuidPattern.test(body.assetId) || !alt) return NextResponse.json({ error: 'בחרו מקטע, תמונת עסק ותיאור.' }, { status: 422 });
+      const { data: previous } = await client.from('site_versions').select('id,content,version_number').eq('project_id', projectId).eq('request_id', body.requestId).maybeSingle();
+      if (previous) return NextResponse.json({ versionId: previous.id, versionNumber: previous.version_number, proposal: true, plan: previous.content });
+      const effectiveHeroId = plan.heroImageId === null ? undefined : (plan.images?.find(image => image.id === plan.heroImageId && image.role !== 'logo') ?? plan.images?.find(image => image.role === 'hero') ?? plan.images?.find(image => image.role === 'gallery'))?.id;
+      const oldId = header ? effectiveHeroId : section!.imageId;
+      // Discard only an unused image from the new snapshot, never files or previous versions.
+      const keep = (plan.images ?? []).filter(image => image.id !== oldId || image.role === 'logo' ||
+        plan.sections.some(item => item.id !== body.sectionId && !['hero', 'contact'].includes(item.kind ?? '') && item.imageId === oldId) ||
+        (!header && effectiveHeroId === oldId));
+      if (keep.length >= 12) return NextResponse.json({ error: 'הגרסה מכילה מספיק תמונות. בחרו תמונה קיימת מהמקטע.' }, { status: 422 });
+      const selected = await selectedImages(projectId, [{ id: body.assetId, role: 'gallery', alt }]);
+      // A fresh storage namespace also permits retry after an unsuccessful version save.
+      const [replacement] = await snapshotImages(projectId, crypto.randomUUID(), selected);
+      if (!replacement) throw new Error('לא הצלחנו להכין את התמונה.');
+      plan.images = [...keep.filter(image => image.id !== replacement.id), { ...replacement, role: header ? 'hero' : 'gallery' }];
+      if (header) plan.heroImageId = replacement.id;
+      else section!.imageId = replacement.id;
     } else if (body.mode === 'image') {
       const image = plan.images?.find(item => item.id === body.imageId && ['logo', 'hero', 'gallery'].includes(item.role));
       if (!image) return NextResponse.json({ error: 'התמונה אינה נמצאת בגרסה הזו.' }, { status: 422 });
