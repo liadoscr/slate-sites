@@ -1,5 +1,5 @@
 import { after, NextResponse } from 'next/server';
-import { logOperationError, withErrorReference } from '@/lib/observability/errors';
+import { logOperationError, logStockOutcome, withErrorReference } from '@/lib/observability/errors';
 import { readJson } from '@/lib/http/request';
 import { generateSitePlan } from '@/lib/ai/gemini';
 import { getCurrentUser } from '@/lib/data/current-user';
@@ -83,8 +83,10 @@ export async function POST(request: Request, { params }: Context) {
         if (settings.imageSource === 'stock') {
           phase = 'sourcing';
           try {
-            const stock = Date.now() + 30_000 < new Date(job.expires_at).getTime()
+            const hasPhotoBudget = Date.now() + 30_000 < new Date(job.expires_at).getTime();
+            const stock = hasPhotoBudget
               ? await snapshotStockPhotos(projectId, job.id, stockQueries, 6 - plan.images.length) : [];
+            logStockOutcome({ projectId, jobId: job.id }, !stockQueries.length ? 'no_subject' : !hasPhotoBudget ? 'budget_exhausted' : stock.length ? 'added' : 'no_usable_photos', stock.length);
             placeStockPhotos(plan, stock);
             if (!stock.length) plan.reviewNotes = [...plan.reviewNotes, 'לא נמצאו תמונות מאגר מתאימות בזמן היצירה. הטיוטה נשמרה; אפשר להוסיף תמונות משלכם בתצוגה המקדימה.'].slice(-6);
           } catch (stockError) {

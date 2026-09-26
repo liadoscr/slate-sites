@@ -26,3 +26,14 @@ try {
   assert.doesNotThrow(()=>logOperationError(new Error('failure'),{operation:'analyze',projectId:'invalid'}));
 } finally { console.error=original; }
 console.log('PASS structured error references, classification, privacy allowlist and logging failure safety');
+const originalInfo = console.info;
+try {
+  console.info = value => { output = value; };
+  module.exports.logStockOutcome({ projectId: 'private@example.com', jobId: 'SECRET', prompt: 'PRIVATE_PROMPT' }, 'no_subject', 99);
+  assert.equal(JSON.parse(output).outcome, 'no_subject');
+  assert.equal(JSON.parse(output).count, 3);
+  assert.doesNotMatch(output, /SECRET|private@|PRIVATE|prompt/);
+  console.info = () => { throw new Error('logger unavailable'); };
+  assert.doesNotThrow(() => module.exports.logStockOutcome({projectId:'',jobId:''}, 'added', 1));
+} finally { console.info = originalInfo; }
+console.log('PASS bounded stock-selection outcome logging without queries or private data');

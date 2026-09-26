@@ -41,3 +41,16 @@ export function logOperationError(error: unknown, context: Context): string {
 export function withErrorReference(message: string, reference: string) {
   return `${message} (קוד תקלה: ${reference})`;
 }
+
+/** No prompts, queries, keys or provider bodies: only bounded photo-stage outcomes. */
+export function logStockOutcome(context: { projectId: string; jobId: string }, outcome: 'no_subject' | 'budget_exhausted' | 'no_usable_photos' | 'added', count: number) {
+  const uuid = /^[0-9a-f-]{36}$/i;
+  try {
+    console.info(JSON.stringify({ event: 'slate.stock_selection', timestamp: new Date().toISOString(),
+      projectId: uuid.test(context.projectId) ? context.projectId : undefined,
+      jobId: uuid.test(context.jobId) ? context.jobId : undefined,
+      outcome: ['no_subject', 'budget_exhausted', 'no_usable_photos', 'added'].includes(outcome) ? outcome : undefined,
+      count: Number.isFinite(count) ? Math.max(0, Math.min(3, Math.floor(count))) : 0,
+    }));
+  } catch { /* Observability must not prevent saving the draft. */ }
+}
